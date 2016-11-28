@@ -27,3 +27,8 @@
 *.exe
 *.out
 *.app
+
+# Dev-studio crap...
+.vs/
+*.VC.*
+Debug/
