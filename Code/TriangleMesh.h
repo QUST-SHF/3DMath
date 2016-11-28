@@ -39,6 +39,7 @@ public:
 
 	bool FindConvexHull( void );
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
+	void CalculateNormals( void );
 
 	struct Vertex
 	{

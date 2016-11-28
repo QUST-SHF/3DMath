@@ -108,6 +108,35 @@ void TriangleMesh::AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle )
 	triangleList.push_back( givenIndexTriangle );
 }
 
+void TriangleMesh::CalculateNormals( void )
+{
+	for( int i = 0; i < ( int )vertexArray.size(); i++ )
+	{
+		Vertex* vertex = &vertexArray[i];
+		vertex->normal.Set( 0.0, 0.0, 0.0 );
+	}
+
+	for( IndexTriangleList::iterator iter = triangleList.begin(); iter != triangleList.end(); iter++ )
+	{
+		IndexTriangle& indexTriangle = *iter;
+
+		Plane plane;
+		indexTriangle.GetPlane( plane );
+
+		for( int i = 0; i < 3; i++ )
+		{
+			Vertex* vertex = &vertexArray[ indexTriangle.vertex[i] ];
+			vertex->normal.Add( plane.normal );
+		}
+	}
+
+	for( int i = 0; i < ( int )vertexArray.size(); i++ )
+	{
+		Vertex* vertex = &vertexArray[i];
+		vertex->normal.Normalize();
+	}
+}
+
 TriangleMesh::IndexTriangle::IndexTriangle( int vertex0, int vertex1, int vertex2, TriangleMesh* mesh )
 {
 	this->mesh = mesh;
