@@ -31,8 +31,8 @@ void ParticleSystem::Simulate( double currentTime )
 
 void ParticleSystem::CullDeadParticles( double currentTime )
 {
-	ObjectMap::iterator iter = particleCollection.objectMap.begin();
-	while( iter != particleCollection.objectMap.end() )
+	ObjectMap::iterator iter = particleCollection.objectMap->begin();
+	while( iter != particleCollection.objectMap->end() )
 	{
 		ObjectMap::iterator nextIter = iter;
 		nextIter++;
@@ -40,7 +40,7 @@ void ParticleSystem::CullDeadParticles( double currentTime )
 		Particle* particle = ( Particle* )iter->second;
 		if( particle->timeOfDeath != 0.0 && particle->timeOfDeath <= currentTime )
 		{
-			particleCollection.objectMap.erase( iter );
+			particleCollection.objectMap->erase( iter );
 			delete particle;
 		}
 
@@ -50,8 +50,8 @@ void ParticleSystem::CullDeadParticles( double currentTime )
 
 void ParticleSystem::ResetParticlePhysics( void )
 {
-	ObjectMap::iterator iter = particleCollection.objectMap.begin();
-	while( iter != particleCollection.objectMap.end() )
+	ObjectMap::iterator iter = particleCollection.objectMap->begin();
+	while( iter != particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
 		particle->netForce.Set( 0.0, 0.0, 0.0 );
@@ -61,8 +61,8 @@ void ParticleSystem::ResetParticlePhysics( void )
 
 void ParticleSystem::AccumulateForces( void )
 {
-	ObjectMap::iterator iter = forceCollection.objectMap.begin();
-	while( iter != forceCollection.objectMap.end() )
+	ObjectMap::iterator iter = forceCollection.objectMap->begin();
+	while( iter != forceCollection.objectMap->end() )
 	{
 		ObjectMap::iterator nextIter = iter;
 		nextIter++;
@@ -73,7 +73,7 @@ void ParticleSystem::AccumulateForces( void )
 		if( force->transient )
 		{
 			delete force;
-			forceCollection.objectMap.erase( iter );
+			forceCollection.objectMap->erase( iter );
 		}
 
 		iter = nextIter;
@@ -87,8 +87,8 @@ void ParticleSystem::IntegrateParticles( double currentTime )
 	
 	double deltaTime = currentTime - previousTime;
 
-	ObjectMap::iterator iter = particleCollection.objectMap.begin();
-	while( iter != particleCollection.objectMap.end() )
+	ObjectMap::iterator iter = particleCollection.objectMap->begin();
+	while( iter != particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
 		particle->Integrate( deltaTime );
@@ -100,8 +100,8 @@ void ParticleSystem::IntegrateParticles( double currentTime )
 
 void ParticleSystem::ResolveCollisions( void )
 {
-	ObjectMap::iterator iter = particleCollection.objectMap.begin();
-	while( iter != particleCollection.objectMap.end() )
+	ObjectMap::iterator iter = particleCollection.objectMap->begin();
+	while( iter != particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
 
@@ -113,8 +113,8 @@ void ParticleSystem::ResolveCollisions( void )
 		impactInfo.lineOfMotion.vertex[0] = particle->previousPosition;
 		particle->GetPosition( impactInfo.lineOfMotion.vertex[1] );
 
-		ObjectMap::iterator collisionIter = collisionObjectCollection.objectMap.begin();
-		while( collisionIter != collisionObjectCollection.objectMap.end() )
+		ObjectMap::iterator collisionIter = collisionObjectCollection.objectMap->begin();
+		while( collisionIter != collisionObjectCollection.objectMap->end() )
 		{
 			CollisionObject* collisionObject = ( CollisionObject* )collisionIter->second;
 
@@ -142,8 +142,8 @@ void ParticleSystem::CalculateCenterOfMass( void )
 	double totalMass = 0.0;
 	Vector totalMoments( 0.0, 0.0, 0.0 );
 
-	ObjectMap::iterator iter = particleCollection.objectMap.begin();
-	while( iter != particleCollection.objectMap.end() )
+	ObjectMap::iterator iter = particleCollection.objectMap->begin();
+	while( iter != particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
 
@@ -209,16 +209,16 @@ ParticleSystem::MeshVertexParticle::MeshVertexParticle( void )
 
 /*virtual*/ void ParticleSystem::MeshVertexParticle::GetPosition( Vector& position ) const
 {
-	if( !mesh || index >= ( int )mesh->vertexArray.size() )
+	if( !mesh )
 		position.Set( 0.0, 0.0, 0.0 );
 	else
-		position = mesh->vertexArray[ index ].position;
+		mesh->GetVertexPosition( index, position );
 }
 
 /*virtual*/ void ParticleSystem::MeshVertexParticle::SetPosition( const Vector& position )
 {
-	if( mesh && index < ( int )mesh->vertexArray.size() )
-		mesh->vertexArray[ index ].position = position;
+	if( mesh )
+		mesh->SetVertexPosition( index, position );
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -237,8 +237,8 @@ ParticleSystem::Force::Force( void )
 
 /*virtual*/ void ParticleSystem::Force::Apply( ParticleSystem* system )
 {
-	ObjectMap::iterator iter = system->particleCollection.objectMap.begin();
-	while( iter != system->particleCollection.objectMap.end() )
+	ObjectMap::iterator iter = system->particleCollection.objectMap->begin();
+	while( iter != system->particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
 		Apply( system, particle );

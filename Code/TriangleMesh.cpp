@@ -9,31 +9,35 @@ using namespace _3DMath;
 
 TriangleMesh::TriangleMesh( void )
 {
+	vertexArray = new VertexArray();
+	triangleList = new IndexTriangleList();
 }
 
 /*virtual*/ TriangleMesh::~TriangleMesh( void )
 {
+	delete vertexArray;
+	delete triangleList;
 }
 
 bool TriangleMesh::FindConvexHull( void )
 {
-	if( vertexArray.size() < 4 )
+	if( vertexArray->size() < 4 )
 		return false;
 
-	triangleList.clear();
+	triangleList->clear();
 
 	VectorArray pointCloud;
-	while( vertexArray.size() > 4 )
+	while( vertexArray->size() > 4 )
 	{
-		pointCloud.push_back( vertexArray.back().position );
-		vertexArray.pop_back();
+		pointCloud.push_back( vertexArray->back().position );
+		vertexArray->pop_back();
 	}
 
 	LinearTransform linearTransform;
 
-	linearTransform.xAxis.Subtract( vertexArray[1].position, vertexArray[0].position );
-	linearTransform.yAxis.Subtract( vertexArray[2].position, vertexArray[0].position );
-	linearTransform.zAxis.Subtract( vertexArray[3].position, vertexArray[0].position );
+	linearTransform.xAxis.Subtract( ( *vertexArray )[1].position, ( *vertexArray )[0].position );
+	linearTransform.yAxis.Subtract( ( *vertexArray )[2].position, ( *vertexArray )[0].position );
+	linearTransform.zAxis.Subtract( ( *vertexArray )[3].position, ( *vertexArray )[0].position );
 
 	if( linearTransform.Determinant() > 0.0 )
 	{
@@ -57,16 +61,16 @@ bool TriangleMesh::FindConvexHull( void )
 
 		Vertex vertex;
 		vertex.position = point;
-		vertexArray.push_back( vertex );
+		vertexArray->push_back( vertex );
 
-		int index = vertexArray.size() - 1;
+		int index = vertexArray->size() - 1;
 
 		bool keepGoing = true;
 		while( keepGoing )
 		{
 			keepGoing = false;
 
-			for( IndexTriangleList::iterator iter = triangleList.begin(); iter != triangleList.end(); iter++ )
+			for( IndexTriangleList::iterator iter = triangleList->begin(); iter != triangleList->end(); iter++ )
 			{
 				IndexTriangle& indexTriangle = *iter;
 
@@ -95,28 +99,28 @@ bool TriangleMesh::FindConvexHull( void )
 
 void TriangleMesh::AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle )
 {
-	for( IndexTriangleList::iterator iter = triangleList.begin(); iter != triangleList.end(); iter++ )
+	for( IndexTriangleList::iterator iter = triangleList->begin(); iter != triangleList->end(); iter++ )
 	{
 		IndexTriangle& indexTriangle = *iter;
 		if( givenIndexTriangle.CoincidentWith( indexTriangle ) )
 		{
-			triangleList.erase( iter );
+			triangleList->erase( iter );
 			return;
 		}
 	}
 
-	triangleList.push_back( givenIndexTriangle );
+	triangleList->push_back( givenIndexTriangle );
 }
 
 void TriangleMesh::CalculateNormals( void )
 {
-	for( int i = 0; i < ( int )vertexArray.size(); i++ )
+	for( int i = 0; i < ( int )vertexArray->size(); i++ )
 	{
-		Vertex* vertex = &vertexArray[i];
+		Vertex* vertex = &( *vertexArray )[i];
 		vertex->normal.Set( 0.0, 0.0, 0.0 );
 	}
 
-	for( IndexTriangleList::iterator iter = triangleList.begin(); iter != triangleList.end(); iter++ )
+	for( IndexTriangleList::iterator iter = triangleList->begin(); iter != triangleList->end(); iter++ )
 	{
 		IndexTriangle& indexTriangle = *iter;
 
@@ -125,16 +129,34 @@ void TriangleMesh::CalculateNormals( void )
 
 		for( int i = 0; i < 3; i++ )
 		{
-			Vertex* vertex = &vertexArray[ indexTriangle.vertex[i] ];
+			Vertex* vertex = &( *vertexArray )[ indexTriangle.vertex[i] ];
 			vertex->normal.Add( plane.normal );
 		}
 	}
 
-	for( int i = 0; i < ( int )vertexArray.size(); i++ )
+	for( int i = 0; i < ( int )vertexArray->size(); i++ )
 	{
-		Vertex* vertex = &vertexArray[i];
+		Vertex* vertex = &( *vertexArray )[i];
 		vertex->normal.Normalize();
 	}
+}
+
+bool TriangleMesh::SetVertexPosition( int index, const Vector& position )
+{
+	if( index < 0 || index >= ( signed )vertexArray->size() )
+		return false;
+
+	( *vertexArray )[ index ].position = position;
+	return true;
+}
+
+bool TriangleMesh::GetVertexPosition( int index, Vector& position ) const
+{
+	if( index < 0 || index >= ( signed )vertexArray->size() )
+		return false;
+
+	position = ( *vertexArray )[ index ].position;
+	return true;
 }
 
 TriangleMesh::IndexTriangle::IndexTriangle( int vertex0, int vertex1, int vertex2, TriangleMesh* mesh )
@@ -153,7 +175,7 @@ TriangleMesh::IndexTriangle::~IndexTriangle( void )
 void TriangleMesh::IndexTriangle::GetTriangle( Triangle& triangle ) const
 {
 	for( int i = 0; i < 3; i++ )
-		triangle.vertex[i] = mesh->vertexArray[ vertex[i] ].position;
+		triangle.vertex[i] = ( *mesh->vertexArray )[ vertex[i] ].position;
 }
 
 void TriangleMesh::IndexTriangle::GetPlane( Plane& plane ) const

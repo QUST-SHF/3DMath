@@ -32,7 +32,7 @@ public:
 	bool AddObject( Object* object );
 	Object* FindObject( int objectId );
 
-	ObjectMap objectMap;
+	ObjectMap* objectMap;
 	int nextId;
 };
 

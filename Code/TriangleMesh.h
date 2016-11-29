@@ -41,6 +41,9 @@ public:
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );
 
+	bool SetVertexPosition( int index, const Vector& position );
+	bool GetVertexPosition( int index, Vector& position ) const;
+
 	struct Vertex
 	{
 		Vector position;
@@ -49,8 +52,8 @@ public:
 
 	typedef std::vector< Vertex > VertexArray;
 
-	VertexArray vertexArray;
-	IndexTriangleList triangleList;
+	VertexArray* vertexArray;
+	IndexTriangleList* triangleList;
 };
 
 // TriangleMesh.h
