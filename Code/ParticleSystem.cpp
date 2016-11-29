@@ -19,6 +19,16 @@ ParticleSystem::ParticleSystem( void )
 {
 }
 
+void ParticleSystem::Clear( void )
+{
+	centerOfMass.Set( 0.0, 0.0, 0.0 );
+	previousTime = 0.0;
+
+	particleCollection.Clear();
+	forceCollection.Clear();
+	collisionObjectCollection.Clear();
+}
+
 void ParticleSystem::Simulate( double currentTime )
 {
 	CullDeadParticles( currentTime );

@@ -21,6 +21,12 @@ ObjectCollection::ObjectCollection( void )
 
 /*virtual*/ ObjectCollection::~ObjectCollection( void )
 {
+	Clear();
+	delete objectMap;
+}
+
+void ObjectCollection::Clear( void )
+{
 	while( objectMap->size() > 0 )
 	{
 		ObjectMap::iterator iter = objectMap->begin();
@@ -28,8 +34,6 @@ ObjectCollection::ObjectCollection( void )
 		delete object;
 		objectMap->erase( iter );
 	}
-
-	delete objectMap;
 }
 
 bool ObjectCollection::AddObject( Object* object )

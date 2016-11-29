@@ -19,6 +19,12 @@ TriangleMesh::TriangleMesh( void )
 	delete triangleList;
 }
 
+void TriangleMesh::Clear( void )
+{
+	vertexArray->clear();
+	triangleList->clear();
+}
+
 bool TriangleMesh::FindConvexHull( void )
 {
 	if( vertexArray->size() < 4 )

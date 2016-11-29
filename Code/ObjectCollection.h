@@ -31,6 +31,7 @@ public:
 
 	bool AddObject( Object* object );
 	Object* FindObject( int objectId );
+	void Clear( void );
 
 	ObjectMap* objectMap;
 	int nextId;

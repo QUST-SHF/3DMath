@@ -37,6 +37,7 @@ public:
 
 	typedef std::list< IndexTriangle > IndexTriangleList;
 
+	void Clear( void );
 	bool FindConvexHull( void );
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );

@@ -23,7 +23,7 @@ public:
 	ParticleSystem( void );
 	virtual ~ParticleSystem( void );
 
-	class Particle : public Object
+	class _3DMATH_API Particle : public Object
 	{
 	public:
 
@@ -43,7 +43,7 @@ public:
 		double timeOfDeath;
 	};
 
-	class MeshVertexParticle : public Particle
+	class _3DMATH_API MeshVertexParticle : public Particle
 	{
 	public:
 
@@ -57,7 +57,7 @@ public:
 		int index;
 	};
 
-	class Force : public Object
+	class _3DMATH_API Force : public Object
 	{
 	public:
 
@@ -71,7 +71,7 @@ public:
 		bool transient;
 	};
 
-	class GenericForce : public Force
+	class _3DMATH_API GenericForce : public Force
 	{
 	public:
 
@@ -83,7 +83,7 @@ public:
 		Vector force;
 	};
 
-	class WindForce : public Force
+	class _3DMATH_API WindForce : public Force
 	{
 	public:
 
@@ -97,7 +97,7 @@ public:
 		double minStrength, maxStrength;
 	};
 
-	class GravityForce : public Force
+	class _3DMATH_API GravityForce : public Force
 	{
 	public:
 
@@ -109,7 +109,7 @@ public:
 		Vector accelDueToGravity;
 	};
 
-	class TorqueForce : public Force
+	class _3DMATH_API TorqueForce : public Force
 	{
 	public:
 
@@ -121,7 +121,7 @@ public:
 		Vector torque;
 	};
 
-	class SpringForce : public Force
+	class _3DMATH_API SpringForce : public Force
 	{
 	public:
 
@@ -135,7 +135,7 @@ public:
 		double stiffness;
 	};
 
-	struct ImpactInfo
+	struct _3DMATH_API ImpactInfo
 	{
 		LineSegment lineOfMotion;
 		Vector netForceAtImpact;
@@ -144,7 +144,7 @@ public:
 		double friction;
 	};
 
-	class FrictionForce : public Force
+	class _3DMATH_API FrictionForce : public Force
 	{
 	public:
 
@@ -157,7 +157,7 @@ public:
 		ImpactInfo impactInfo;
 	};
 
-	class CollisionObject : public Object
+	class _3DMATH_API CollisionObject : public Object
 	{
 	public:
 
@@ -167,7 +167,7 @@ public:
 		virtual bool ResolveCollision( ImpactInfo& impactInfo ) = 0;
 	};
 
-	class CollisionPlane : public CollisionObject
+	class _3DMATH_API CollisionPlane : public CollisionObject
 	{
 	public:
 
@@ -179,7 +179,7 @@ public:
 		Plane plane;
 	};
 
-	class TriangleMeshCollisionObject : public CollisionObject
+	class _3DMATH_API TriangleMeshCollisionObject : public CollisionObject
 	{
 	public:
 
@@ -191,6 +191,7 @@ public:
 		TriangleMesh* mesh;
 	};
 
+	void Clear( void );
 	void Simulate( double currentTime );
 
 	ObjectCollection particleCollection;
