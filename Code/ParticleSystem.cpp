@@ -27,6 +27,7 @@ void ParticleSystem::Clear( void )
 	particleCollection.Clear();
 	forceCollection.Clear();
 	collisionObjectCollection.Clear();
+	emitterCollection.Clear();
 }
 
 void ParticleSystem::Simulate( double currentTime )
@@ -94,7 +95,7 @@ void ParticleSystem::IntegrateParticles( double currentTime )
 {
 	if( previousTime == 0.0 )
 		previousTime = currentTime;
-	
+
 	double deltaTime = currentTime - previousTime;
 
 	ObjectMap::iterator iter = particleCollection.objectMap->begin();
@@ -191,6 +192,9 @@ ParticleSystem::Particle::Particle( void )
 
 /*virtual*/ void ParticleSystem::Particle::Integrate( double deltaTime )
 {
+	// TODO: To increase accuracy, we may want to integrate the delta-time over
+	//       smaller time intervals and also consider other integration methods.
+
 	acceleration.SetScaled( netForce, 1.0 / mass );
 	velocity.AddScale( acceleration, deltaTime );
 
@@ -474,6 +478,18 @@ ParticleSystem::TriangleMeshCollisionObject::TriangleMeshCollisionObject( void )
 /*virtual*/ bool ParticleSystem::TriangleMeshCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
 {
 	return false;
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                                Emitter
+//-------------------------------------------------------------------------------------------------
+
+ParticleSystem::Emitter::Emitter( void )
+{
+}
+
+/*virtual*/ ParticleSystem::Emitter::~Emitter( void )
+{
 }
 
 // ParticleSystem.cpp

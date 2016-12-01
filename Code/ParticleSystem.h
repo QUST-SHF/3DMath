@@ -57,6 +57,12 @@ public:
 		int index;
 	};
 
+	// TODO: We'll need to tell the particle system where the camera is and how it's oriented.
+	//class _3DMATH_API BillboardParticle : public Particle
+	//{
+	//public:
+	//};
+
 	class _3DMATH_API Force : public Object
 	{
 	public:
@@ -191,12 +197,23 @@ public:
 		TriangleMesh* mesh;
 	};
 
+	class _3DMATH_API Emitter : public Object
+	{
+	public:
+
+		Emitter( void );
+		virtual ~Emitter( void );
+
+		virtual void EmitParticles( ParticleSystem* system, double currentTime ) = 0;
+	};
+
 	void Clear( void );
 	void Simulate( double currentTime );
 
 	ObjectCollection particleCollection;
 	ObjectCollection forceCollection;
 	ObjectCollection collisionObjectCollection;
+	ObjectCollection emitterCollection;
 
 	Vector centerOfMass;
 	double previousTime;

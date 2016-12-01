@@ -4,6 +4,7 @@
 
 #include "Defines.h"
 #include "Vector.h"
+#include "Renderer.h"
 
 namespace _3DMath
 {
@@ -45,11 +46,10 @@ public:
 	bool SetVertexPosition( int index, const Vector& position );
 	bool GetVertexPosition( int index, Vector& position ) const;
 
-	struct Vertex
-	{
-		Vector position;
-		Vector normal;
-	};
+	bool SetVertex( int index, const Vertex& vertex );
+	bool GetVertex( int index, Vertex& vertex ) const;
+
+	bool ValidIndex( int index ) const;
 
 	typedef std::vector< Vertex > VertexArray;
 

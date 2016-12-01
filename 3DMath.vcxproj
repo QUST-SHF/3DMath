@@ -151,6 +151,7 @@
     <ClInclude Include="Code\ParticleSystem.h" />
     <ClInclude Include="Code\Plane.h" />
     <ClInclude Include="Code\Random.h" />
+    <ClInclude Include="Code\Renderer.h" />
     <ClInclude Include="Code\Triangle.h" />
     <ClInclude Include="Code\TriangleMesh.h" />
     <ClInclude Include="Code\Vector.h" />
@@ -163,6 +164,7 @@
     <ClCompile Include="Code\ParticleSystem.cpp" />
     <ClCompile Include="Code\Plane.cpp" />
     <ClCompile Include="Code\Random.cpp" />
+    <ClCompile Include="Code\Renderer.cpp" />
     <ClCompile Include="Code\Triangle.cpp" />
     <ClCompile Include="Code\TriangleMesh.cpp" />
     <ClCompile Include="Code\Vector.cpp" />

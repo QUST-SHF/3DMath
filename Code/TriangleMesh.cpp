@@ -4,6 +4,7 @@
 #include "Triangle.h"
 #include "Plane.h"
 #include "LinearTransform.h"
+#include "Renderer.h"
 
 using namespace _3DMath;
 
@@ -149,7 +150,7 @@ void TriangleMesh::CalculateNormals( void )
 
 bool TriangleMesh::SetVertexPosition( int index, const Vector& position )
 {
-	if( index < 0 || index >= ( signed )vertexArray->size() )
+	if( !ValidIndex( index ) )
 		return false;
 
 	( *vertexArray )[ index ].position = position;
@@ -158,10 +159,35 @@ bool TriangleMesh::SetVertexPosition( int index, const Vector& position )
 
 bool TriangleMesh::GetVertexPosition( int index, Vector& position ) const
 {
-	if( index < 0 || index >= ( signed )vertexArray->size() )
+	if( !ValidIndex( index ) )
 		return false;
 
 	position = ( *vertexArray )[ index ].position;
+	return true;
+}
+
+bool TriangleMesh::SetVertex( int index, const Vertex& vertex )
+{
+	if( !ValidIndex( index ) )
+		return false;
+
+	( *vertexArray )[ index ] = vertex;
+	return true;
+}
+
+bool TriangleMesh::GetVertex( int index, Vertex& vertex ) const
+{
+	if( !ValidIndex( index ) )
+		return false;
+
+	vertex = ( *vertexArray )[ index ];
+	return true;
+}
+
+bool TriangleMesh::ValidIndex( int index ) const
+{
+	if( index < 0 || index >= ( signed )vertexArray->size() )
+		return false;
 	return true;
 }
 

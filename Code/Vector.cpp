@@ -280,4 +280,17 @@ bool Vector::Slerp( const Vector& unitVectorA, const Vector& unitVectorB, double
 	return true;
 }
 
+bool Vector::Orthogonal( Vector& orthogonalVector ) const
+{
+	if( x != 0.0 )
+		orthogonalVector.Set( -y, x, 0.0 );
+	else if( y != 0.0 )
+		orthogonalVector.Set( 0.0, -z, y );
+	else if( z != 0.0 )
+		orthogonalVector.Set( z, 0.0, -x );
+	else
+		return false;
+	return true;
+}
+
 // Vector.cpp

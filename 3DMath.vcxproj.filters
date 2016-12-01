@@ -43,6 +43,9 @@
     <ClInclude Include="Code\Random.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Renderer.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Vector.cpp">
@@ -73,6 +76,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\LineSegment.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Renderer.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>

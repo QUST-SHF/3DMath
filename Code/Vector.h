@@ -72,6 +72,8 @@ public:
 	void Lerp( const Vector& vectorA, const Vector& vectorB, double lambda );
 	bool Slerp( const Vector& unitVectorA, const Vector& unitVectorB, double lambda );
 
+	bool Orthogonal( Vector& orthogonalVector ) const;
+
 	double x, y, z;
 };
 
