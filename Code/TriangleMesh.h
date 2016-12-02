@@ -43,12 +43,23 @@ public:
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );
 	void CalculateSphericalUVs( void );
+	void SubdivideAllTriangles( double magnitude );
+
+	typedef std::set< uint64_t > EdgeSet;
+
+	static void SetEdgePair( uint64_t& edgePair, int index0, int index1 );
+	static void GetEdgePair( uint64_t edgePair, int& index0, int& index1 );
+
+	void GenerateEdgeSet( EdgeSet& edgeSet ) const;
+
+	int FindIndex( const Vector& position, double eps = EPSILON, bool addIfNotFound = false ) const;
 
 	bool SetVertexPosition( int index, const Vector& position );
 	bool GetVertexPosition( int index, Vector& position ) const;
 
 	bool SetVertex( int index, const Vertex& vertex );
 	bool GetVertex( int index, Vertex& vertex ) const;
+	bool GetVertex( int index, const Vertex*& vertex ) const;
 
 	bool ValidIndex( int index ) const;
 

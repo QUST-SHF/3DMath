@@ -167,6 +167,43 @@ void TriangleMesh::CalculateSphericalUVs( void )
 	}
 }
 
+void TriangleMesh::SubdivideAllTriangles( double magnitude )
+{
+	IndexTriangleList::iterator iter = triangleList->begin();
+	while( iter != triangleList->end() )
+	{
+		IndexTriangleList::iterator nextIter = iter;
+		nextIter++;
+
+		IndexTriangle indexTriangle = *iter;
+		triangleList->erase( iter );
+
+		Triangle triangle;
+		indexTriangle.GetTriangle( triangle );
+
+		Vector point[3];
+		for( int i = 0; i < 3; i++ )
+			point[i].Lerp( triangle.vertex[i], triangle.vertex[ ( i + 1 ) % 3 ], 0.5 );
+
+		int index[3];
+		for( int i = 0; i < 3; i++ )
+			index[i] = FindIndex( point[i], EPSILON, true );
+
+		for( int i = 0; i < 3; i++ )
+			triangleList->push_front( IndexTriangle( indexTriangle.vertex[i], index[i], index[ ( i + 2 ) % 3 ], this ) );
+
+		triangleList->push_front( IndexTriangle( index[0], index[1], index[2], this ) );
+
+		for( int i = 0; i < 3; i++ )
+		{
+			Vertex& vertex = ( *vertexArray )[ index[i] ];
+			vertex.position.Scale( magnitude / vertex.position.Length() );
+		}
+
+		iter = nextIter;
+	}
+}
+
 bool TriangleMesh::SetVertexPosition( int index, const Vector& position )
 {
 	if( !ValidIndex( index ) )
@@ -203,11 +240,79 @@ bool TriangleMesh::GetVertex( int index, Vertex& vertex ) const
 	return true;
 }
 
+bool TriangleMesh::GetVertex( int index, const Vertex*& vertex ) const
+{
+	if( !ValidIndex( index ) )
+		return false;
+
+	vertex = &( *vertexArray )[ index ];
+	return true;
+}
+
 bool TriangleMesh::ValidIndex( int index ) const
 {
 	if( index < 0 || index >= ( signed )vertexArray->size() )
 		return false;
 	return true;
+}
+
+int TriangleMesh::FindIndex( const Vector& position, double eps /*= EPSILON*/, bool addIfNotFound /*= false*/ ) const
+{
+	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+	{
+		const Vertex& vertex = ( *vertexArray )[i];
+		Vector vector;
+		vector.Subtract( position, vertex.position );
+		if( vector.Length() < eps )
+			return i;
+	}
+
+	if( addIfNotFound )
+	{
+		Vertex vertex;
+		vertex.position = position;
+		vertexArray->push_back( vertex );
+		return ( int )vertexArray->size() - 1;
+	}
+
+	return -1;
+}
+
+/*static*/ void TriangleMesh::SetEdgePair( uint64_t& edgePair, int index0, int index1 )
+{
+	if( index0 <= index1 )
+		edgePair = uint64_t( index0 ) | ( uint64_t( index1 ) << 32 );
+	else
+		edgePair = uint64_t( index1 ) | ( uint64_t( index0 ) << 32 );
+}
+
+/*static*/ void TriangleMesh::GetEdgePair( uint64_t edgePair, int& index0, int& index1 )
+{
+	index0 = edgePair & 0xFFFFFFFF;
+	index1 = edgePair >> 32;
+}
+
+void TriangleMesh::GenerateEdgeSet( EdgeSet& edgeSet ) const
+{
+	edgeSet.clear();
+
+	IndexTriangleList::const_iterator iter = triangleList->cbegin();
+	while( iter != triangleList->cend() )
+	{
+		const IndexTriangle& indexTriangle = *iter;
+		
+		for( int i = 0; i < 3; i++ )
+		{
+			int j = ( i + 1 ) % 3;
+
+			uint64_t edgePair;
+			SetEdgePair( edgePair, indexTriangle.vertex[i], indexTriangle.vertex[j] );
+
+			edgeSet.insert( edgePair );
+		}
+
+		iter++;
+	}
 }
 
 TriangleMesh::IndexTriangle::IndexTriangle( int vertex0, int vertex1, int vertex2, TriangleMesh* mesh )

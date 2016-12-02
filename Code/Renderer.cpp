@@ -91,7 +91,28 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh )
 		}
 		case DRAW_STYLE_WIRE_FRAME:
 		{
-			// TODO: Use map to make sure we don't draw an edge more than once?
+			TriangleMesh::EdgeSet edgeSet;
+			triangleMesh.GenerateEdgeSet( edgeSet );
+
+			BeginDrawMode( DRAW_MODE_LINES );
+			
+			for( TriangleMesh::EdgeSet::iterator iter = edgeSet.begin(); iter != edgeSet.end(); iter++ )
+			{
+				uint64_t edgePair = *iter;
+
+				int index0, index1;
+				TriangleMesh::GetEdgePair( edgePair, index0, index1 );
+
+				const Vertex* vertex0, *vertex1;
+				triangleMesh.GetVertex( index0, vertex0 );
+				triangleMesh.GetVertex( index1, vertex1 );
+
+				IssueVertex( *vertex0 );
+				IssueVertex( *vertex1 );
+			}
+
+			EndDrawMode();
+
 			break;
 		}
 		case DRAW_STYLE_VERTICES:

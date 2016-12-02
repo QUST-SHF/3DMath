@@ -18,9 +18,11 @@
 #endif
 
 #include <math.h>
+#include <stdint.h>
 #include <list>
 #include <vector>
 #include <map>
 #include <string>
+#include <set>
 
 // Defines.h
