@@ -70,7 +70,7 @@ bool TriangleMesh::FindConvexHull( void )
 		vertex.position = point;
 		vertexArray->push_back( vertex );
 
-		int index = vertexArray->size() - 1;
+		int index = ( int )vertexArray->size() - 1;
 
 		bool keepGoing = true;
 		while( keepGoing )
@@ -145,6 +145,25 @@ void TriangleMesh::CalculateNormals( void )
 	{
 		Vertex* vertex = &( *vertexArray )[i];
 		vertex->normal.Normalize();
+	}
+}
+
+void TriangleMesh::CalculateSphericalUVs( void )
+{
+	for( int i = 0; i < ( int )vertexArray->size(); i++ )
+	{
+		Vertex* vertex = &( *vertexArray )[i];
+
+		Vector unitSpherePoint;
+		vertex->position.GetNormalized( unitSpherePoint );
+
+		double lattitudeAngle = acos( unitSpherePoint.y );
+		double longitudeAngle = atan2( unitSpherePoint.z, unitSpherePoint.x );
+		if( longitudeAngle < 0.0 )
+			longitudeAngle += 2.0 * M_PI;
+
+		vertex->u = 1.0 - longitudeAngle / ( 2.0 * M_PI );
+		vertex->v = lattitudeAngle / M_PI;
 	}
 }
 

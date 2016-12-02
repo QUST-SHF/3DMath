@@ -42,6 +42,7 @@ public:
 	bool FindConvexHull( void );
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );
+	void CalculateSphericalUVs( void );
 
 	bool SetVertexPosition( int index, const Vector& position );
 	bool GetVertexPosition( int index, Vector& position ) const;

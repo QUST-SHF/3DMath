@@ -32,3 +32,8 @@
 .vs/
 *.VC.*
 Debug/
+*.opensdf
+*.sdf
+*.suo
+*.user
+ipch/

@@ -21,7 +21,8 @@ void Random::Seed( int seed )
 
 int Random::Integer( int min, int max )
 {
-	int randomInt = ( int )round( Float( min, max ) );
+	//int randomInt = ( int )round( Float( min, max ) );
+	int randomInt = ( int )floor( Float( min, max + 1 ) );
 	if( randomInt < min )
 		randomInt = min;
 	if( randomInt > max )

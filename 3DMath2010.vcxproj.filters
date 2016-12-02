@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\AffineTransform.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\LinearTransform.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\LineSegment.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ObjectCollection.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ParticleSystem.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Plane.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Random.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Renderer.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Triangle.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\TriangleMesh.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Vector.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\AffineTransform.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Defines.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Line.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\LinearTransform.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\LineSegment.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ObjectCollection.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ParticleSystem.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Plane.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Random.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Renderer.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Triangle.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\TriangleMesh.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Vector.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
