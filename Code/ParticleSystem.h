@@ -67,12 +67,13 @@ public:
 	{
 	public:
 
-		Force( void );
+		Force( ParticleSystem* system );
 		virtual ~Force( void );
 
-		virtual void Apply( ParticleSystem* system );
-		virtual void Apply( ParticleSystem* system, Particle* particle );
+		virtual void Apply( void );
+		virtual void Apply( Particle* particle );
 
+		ParticleSystem* system;
 		bool enabled;
 		bool transient;
 	};
@@ -81,10 +82,10 @@ public:
 	{
 	public:
 
-		GenericForce( void );
+		GenericForce( ParticleSystem* system );
 		virtual ~GenericForce( void );
 
-		virtual void Apply( ParticleSystem* system, Particle* particle ) override;
+		virtual void Apply( Particle* particle ) override;
 
 		Vector force;
 	};
@@ -93,10 +94,10 @@ public:
 	{
 	public:
 
-		WindForce( void );
+		WindForce( ParticleSystem* system );
 		virtual ~WindForce( void );
 
-		virtual void Apply( ParticleSystem* system, Particle* particle ) override;
+		virtual void Apply( Particle* particle ) override;
 
 		Vector generalUnitDir;
 		double coneAngle;
@@ -107,10 +108,10 @@ public:
 	{
 	public:
 
-		GravityForce( void );
+		GravityForce( ParticleSystem* system );
 		virtual ~GravityForce( void );
 
-		virtual void Apply( ParticleSystem* system, Particle* particle ) override;
+		virtual void Apply( Particle* particle ) override;
 
 		Vector accelDueToGravity;
 	};
@@ -119,10 +120,10 @@ public:
 	{
 	public:
 
-		TorqueForce( void );
+		TorqueForce( ParticleSystem* system );
 		virtual ~TorqueForce( void );
 
-		virtual void Apply( ParticleSystem* system, Particle* particle ) override;
+		virtual void Apply( Particle* particle ) override;
 
 		Vector torque;
 	};
@@ -131,10 +132,11 @@ public:
 	{
 	public:
 
-		SpringForce( void );
+		SpringForce( ParticleSystem* system );
 		virtual ~SpringForce( void );
 
-		virtual void Apply( ParticleSystem* system ) override;
+		virtual void Render( Renderer* renderer ) const override;
+		virtual void Apply( void ) override;
 
 		int endPointParticleIds[2];
 		double equilibriumLength;
@@ -154,10 +156,10 @@ public:
 	{
 	public:
 
-		FrictionForce( void );
+		FrictionForce( ParticleSystem* system );
 		virtual ~FrictionForce( void );
 
-		virtual void Apply( ParticleSystem* system ) override;
+		virtual void Apply( void ) override;
 
 		int particleId;
 		ImpactInfo impactInfo;

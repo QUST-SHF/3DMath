@@ -79,7 +79,7 @@ void ParticleSystem::AccumulateForces( void )
 		nextIter++;
 		
 		Force* force = ( Force* )iter->second;
-		force->Apply( this );
+		force->Apply();
 
 		if( force->transient )
 		{
@@ -135,7 +135,7 @@ void ParticleSystem::ResolveCollisions( void )
 
 				if( impactInfo.friction != 0.0 )
 				{
-					FrictionForce* frictionForce = new FrictionForce();
+					FrictionForce* frictionForce = new FrictionForce( this );
 					frictionForce->impactInfo = impactInfo;
 					forceCollection.AddObject( frictionForce );
 				}
@@ -239,8 +239,9 @@ ParticleSystem::MeshVertexParticle::MeshVertexParticle( void )
 //                                            Force
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::Force::Force( void )
+ParticleSystem::Force::Force( ParticleSystem* system )
 {
+	this->system = system;
 	enabled = true;
 	transient = false;
 }
@@ -249,18 +250,18 @@ ParticleSystem::Force::Force( void )
 {
 }
 
-/*virtual*/ void ParticleSystem::Force::Apply( ParticleSystem* system )
+/*virtual*/ void ParticleSystem::Force::Apply( void )
 {
 	ObjectMap::iterator iter = system->particleCollection.objectMap->begin();
 	while( iter != system->particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
-		Apply( system, particle );
+		Apply( particle );
 		iter++;
 	}
 }
 
-/*virtual*/ void ParticleSystem::Force::Apply( ParticleSystem* system, Particle* particle )
+/*virtual*/ void ParticleSystem::Force::Apply( Particle* particle )
 {
 }
 
@@ -268,7 +269,7 @@ ParticleSystem::Force::Force( void )
 //                                           GenericForce
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::GenericForce::GenericForce( void )
+ParticleSystem::GenericForce::GenericForce( ParticleSystem* system ) : Force( system )
 {
 	force.Set( 0.0, 0.0, 0.0 );
 }
@@ -277,7 +278,7 @@ ParticleSystem::GenericForce::GenericForce( void )
 {
 }
 
-/*virtual*/ void ParticleSystem::GenericForce::Apply( ParticleSystem* system, Particle* particle )
+/*virtual*/ void ParticleSystem::GenericForce::Apply( Particle* particle )
 {
 	particle->netForce.Add( force );
 }
@@ -286,7 +287,7 @@ ParticleSystem::GenericForce::GenericForce( void )
 //                                            WindForce
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::WindForce::WindForce( void )
+ParticleSystem::WindForce::WindForce( ParticleSystem* system ) : Force( system )
 {
 	generalUnitDir.Set( 0.0, 0.0, 1.0 );
 	coneAngle = M_PI / 8.0;
@@ -298,7 +299,7 @@ ParticleSystem::WindForce::WindForce( void )
 {
 }
 
-/*virtual*/ void ParticleSystem::WindForce::Apply( ParticleSystem* system, Particle* particle )
+/*virtual*/ void ParticleSystem::WindForce::Apply( Particle* particle )
 {
 	Vector windForce;
 	system->random.VectorInCone( generalUnitDir, coneAngle, windForce );
@@ -310,7 +311,7 @@ ParticleSystem::WindForce::WindForce( void )
 //                                            GravityForce
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::GravityForce::GravityForce( void )
+ParticleSystem::GravityForce::GravityForce( ParticleSystem* system ) : Force( system )
 {
 	accelDueToGravity.Set( 0.0, -1.0, 0.0 );
 }
@@ -319,7 +320,7 @@ ParticleSystem::GravityForce::GravityForce( void )
 {
 }
 
-/*virtual*/ void ParticleSystem::GravityForce::Apply( ParticleSystem* system, Particle* particle )
+/*virtual*/ void ParticleSystem::GravityForce::Apply( Particle* particle )
 {
 	Vector gravityForce;
 	gravityForce.SetScaled( accelDueToGravity, particle->mass );
@@ -330,7 +331,7 @@ ParticleSystem::GravityForce::GravityForce( void )
 //                                            TorqueForce
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::TorqueForce::TorqueForce( void )
+ParticleSystem::TorqueForce::TorqueForce( ParticleSystem* system ) : Force( system )
 {
 	torque.Set( 0.0, 0.0, 0.0 );
 }
@@ -339,7 +340,7 @@ ParticleSystem::TorqueForce::TorqueForce( void )
 {
 }
 
-/*virtual*/ void ParticleSystem::TorqueForce::Apply( ParticleSystem* system, Particle* particle )
+/*virtual*/ void ParticleSystem::TorqueForce::Apply( Particle* particle )
 {
 	Vector position;
 	particle->GetPosition( position );
@@ -358,7 +359,7 @@ ParticleSystem::TorqueForce::TorqueForce( void )
 //                                            SpringForce
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::SpringForce::SpringForce( void )
+ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( system )
 {
 	endPointParticleIds[0] = 0;
 	endPointParticleIds[1] = 0;
@@ -370,7 +371,7 @@ ParticleSystem::SpringForce::SpringForce( void )
 {
 }
 
-/*virtual*/ void ParticleSystem::SpringForce::Apply( ParticleSystem* system )
+/*virtual*/ void ParticleSystem::SpringForce::Apply( void )
 {
 	Particle* particleA = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[0] );
 	Particle* particleB = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[1] );
@@ -395,11 +396,32 @@ ParticleSystem::SpringForce::SpringForce( void )
 	}
 }
 
+/*virtual*/ void ParticleSystem::SpringForce::Render( Renderer* renderer ) const
+{
+	Particle* particleA = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[0] );
+	Particle* particleB = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[1] );
+
+	if( particleA && particleB )
+	{
+		Vector positionA, positionB;
+
+		particleA->GetPosition( positionA );
+		particleB->GetPosition( positionB );
+
+		renderer->BeginDrawMode( Renderer::DRAW_MODE_LINES );
+
+		renderer->IssueVertex( Vertex( positionA ) );
+		renderer->IssueVertex( Vertex( positionB ) );
+
+		renderer->EndDrawMode();
+	}
+}
+
 //-------------------------------------------------------------------------------------------------
 //                                            FrictionForce
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::FrictionForce::FrictionForce( void )
+ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( system )
 {
 	particleId = 0;
 	impactInfo.contactPosition.Set( 0.0, 0.0, 0.0 );
@@ -413,7 +435,7 @@ ParticleSystem::FrictionForce::FrictionForce( void )
 {
 }
 
-/*virtual*/ void ParticleSystem::FrictionForce::Apply( ParticleSystem* system )
+/*virtual*/ void ParticleSystem::FrictionForce::Apply( void )
 {
 	Particle* particle = ( Particle* )system->particleCollection.FindObject( particleId );
 	if( particle )

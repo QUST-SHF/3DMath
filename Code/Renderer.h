@@ -47,14 +47,14 @@ public:
 	virtual void BeginDrawMode( DrawMode drawMode ) = 0;
 	virtual void EndDrawMode( void ) = 0;
 	virtual void IssueVertex( const Vertex& vertex ) = 0;
+	virtual void Color( const Vector& color, double alpha = 1.0 ) = 0;
 	
 	enum ParticleSystemDrawFlag
 	{
 		DRAW_PARTICLES					= 0x00000001,
 		DRAW_FORCES						= 0x00000002,
-		DRAW_SPRINGS					= 0x00000004,
-		DRAW_EMITTERS					= 0x00000008,
-		DRAW_COLLISION_OBJECTS			= 0x00000010,
+		DRAW_EMITTERS					= 0x00000004,
+		DRAW_COLLISION_OBJECTS			= 0x00000008,
 	};
 
 	void DrawVector( const Vector& vector, const Vector& position, double arrowRadius, int arrowSegments = 8 );

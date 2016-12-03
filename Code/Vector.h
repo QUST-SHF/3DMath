@@ -77,4 +77,6 @@ public:
 	double x, y, z;
 };
 
+// TODO: Provide operator overloads.
+
 // Vector.h

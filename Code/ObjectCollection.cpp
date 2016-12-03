@@ -13,6 +13,10 @@ Object::Object( void )
 {
 }
 
+/*virtual*/ void Object::Render( Renderer* renderer ) const
+{
+}
+
 ObjectCollection::ObjectCollection( void )
 {
 	objectMap = new ObjectMap();
@@ -55,6 +59,17 @@ Object* ObjectCollection::FindObject( int objectId )
 		object = iter->second;
 
 	return object;
+}
+
+void ObjectCollection::Render( Renderer* renderer ) const
+{
+	ObjectMap::const_iterator iter = objectMap->cbegin();
+	while( iter != objectMap->cend() )
+	{
+		const Object* object = iter->second;
+		object->Render( renderer );
+		iter++;
+	}
 }
 
 // ObjectCollection.cpp
