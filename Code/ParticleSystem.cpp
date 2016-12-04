@@ -13,7 +13,7 @@ ParticleSystem::ParticleSystem( void )
 {
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
 	previousTime = 0.0;
-	integrationMethod = INTEGRATE_EULER;
+	integrationMethod = INTEGRATE_VERLET;
 }
 
 /*virtual*/ ParticleSystem::~ParticleSystem( void )
@@ -139,6 +139,7 @@ void ParticleSystem::ResolveCollisions( void )
 				{
 					FrictionForce* frictionForce = new FrictionForce( this );
 					frictionForce->impactInfo = impactInfo;
+					frictionForce->particleId = particle->id;
 					forceCollection.AddObject( frictionForce );
 				}
 			}
@@ -204,34 +205,52 @@ void ParticleSystem::Particle::GetPreviousPosition( Vector& position ) const
 
 /*virtual*/ void ParticleSystem::Particle::Integrate( double deltaTime, IntegrationMethod method )
 {
-	// TODO: To increase accuracy, we may want to integrate the delta-time over
-	//       smaller time intervals and also consider other integration methods.
+	// TODO: Despite the given delta, we should integrate over it with a fixed time-step
+	//       until we have consumed it.  I'm wondering if this would help us be a stable
+	//       simulation, despite the processor speed of the target machine.
 
 	acceleration.SetScaled( netForce, 1.0 / mass );
 
 	Vector currentPosition;
 	GetPosition( currentPosition );
 
-	previousPositionList->push_front( currentPosition );
-	while( previousPositionList->size() > ( unsigned )previousPositionMax )
-		previousPositionList->pop_back();
+	Vector newPosition;
 
 	switch( method )
 	{
 		case INTEGRATE_EULER:
 		{
 			velocity.AddScale( acceleration, deltaTime );
-			currentPosition.AddScale( velocity, deltaTime );
+			newPosition.AddScale( currentPosition, velocity, deltaTime );
 			
 			break;
 		}
 		case INTEGRATE_VERLET:
 		{
+			velocity.AddScale( acceleration, deltaTime );
+
+			if( previousPositionList->size() == 0 )
+				newPosition.AddScale( currentPosition, velocity, deltaTime );
+			else
+			{
+				double damping = 0.02;
+
+				Vector previousPosition;
+				GetPreviousPosition( previousPosition );
+
+				newPosition.AddScale( currentPosition, 2.0 - damping, previousPosition, -( 1.0 - damping ) );
+				newPosition.AddScale( acceleration, deltaTime * deltaTime );	// TODO: Divide by 2?  Revisit formulas online for this stuff.
+			}
+
 			break;
 		}
 	}
 
-	SetPosition( currentPosition );
+	previousPositionList->push_front( currentPosition );
+	while( previousPositionList->size() > ( unsigned )previousPositionMax )
+		previousPositionList->pop_back();
+
+	SetPosition( newPosition );
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -397,7 +416,7 @@ ParticleSystem::TorqueForce::TorqueForce( ParticleSystem* system ) : Force( syst
 
 	Vector torqueForce;
 	torqueForce.Cross( torque, vector );
-	torqueForce.Scale( 1.0 / torqueForce.Dot( torqueForce ) );
+	torqueForce.Scale( 1.0 / vector.Dot( vector ) );
 
 	particle->netForce.Add( torqueForce );
 }
@@ -529,8 +548,11 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 
 /*virtual*/ bool ParticleSystem::CollisionPlane::ResolveCollision( ImpactInfo& impactInfo )
 {
-	if( !plane.Intersect( impactInfo.lineOfMotion, impactInfo.contactPosition ) )
+	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
 		return false;
+
+	impactInfo.contactPosition = impactInfo.lineOfMotion.vertex[1];
+	plane.NearestPoint( impactInfo.contactPosition );
 
 	impactInfo.contactUnitNormal = plane.normal;
 	impactInfo.friction = friction;
