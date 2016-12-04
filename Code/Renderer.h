@@ -57,11 +57,18 @@ public:
 		DRAW_COLLISION_OBJECTS			= 0x00000008,
 	};
 
+	enum TriangleMeshDrawFlags
+	{
+		UV_CORRECTION					= 0x00000001,
+	};
+
 	void DrawVector( const Vector& vector, const Vector& position, double arrowRadius, int arrowSegments = 8 );
 	void DrawLineSegment( const LineSegment& lineSegment );
 	void DrawTriangle( const Triangle& triangle );
-	void DrawTriangleMesh( const TriangleMesh& triangleMesh );
+	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0 );
 	void DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags = DRAW_PARTICLES );
+
+	void CorrectUV( double texCoordAnchor, double& texCoord );
 };
 
 class _3DMATH_API _3DMath::Vertex

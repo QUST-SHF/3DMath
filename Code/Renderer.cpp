@@ -63,7 +63,17 @@ void Renderer::DrawTriangle( const Triangle& triangle )
 {
 }
 
-void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh )
+void Renderer::CorrectUV( double texCoordAnchor, double& texCoord )
+{
+	double distance = abs( texCoordAnchor - texCoord );
+
+	if( distance > abs( texCoordAnchor - ( texCoord + 1.0 ) ) )
+		texCoord += 1.0;
+	else if( distance > abs( texCoordAnchor - ( texCoord - 1.0 ) ) )
+		texCoord -= 1.0;
+}
+
+void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags /*= 0*/ )
 {
 	switch( drawStyle )
 	{
@@ -76,12 +86,20 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh )
 			{
 				const TriangleMesh::IndexTriangle& triangle = *iter;
 				
+				Vertex vertex[3];
 				for( int i = 0; i < 3; i++ )
+					triangleMesh.GetVertex( triangle.vertex[i], vertex[i] );
+
+				if( drawFlags & UV_CORRECTION )
 				{
-					Vertex vertex;
-					triangleMesh.GetVertex( triangle.vertex[i], vertex );
-					IssueVertex( vertex );
+					CorrectUV( vertex[0].u, vertex[1].u );
+					CorrectUV( vertex[0].u, vertex[2].u );
+					CorrectUV( vertex[0].v, vertex[1].v );
+					CorrectUV( vertex[0].v, vertex[2].v );
 				}
+
+				for( int i = 0; i < 3; i++ )
+					IssueVertex( vertex[i] );
 
 				iter++;
 			}
