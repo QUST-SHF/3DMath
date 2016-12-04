@@ -4,10 +4,12 @@
 
 #include "Defines.h"
 #include "LinearTransform.h"
+#include "Renderer.h"
 
 namespace _3DMath
 {
 	class AffineTransform;
+	class Vertex;
 }
 
 class _3DMATH_API _3DMath::AffineTransform
@@ -27,6 +29,7 @@ public:
 	void Transform( Vector& vector ) const;
 	void Transform( const Vector& vectorA, Vector& vectorB ) const;
 	void Transform( Vector* vectorArray, int arraySize ) const;
+	void Transform( VertexArray& vertexArray, bool transformNormals = false ) const;
 
 	bool Invert( void );
 	bool GetInverse( AffineTransform& affineTransform ) const;

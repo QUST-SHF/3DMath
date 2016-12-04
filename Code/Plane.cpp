@@ -50,14 +50,18 @@ void Plane::NearestPoint( Vector& point ) const
 
 bool Plane::Intersect( const LineSegment& lineSegment, Vector& intersectionPoint ) const
 {
-	double dotA = lineSegment.vertex[0].Dot( normal );
-	double dotB = lineSegment.vertex[1].Dot( normal );
-	double lambda = ( dot - dotA ) / ( dotB - dotA );
-	if( lambda < 0.0 || lambda > 1.0 )
-		return false;
-
-	intersectionPoint.AddScale( lineSegment.vertex[0], 1.0 - lambda, lineSegment.vertex[1], lambda );
-	return true;
+	double dist0 = Distance( lineSegment.vertex[0] );
+	double dist1 = Distance( lineSegment.vertex[1] );
+	if( ( dist0 <= 0.0 && dist1 >= 0.0 ) || ( dist1 <= 0.0 && dist0 >= 0.0 ) )
+	{
+		dist0 = fabs( dist0 );
+		dist1 = fabs( dist1 );
+		double lambda = dist0 / ( dist0 + dist1 );
+		intersectionPoint.AddScale( lineSegment.vertex[0], 1.0 - lambda, lineSegment.vertex[1], lambda );
+		return true;
+	}
+	
+	return false;
 }
 
 // Plane.cpp

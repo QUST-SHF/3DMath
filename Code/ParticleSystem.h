@@ -23,6 +23,12 @@ public:
 	ParticleSystem( void );
 	virtual ~ParticleSystem( void );
 
+	enum IntegrationMethod
+	{
+		INTEGRATE_EULER,
+		INTEGRATE_VERLET,
+	};
+
 	class _3DMATH_API Particle : public Object
 	{
 	public:
@@ -33,12 +39,15 @@ public:
 		virtual void GetPosition( Vector& position ) const = 0;
 		virtual void SetPosition( const Vector& position ) = 0;
 
-		virtual void Integrate( double deltaTime );
+		virtual void Integrate( double deltaTime, IntegrationMethod method );
+
+		void GetPreviousPosition( Vector& position ) const;
 
 		Vector velocity;
 		Vector acceleration;
 		Vector netForce;
-		Vector previousPosition;
+		VectorList* previousPositionList;
+		int previousPositionMax;
 		double mass;
 		double timeOfDeath;
 	};
@@ -102,6 +111,18 @@ public:
 		Vector generalUnitDir;
 		double coneAngle;
 		double minStrength, maxStrength;
+	};
+
+	class _3DMATH_API ResistanceForce : public Force
+	{
+	public:
+
+		ResistanceForce( ParticleSystem* system );
+		virtual ~ResistanceForce( void );
+
+		virtual void Apply( Particle* particle ) override;
+
+		double resistance;
 	};
 
 	class _3DMATH_API GravityForce : public Force
@@ -185,6 +206,7 @@ public:
 		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
 
 		Plane plane;
+		double friction;
 	};
 
 	class _3DMATH_API TriangleMeshCollisionObject : public CollisionObject
@@ -217,6 +239,7 @@ public:
 	ObjectCollection collisionObjectCollection;
 	ObjectCollection emitterCollection;
 
+	IntegrationMethod integrationMethod;
 	Vector centerOfMass;
 	double previousTime;
 	Random random;

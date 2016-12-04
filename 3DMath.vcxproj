@@ -143,11 +143,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h" />
+    <ClInclude Include="Code\AxisAlignedBox.h" />
+    <ClInclude Include="Code\BspTree.h" />
     <ClInclude Include="Code\Defines.h" />
     <ClInclude Include="Code\Line.h" />
     <ClInclude Include="Code\LinearTransform.h" />
     <ClInclude Include="Code\LineSegment.h" />
     <ClInclude Include="Code\ObjectCollection.h" />
+    <ClInclude Include="Code\OctTree.h" />
     <ClInclude Include="Code\ParticleSystem.h" />
     <ClInclude Include="Code\Plane.h" />
     <ClInclude Include="Code\Random.h" />

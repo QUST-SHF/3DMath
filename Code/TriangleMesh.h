@@ -11,6 +11,7 @@ namespace _3DMath
 	class TriangleMesh;
 	class Plane;
 	class Triangle;
+	class AffineTransform;
 }
 
 class _3DMATH_API _3DMath::TriangleMesh
@@ -43,7 +44,8 @@ public:
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );
 	void CalculateSphericalUVs( void );
-	void SubdivideAllTriangles( double magnitude );
+	void SubdivideAllTriangles( void );
+	void Transform( const AffineTransform& affineTransform );
 
 	typedef std::set< uint64_t > EdgeSet;
 
@@ -63,7 +65,7 @@ public:
 
 	bool ValidIndex( int index ) const;
 
-	typedef std::vector< Vertex > VertexArray;
+	// TODO: May want to write a tri-stripper one day.
 
 	VertexArray* vertexArray;
 	IndexTriangleList* triangleList;

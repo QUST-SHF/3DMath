@@ -13,6 +13,7 @@ ParticleSystem::ParticleSystem( void )
 {
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
 	previousTime = 0.0;
+	integrationMethod = INTEGRATE_EULER;
 }
 
 /*virtual*/ ParticleSystem::~ParticleSystem( void )
@@ -96,16 +97,17 @@ void ParticleSystem::IntegrateParticles( double currentTime )
 	if( previousTime == 0.0 )
 		previousTime = currentTime;
 
-	double deltaTime = currentTime - previousTime;
+	double deltaTime = ( currentTime - previousTime ) / 1000.0;
+	deltaTime = 0.016;		// debug...
 
 	ObjectMap::iterator iter = particleCollection.objectMap->begin();
 	while( iter != particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
-		particle->Integrate( deltaTime );
+		particle->Integrate( deltaTime, integrationMethod );
 		iter++;
 	}
-
+	
 	previousTime = currentTime;
 }
 
@@ -121,7 +123,7 @@ void ParticleSystem::ResolveCollisions( void )
 		impactInfo.friction = 0.0;
 		impactInfo.contactPosition.Set( 0.0, 0.0, 0.0 );
 		impactInfo.contactUnitNormal.Set( 0.0, 0.0, 0.0 );
-		impactInfo.lineOfMotion.vertex[0] = particle->previousPosition;
+		particle->GetPreviousPosition( impactInfo.lineOfMotion.vertex[0] );
 		particle->GetPosition( impactInfo.lineOfMotion.vertex[1] );
 
 		ObjectMap::iterator collisionIter = collisionObjectCollection.objectMap->begin();
@@ -181,29 +183,54 @@ ParticleSystem::Particle::Particle( void )
 	velocity.Set( 0.0, 0.0, 0.0 );
 	acceleration.Set( 0.0, 0.0, 0.0 );
 	netForce.Set( 0.0, 0.0, 0.0 );
-	previousPosition.Set( 0.0, 0.0, 0.0 );
 	mass = 1.0;
 	timeOfDeath = 0.0;
+	previousPositionList = new VectorList();
+	previousPositionMax = 1;
 }
 
 /*virtual*/ ParticleSystem::Particle::~Particle( void )
 {
+	delete previousPositionList;
 }
 
-/*virtual*/ void ParticleSystem::Particle::Integrate( double deltaTime )
+void ParticleSystem::Particle::GetPreviousPosition( Vector& position ) const
+{
+	if( previousPositionList->size() == 0 )
+		GetPosition( position );
+	else
+		position = previousPositionList->front();
+}
+
+/*virtual*/ void ParticleSystem::Particle::Integrate( double deltaTime, IntegrationMethod method )
 {
 	// TODO: To increase accuracy, we may want to integrate the delta-time over
 	//       smaller time intervals and also consider other integration methods.
 
 	acceleration.SetScaled( netForce, 1.0 / mass );
-	velocity.AddScale( acceleration, deltaTime );
 
 	Vector currentPosition;
 	GetPosition( currentPosition );
 
-	previousPosition = currentPosition;
+	previousPositionList->push_front( currentPosition );
+	while( previousPositionList->size() > ( unsigned )previousPositionMax )
+		previousPositionList->pop_back();
 
-	currentPosition.AddScale( velocity, deltaTime );
+	switch( method )
+	{
+		case INTEGRATE_EULER:
+		{
+			velocity.AddScale( acceleration, deltaTime );
+			currentPosition.AddScale( velocity, deltaTime );
+			
+			break;
+		}
+		case INTEGRATE_VERLET:
+		{
+			break;
+		}
+	}
+
 	SetPosition( currentPosition );
 }
 
@@ -305,6 +332,26 @@ ParticleSystem::WindForce::WindForce( ParticleSystem* system ) : Force( system )
 	system->random.VectorInCone( generalUnitDir, coneAngle, windForce );
 	windForce.Scale( system->random.Float( minStrength, maxStrength ) );
 	particle->netForce.Add( windForce );
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                          ResistanceForce
+//-------------------------------------------------------------------------------------------------
+
+ParticleSystem::ResistanceForce::ResistanceForce( ParticleSystem* system ) : Force( system )
+{
+	resistance = 0.5;
+}
+
+/*virtual*/ ParticleSystem::ResistanceForce::~ResistanceForce( void )
+{
+}
+
+/*virtual*/ void ParticleSystem::ResistanceForce::Apply( Particle* particle )
+{
+	Vector resistanceForce;
+	resistanceForce.SetScaled( particle->velocity, -resistance );
+	particle->netForce.Add( resistanceForce );
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -473,6 +520,7 @@ ParticleSystem::CollisionObject::CollisionObject( void )
 
 ParticleSystem::CollisionPlane::CollisionPlane( void )
 {
+	friction = 0.0;
 }
 
 /*virtual*/ ParticleSystem::CollisionPlane::~CollisionPlane( void )
@@ -481,7 +529,12 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 
 /*virtual*/ bool ParticleSystem::CollisionPlane::ResolveCollision( ImpactInfo& impactInfo )
 {
-	return false;
+	if( !plane.Intersect( impactInfo.lineOfMotion, impactInfo.contactPosition ) )
+		return false;
+
+	impactInfo.contactUnitNormal = plane.normal;
+	impactInfo.friction = friction;
+	return true;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -499,6 +552,7 @@ ParticleSystem::TriangleMeshCollisionObject::TriangleMeshCollisionObject( void )
 
 /*virtual*/ bool ParticleSystem::TriangleMeshCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
 {
+	// TODO: Use OctTree provided with mesh for faster resolution.
 	return false;
 }
 

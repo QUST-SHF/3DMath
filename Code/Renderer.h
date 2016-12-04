@@ -85,4 +85,9 @@ public:
 	double u, v;
 };
 
+namespace _3DMath
+{
+	typedef std::vector< Vertex > VertexArray;
+}
+
 // Renderer.h

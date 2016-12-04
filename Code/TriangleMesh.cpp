@@ -4,6 +4,7 @@
 #include "Triangle.h"
 #include "Plane.h"
 #include "LinearTransform.h"
+#include "AffineTransform.h"
 #include "Renderer.h"
 
 using namespace _3DMath;
@@ -167,7 +168,7 @@ void TriangleMesh::CalculateSphericalUVs( void )
 	}
 }
 
-void TriangleMesh::SubdivideAllTriangles( double magnitude )
+void TriangleMesh::SubdivideAllTriangles( void )
 {
 	IndexTriangleList::iterator iter = triangleList->begin();
 	while( iter != triangleList->end() )
@@ -194,14 +195,13 @@ void TriangleMesh::SubdivideAllTriangles( double magnitude )
 
 		triangleList->push_front( IndexTriangle( index[0], index[1], index[2], this ) );
 
-		for( int i = 0; i < 3; i++ )
-		{
-			Vertex& vertex = ( *vertexArray )[ index[i] ];
-			vertex.position.Scale( magnitude / vertex.position.Length() );
-		}
-
 		iter = nextIter;
 	}
+}
+
+void TriangleMesh::Transform( const AffineTransform& affineTransform )
+{
+	affineTransform.Transform( *vertexArray );
 }
 
 bool TriangleMesh::SetVertexPosition( int index, const Vector& position )
