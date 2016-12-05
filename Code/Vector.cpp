@@ -262,6 +262,28 @@ bool Vector::IsParallelWith( const Vector& vector, double eps /*= EPSILON*/ ) co
 	return( area < eps ? true : false );
 }
 
+bool Vector::IsEqualTo( const Vector& vector, double eps /*= EPSILON*/ ) const
+{
+	Vector diff;
+	diff.Subtract( vector, *this );
+	double length = diff.Length();
+	return( length < eps ? true : false );
+}
+
+void Vector::Min( const Vector& vectorA, const Vector& vectorB )
+{
+	x = MIN( vectorA.x, vectorB.x );
+	y = MIN( vectorA.y, vectorB.y );
+	z = MIN( vectorA.z, vectorB.z );
+}
+
+void Vector::Max( const Vector& vectorA, const Vector& vectorB )
+{
+	x = MAX( vectorA.x, vectorB.x );
+	y = MAX( vectorA.y, vectorB.y );
+	z = MAX( vectorA.z, vectorB.z );
+}
+
 void Vector::Lerp( const Vector& vectorA, const Vector& vectorB, double lambda )
 {
 	AddScale( vectorA, 1.0 - lambda, vectorB, lambda );

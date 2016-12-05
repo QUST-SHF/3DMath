@@ -6,6 +6,7 @@
 #include "LinearTransform.h"
 #include "AffineTransform.h"
 #include "Renderer.h"
+#include "AxisAlignedBox.h"
 
 using namespace _3DMath;
 
@@ -25,6 +26,31 @@ void TriangleMesh::Clear( void )
 {
 	vertexArray->clear();
 	triangleList->clear();
+}
+
+bool TriangleMesh::GenerateBoundingBox( AxisAlignedBox& boundingBox ) const
+{
+	if( vertexArray->size() == 0 )
+		return false;
+
+	boundingBox.negCorner = ( *vertexArray )[0].position;
+	boundingBox.posCorner = boundingBox.negCorner;
+
+	for( int i = 1; i < ( signed )vertexArray->size(); i++ )
+		boundingBox.GrowToIncludePoint( ( *vertexArray )[i].position );
+
+	return true;
+}
+
+void TriangleMesh::GenerateTriangleList( TriangleList& triangleList ) const
+{
+	for( IndexTriangleList::const_iterator iter = this->triangleList->cbegin(); iter != this->triangleList->cend(); iter++ )
+	{
+		const IndexTriangle& indexTriangle = *iter;
+		Triangle triangle;
+		indexTriangle.GetTriangle( triangle );
+		triangleList.push_back( triangle );
+	}
 }
 
 bool TriangleMesh::FindConvexHull( void )

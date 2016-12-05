@@ -14,6 +14,8 @@ namespace _3DMath
 	class ParticleSystem;
 	class LineSegment;
 	class TriangleMesh;
+	class BoundingBoxTree;
+	class AxisAlignedBox;
 }
 
 class _3DMATH_API _3DMath::ParticleSystem
@@ -218,7 +220,21 @@ public:
 
 		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
 
+		AxisAlignedBox* boundingBox;
 		TriangleMesh* mesh;
+	};
+
+	class _3DMATH_API BoundingBoxTreeCollisionObject : public CollisionObject
+	{
+	public:
+
+		BoundingBoxTreeCollisionObject( void );
+		virtual ~BoundingBoxTreeCollisionObject( void );
+
+		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
+
+		BoundingBoxTree* boxTree;
+		double friction;
 	};
 
 	class _3DMATH_API Emitter : public Object

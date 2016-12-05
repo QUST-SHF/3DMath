@@ -21,7 +21,7 @@ public:
 	virtual ~Triangle( void );
 
 	double Area( void ) const;
-	void GetNormal( Vector& normal, int index ) const;
+	void GetNormal( Vector& normal ) const;
 	void GetPlane( Plane& plane ) const;
 	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
 	bool IsDegenerate( double eps = EPSILON ) const;
@@ -29,5 +29,10 @@ public:
 
 	Vector vertex[3];
 };
+
+namespace _3DMath
+{
+	typedef std::list< Triangle > TriangleList;
+}
 
 // Triangle.h

@@ -144,13 +144,13 @@
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h" />
     <ClInclude Include="Code\AxisAlignedBox.h" />
+    <ClInclude Include="Code\BoundingBoxTree.h" />
     <ClInclude Include="Code\BspTree.h" />
     <ClInclude Include="Code\Defines.h" />
     <ClInclude Include="Code\Line.h" />
     <ClInclude Include="Code\LinearTransform.h" />
     <ClInclude Include="Code\LineSegment.h" />
     <ClInclude Include="Code\ObjectCollection.h" />
-    <ClInclude Include="Code\OctTree.h" />
     <ClInclude Include="Code\ParticleSystem.h" />
     <ClInclude Include="Code\Plane.h" />
     <ClInclude Include="Code\Random.h" />
@@ -161,6 +161,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\AffineTransform.cpp" />
+    <ClCompile Include="Code\AxisAlignedBox.cpp" />
+    <ClCompile Include="Code\BoundingBoxTree.cpp" />
     <ClCompile Include="Code\LinearTransform.cpp" />
     <ClCompile Include="Code\LineSegment.cpp" />
     <ClCompile Include="Code\ObjectCollection.cpp" />

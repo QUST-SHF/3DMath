@@ -20,18 +20,18 @@ Triangle::Triangle( const Vector& vertex0, const Vector& vertex1, const Vector& 
 {
 }
 
-void Triangle::GetNormal( Vector& normal, int index ) const
+void Triangle::GetNormal( Vector& normal ) const
 {
 	Vector edge[2];
-	edge[0].Subtract( vertex[ ( index + 1 ) % 3 ], vertex[ index ] );
-	edge[1].Subtract( vertex[ ( index + 2 ) % 3 ], vertex[ index ] );
+	edge[0].Subtract( vertex[1], vertex[0] );
+	edge[1].Subtract( vertex[2], vertex[0] );
 	normal.Cross( edge[0], edge[1] );
 }
 
 double Triangle::Area( void ) const
 {
 	Vector normal;
-	GetNormal( normal, 0 );
+	GetNormal( normal );
 	double area = normal.Length();
 	return area;
 }
@@ -39,7 +39,7 @@ double Triangle::Area( void ) const
 void Triangle::GetPlane( Plane& plane ) const
 {
 	Vector normal;
-	GetNormal( normal, 0 );
+	GetNormal( normal );
 	plane.SetCenterAndNormal( vertex[0], normal );
 }
 

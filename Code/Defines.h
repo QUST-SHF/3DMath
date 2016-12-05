@@ -13,6 +13,9 @@
 #define EPSILON			1e-6
 #define PHI				1.6180339887
 
+#define MIN(a,b)		((a) < (b) ? (a) : (b))
+#define MAX(a,b)		((a) < (b) ? (b) : (a))
+
 #ifndef _USE_MATH_DEFINES
 #	define _USE_MATH_DEFINES
 #endif

@@ -2,6 +2,8 @@
 
 #include "ParticleSystem.h"
 #include "TriangleMesh.h"
+#include "AxisAlignedBox.h"
+#include "BoundingBoxTree.h"
 
 using namespace _3DMath;
 
@@ -566,6 +568,7 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 ParticleSystem::TriangleMeshCollisionObject::TriangleMeshCollisionObject( void )
 {
 	mesh = nullptr;
+	boundingBox = nullptr;
 }
 
 /*virtual*/ ParticleSystem::TriangleMeshCollisionObject::~TriangleMeshCollisionObject( void )
@@ -574,8 +577,45 @@ ParticleSystem::TriangleMeshCollisionObject::TriangleMeshCollisionObject( void )
 
 /*virtual*/ bool ParticleSystem::TriangleMeshCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
 {
-	// TODO: Use OctTree provided with mesh for faster resolution.
+	if( boundingBox && !boundingBox->ContainsPoint( impactInfo.lineOfMotion.vertex[1] ) )
+		return false;
+
+	if( !mesh )
+		return false;
+
+	// TODO: Check collision against each triangle in the mesh.
+
 	return false;
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                    BoundingBoxTreeCollisionObject
+//-------------------------------------------------------------------------------------------------
+
+ParticleSystem::BoundingBoxTreeCollisionObject::BoundingBoxTreeCollisionObject( void )
+{
+	boxTree = nullptr;
+	friction = 0.0;
+}
+
+/*virtual*/ ParticleSystem::BoundingBoxTreeCollisionObject::~BoundingBoxTreeCollisionObject( void )
+{
+}
+
+/*virtual*/ bool ParticleSystem::BoundingBoxTreeCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
+{
+	if( !boxTree )
+		return false;
+
+	const Triangle* intersectedTriangle = nullptr;
+	Vector intersectionPoint;
+	if( !boxTree->FindIntersection( impactInfo.lineOfMotion, intersectedTriangle, intersectionPoint ) )
+		return false;
+
+	intersectedTriangle->GetNormal( impactInfo.contactUnitNormal );
+	impactInfo.contactPosition = intersectionPoint;
+	impactInfo.friction = friction;
+	return true;
 }
 
 //-------------------------------------------------------------------------------------------------

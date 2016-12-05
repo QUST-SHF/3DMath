@@ -4,6 +4,7 @@
 
 #include "Defines.h"
 #include "Vector.h"
+#include "Triangle.h"
 
 namespace _3DMath
 {
@@ -32,8 +33,7 @@ public:
 	double Distance( const Vector& point ) const;
 	void NearestPoint( Vector& point ) const;
 	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint ) const;
-
-	//bool SplitTriangle(
+	bool SplitTriangle( const Triangle& triangle, TriangleList& frontList, TriangleList& backList ) const;
 
 	Vector normal;
 	double dot;

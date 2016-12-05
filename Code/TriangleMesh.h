@@ -5,6 +5,7 @@
 #include "Defines.h"
 #include "Vector.h"
 #include "Renderer.h"
+#include "Triangle.h"
 
 namespace _3DMath
 {
@@ -12,6 +13,7 @@ namespace _3DMath
 	class Plane;
 	class Triangle;
 	class AffineTransform;
+	class AxisAlignedBox;
 }
 
 class _3DMATH_API _3DMath::TriangleMesh
@@ -46,6 +48,8 @@ public:
 	void CalculateSphericalUVs( void );
 	void SubdivideAllTriangles( void );
 	void Transform( const AffineTransform& affineTransform );
+	bool GenerateBoundingBox( AxisAlignedBox& boundingBox ) const;
+	void GenerateTriangleList( TriangleList& triangleList ) const;
 
 	typedef std::set< uint64_t > EdgeSet;
 
