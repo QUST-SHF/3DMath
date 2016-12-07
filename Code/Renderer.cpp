@@ -6,6 +6,7 @@
 #include "TriangleMesh.h"
 #include "LinearTransform.h"
 #include "ParticleSystem.h"
+#include "BoundingBoxTree.h"
 
 using namespace _3DMath;
 
@@ -166,10 +167,54 @@ void Renderer::DrawParticleSystem( const ParticleSystem& particleSystem, int dra
 		particleSystem.collisionObjectCollection.Render( this );
 }
 
+void Renderer::DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags/*= DRAW_BOXES*/ )
+{
+	typedef std::list< const BoundingBoxTree::Node* > NodeList;
+
+	NodeList nodeQueue;
+	nodeQueue.push_back( boxTree.rootNode );
+
+	while( nodeQueue.size() > 0 )
+	{
+		const BoundingBoxTree::Node* node = nodeQueue.front();
+		nodeQueue.pop_front();
+
+		const BoundingBoxTree::BranchNode* branchNode = dynamic_cast< const BoundingBoxTree::BranchNode* >( node );
+		const BoundingBoxTree::LeafNode* leafNode = dynamic_cast< const BoundingBoxTree::LeafNode* >( node );
+
+		if( branchNode )
+		{
+			nodeQueue.push_back( branchNode->backNode );
+			nodeQueue.push_back( branchNode->frontNode );
+		}
+		else if( leafNode )
+		{
+			if( drawFlags & DRAW_BOXES )
+				leafNode->boundingBox.Render( *this );
+
+			if( drawFlags & DRAW_TRIANGLES )
+			{
+				BeginDrawMode( DRAW_MODE_TRIANGLES );
+
+				for( TriangleList::const_iterator iter = leafNode->triangleList->cbegin(); iter != leafNode->triangleList->cend(); iter++ )
+				{
+					const Triangle& triangle = *iter;
+
+					for( int i = 0; i < 3; i++ )
+						IssueVertex( Vertex( triangle.vertex[i] ) );
+				}
+
+				EndDrawMode();
+			}
+		}
+	}
+}
+
 Vertex::Vertex( void )
 {
 	position.Set( 0.0, 0.0, 0.0 );
 	normal.Set( 0.0, 0.0, 0.0 );
+	color.Set( 1.0, 1.0, 1.0 );
 	u = 0.0;
 	v = 0.0;
 }

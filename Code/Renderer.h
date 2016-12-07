@@ -14,6 +14,7 @@ namespace _3DMath
 	class TriangleMesh;
 	class Vertex;
 	class ParticleSystem;
+	class BoundingBoxTree;
 }
 
 class _3DMATH_API _3DMath::Renderer
@@ -62,11 +63,18 @@ public:
 		UV_CORRECTION					= 0x00000001,
 	};
 
+	enum BoundingBoxTreeDrawFlags
+	{
+		DRAW_BOXES						= 0x00000001,
+		DRAW_TRIANGLES					= 0x00000002,
+	};
+
 	void DrawVector( const Vector& vector, const Vector& position, double arrowRadius, int arrowSegments = 8 );
 	void DrawLineSegment( const LineSegment& lineSegment );
 	void DrawTriangle( const Triangle& triangle );
 	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0 );
 	void DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags = DRAW_PARTICLES );
+	void DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags = DRAW_BOXES );
 
 	void CorrectUV( double texCoordAnchor, double& texCoord );
 };
@@ -82,6 +90,7 @@ public:
 
 	Vector position;
 	Vector normal;
+	Vector color;
 	double u, v;
 };
 

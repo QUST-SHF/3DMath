@@ -3,6 +3,8 @@
 #include "AxisAlignedBox.h"
 #include "Triangle.h"
 #include "LineSegment.h"
+#include "Plane.h"
+#include "Renderer.h"
 
 using namespace _3DMath;
 
@@ -59,24 +61,77 @@ void AxisAlignedBox::GetCenter( Vector& center ) const
 	center.Lerp( negCorner, posCorner, 0.5 );
 }
 
-void AxisAlignedBox::SplitInTwo( AxisAlignedBox& boxA, AxisAlignedBox& boxB ) const
+void AxisAlignedBox::SplitInTwo( AxisAlignedBox& boxA, AxisAlignedBox& boxB, Plane* plane /*= nullptr*/, int split /*= -1*/ ) const
 {
-	Vector vector;
-	vector.Subtract( posCorner, negCorner );
-
-	if( vector.x > vector.y )
+	if( split == -1 )
 	{
-		if( vector.x > vector.z )
+		Vector vector;
+		vector.Subtract( posCorner, negCorner );
+
+		if( vector.x > vector.y )
 		{
-			//...
+			if( vector.x > vector.z )
+				split = 0;
+			else
+				split = 2;
 		}
 		else
 		{
+			if( vector.y > vector.z )
+				split = 1;
+			else
+				split = 2;
 		}
 	}
-	else
+
+	Vector center;
+	GetCenter( center );
+
+	boxA = *this;
+	boxB = *this;
+
+	switch( split )
 	{
+		case 0:		// Split along X.
+		{
+			boxA.posCorner.x = center.x;
+			boxB.negCorner.x = center.x;
+
+			if( plane )
+				plane->SetCenterAndNormal( center, Vector( 1.0, 0.0, 0.0 ) );
+
+			break;
+		}
+		case 1:		// Split along Y.
+		{
+			boxA.posCorner.y = center.y;
+			boxB.negCorner.y = center.y;
+
+			if( plane )
+				plane->SetCenterAndNormal( center, Vector( 0.0, 1.0, 0.0 ) );
+
+			break;
+		}
+		case 2:		// Split along Z.
+		{
+			boxA.posCorner.z = center.z;
+			boxB.negCorner.z = center.z;
+
+			if( plane )
+				plane->SetCenterAndNormal( center, Vector( 0.0, 0.0, 1.0 ) );
+
+			break;
+		}
 	}
+}
+
+void AxisAlignedBox::Render( Renderer& renderer ) const
+{
+	renderer.BeginDrawMode( Renderer::DRAW_MODE_LINES );
+
+	//...
+
+	renderer.EndDrawMode();
 }
 
 /*static*/ bool AxisAlignedBox::InInterval( double min, double max, double value )
