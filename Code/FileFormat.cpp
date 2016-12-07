@@ -105,25 +105,31 @@ PlyFormat::PlyFormat( void )
 
         while( ( *headerArray )[0] != "end_header" )
         {
-            if( ( *headerArray )[0] != "element" )
-                headerArray = *( ++headerIter );
-            else
+            if( ( *headerArray )[0] == "element" )
             {
                 if( ( *headerArray )[1] == "vertex" )
                 {
                     int count = atoi( ( *headerArray )[2].c_str() );
                     for( int i = 0; i < count; i++ )
-                        AddVertex( triangleMesh, headerIter, bodyIter++ );
+					{
+                        AddVertex( triangleMesh, headerIter, bodyIter );
+						bodyIter++;
+					}
                 }
                 else if( ( *headerArray )[1] == "face" )
                 {
                     int count = atoi( ( *headerArray )[2].c_str() );
                     for( int i = 0; i < count; i++ )
-                        AddTriangles( triangleMesh, headerIter, bodyIter++ );
+					{
+                        AddTriangles( triangleMesh, headerIter, bodyIter );
+						bodyIter++;
+					}
                 }
                 else
                     throw new Exception( "Unknown element section: " + ( *headerArray )[1] );
             }
+
+			headerArray = *( ++headerIter );
         }
 
         success = true;
@@ -203,7 +209,7 @@ void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineList::iterat
     const StringArray* bodyArray = *bodyIter;
 
     const StringArray* propertyArray = *( ++propretyIter );
-    if( ( *propertyArray )[0] != "proprety" ||
+    if( ( *propertyArray )[0] != "property" ||
         ( *propertyArray )[1] != "list" ||
         ( *propertyArray )[2] != "uchar" ||
         ( *propertyArray )[3] != "int" ||
@@ -241,6 +247,7 @@ PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
 			std::smatch match = *iter;
 			std::string word = match.str();
 			stringArray->push_back( word );
+			iter++;
 		}
 	}
 
