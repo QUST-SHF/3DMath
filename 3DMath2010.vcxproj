@@ -75,6 +75,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code\AffineTransform.cpp" />
+    <ClCompile Include="Code\AxisAlignedBox.cpp" />
+    <ClCompile Include="Code\BoundingBoxTree.cpp" />
+    <ClCompile Include="Code\Exception.cpp" />
+    <ClCompile Include="Code\FileFormat.cpp" />
     <ClCompile Include="Code\LinearTransform.cpp" />
     <ClCompile Include="Code\LineSegment.cpp" />
     <ClCompile Include="Code\ObjectCollection.cpp" />
@@ -88,7 +92,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h" />
+    <ClInclude Include="Code\AxisAlignedBox.h" />
+    <ClInclude Include="Code\BoundingBoxTree.h" />
     <ClInclude Include="Code\Defines.h" />
+    <ClInclude Include="Code\Exception.h" />
+    <ClInclude Include="Code\FileFormat.h" />
     <ClInclude Include="Code\Line.h" />
     <ClInclude Include="Code\LinearTransform.h" />
     <ClInclude Include="Code\LineSegment.h" />

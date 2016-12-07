@@ -18,8 +18,13 @@ public:
     FileFormat( void );
     virtual ~FileFormat( void );
 
-    virtual bool LoadTriangleMesh( TriangleMesh& triangleMesh, const char* file ) = 0;
-    virtual bool SaveTriangleMesh( const TriangleMesh& triangleMesh, const char* file ) = 0;
+	virtual bool LoadTriangleMesh( TriangleMesh& triangleMesh, std::istream& stream ) = 0;
+	virtual bool SaveTriangleMesh( const TriangleMesh& triangleMesh, std::ostream& stream ) = 0;
+
+    virtual bool LoadTriangleMesh( TriangleMesh& triangleMesh, const std::string& file );
+    virtual bool SaveTriangleMesh( const TriangleMesh& triangleMesh, const std::string& file );
+
+	static FileFormat* CreateForFile( const std::string& file );
 };
 
 class _3DMATH_API _3DMath::PlyFormat : public _3DMath::FileFormat
@@ -29,8 +34,8 @@ public:
     PlyFormat( void );
     virtual ~PlyFormat( void );
 
-    virtual bool LoadTriangleMesh( TriangleMesh& triangleMesh, const char* file ) override;
-    virtual bool SaveTriangleMesh( const TriangleMesh& triangleMesh, const char* file ) override;
+    virtual bool LoadTriangleMesh( TriangleMesh& triangleMesh, std::istream& stream ) override;
+    virtual bool SaveTriangleMesh( const TriangleMesh& triangleMesh, std::ostream& stream ) override;
 
 private:
 
@@ -38,9 +43,9 @@ private:
     typedef std::list< StringArray* > LineList;
 
     void AddVertex( TriangleMesh& triangleMesh, const LineList::iterator& headerIter, const LineList::iterator& bodyIter );
-    void AddTriangles( TriangleMesh& triangleMesh, const LineList::iterator& headerIter, const LienList::iterator& bodyIter );
+    void AddTriangles( TriangleMesh& triangleMesh, const LineList::iterator& headerIter, const LineList::iterator& bodyIter );
 
-    LineList* TokenizeFile( const char* file );
+    LineList* TokenizeFile( std::istream& stream );
 };
 
 // FileFormat.h

@@ -59,19 +59,21 @@ void AffineTransform::Transform( Vector* vectorArray, int arraySize ) const
 		Transform( vectorArray[i] );
 }
 
+void AffineTransform::Transform( Vertex& vertex, bool transformNormal /*= false*/ ) const
+{
+	Transform( vertex.position );
+
+	if( transformNormal )
+	{
+		// TODO: I think we actually want to send these through the inverse transpose.
+		linearTransform.Transform( vertex.normal );
+	}
+}
+
 void AffineTransform::Transform( VertexArray& vertexArray, bool transformNormals /*= false*/ ) const
 {
 	for( int i = 0; i < ( signed )vertexArray.size(); i++ )
-	{
-		Vertex& vertex = vertexArray[i];
-		Transform( vertex.position );
-
-		if( transformNormals )
-		{
-			// TODO: I think we actually want to send these through the inverse transpose.
-			linearTransform.Transform( vertex.normal );
-		}
-	}
+		Transform( vertexArray[i], transformNormals );
 }
 
 bool AffineTransform::Invert( void )

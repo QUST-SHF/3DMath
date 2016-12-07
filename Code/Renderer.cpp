@@ -7,6 +7,7 @@
 #include "LinearTransform.h"
 #include "ParticleSystem.h"
 #include "BoundingBoxTree.h"
+#include "AffineTransform.h"
 
 using namespace _3DMath;
 
@@ -74,7 +75,7 @@ void Renderer::CorrectUV( double texCoordAnchor, double& texCoord )
 		texCoord -= 1.0;
 }
 
-void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags /*= 0*/ )
+void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags /*= 0*/, const AffineTransform* transform /*= nullptr*/ )
 {
 	switch( drawStyle )
 	{
@@ -100,7 +101,12 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 				}
 
 				for( int i = 0; i < 3; i++ )
+				{
+					if( transform )
+						transform->Transform( vertex[i] );
+
 					IssueVertex( vertex[i] );
+				}
 
 				iter++;
 			}

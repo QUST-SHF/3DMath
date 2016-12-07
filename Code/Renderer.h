@@ -15,6 +15,7 @@ namespace _3DMath
 	class Vertex;
 	class ParticleSystem;
 	class BoundingBoxTree;
+	class AffineTransform;
 }
 
 class _3DMATH_API _3DMath::Renderer
@@ -72,7 +73,7 @@ public:
 	void DrawVector( const Vector& vector, const Vector& position, double arrowRadius, int arrowSegments = 8 );
 	void DrawLineSegment( const LineSegment& lineSegment );
 	void DrawTriangle( const Triangle& triangle );
-	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0 );
+	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0, const AffineTransform* transform = nullptr );
 	void DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags = DRAW_PARTICLES );
 	void DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags = DRAW_BOXES );
 

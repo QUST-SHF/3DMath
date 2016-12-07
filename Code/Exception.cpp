@@ -10,16 +10,17 @@ using namespace _3DMath;
 
 Exception::Exception( void )
 {
-    this->error = "unknown";
+    this->error = nullptr;
 }
 
 Exception::Exception( const std::string& error )
 {
-    this->error = error;
+    this->error = new std::string( error );
 }
 
 /*virtual*/ Exception::~Exception( void )
 {
+	delete error;
 }
 
 /*virtual*/ void Exception::Handle( void )
@@ -45,7 +46,7 @@ ExceptionCallback::ExceptionCallback( void )
     exceptionCallback = callback;
 }
 
-/*static*/ ExceptionCallback::ExceptionCallback* Get( void )
+/*static*/ ExceptionCallback* ExceptionCallback::Get( void )
 {
     return exceptionCallback;
 }

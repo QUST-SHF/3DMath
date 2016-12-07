@@ -46,10 +46,11 @@ public:
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );
 	void CalculateSphericalUVs( void );
-	void SubdivideAllTriangles( void );
+	void SubdivideAllTriangles( double radius );
 	void Transform( const AffineTransform& affineTransform );
 	bool GenerateBoundingBox( AxisAlignedBox& boundingBox ) const;
 	void GenerateTriangleList( TriangleList& triangleList ) const;
+	//void GenerateMeshUsingString( const std::string& string, double fontSize );
 
 	typedef std::set< uint64_t > EdgeSet;
 

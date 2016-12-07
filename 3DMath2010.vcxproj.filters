@@ -40,6 +40,18 @@
     <ClCompile Include="Code\Vector.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\AxisAlignedBox.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\BoundingBoxTree.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Exception.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\FileFormat.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h">
@@ -79,6 +91,18 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\Vector.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\AxisAlignedBox.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\BoundingBoxTree.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Exception.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\FileFormat.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

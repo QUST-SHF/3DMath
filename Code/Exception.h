@@ -7,6 +7,7 @@
 namespace _3DMath
 {
     class Exception;
+	class ExceptionCallback;
 }
 
 class _3DMATH_API _3DMath::Exception
@@ -19,7 +20,7 @@ public:
 
     virtual void Handle( void );
 
-    std::string error;
+    std::string* error;
 };
 
 class _3DMATH_API _3DMath::ExceptionCallback

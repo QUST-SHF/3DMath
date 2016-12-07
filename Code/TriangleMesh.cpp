@@ -194,7 +194,7 @@ void TriangleMesh::CalculateSphericalUVs( void )
 	}
 }
 
-void TriangleMesh::SubdivideAllTriangles( void )
+void TriangleMesh::SubdivideAllTriangles( double radius )
 {
 	IndexTriangleList::iterator iter = triangleList->begin();
 	while( iter != triangleList->end() )
@@ -210,7 +210,10 @@ void TriangleMesh::SubdivideAllTriangles( void )
 
 		Vector point[3];
 		for( int i = 0; i < 3; i++ )
+		{
 			point[i].Lerp( triangle.vertex[i], triangle.vertex[ ( i + 1 ) % 3 ], 0.5 );
+			point[i].Scale( radius / point[i].Length() );
+		}
 
 		int index[3];
 		for( int i = 0; i < 3; i++ )

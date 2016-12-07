@@ -28,5 +28,8 @@
 #include <string>
 #include <set>
 #include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <regex>
 
 // Defines.h
