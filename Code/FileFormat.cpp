@@ -192,9 +192,9 @@ void PlyFormat::AddVertex( TriangleMesh& triangleMesh, const LineList::iterator&
             vertex.normal.y = value;
         else if( component == "nz" )
             vertex.normal.z = value;
-        else if( component == "u" )
+        else if( component == "u" || component == "s" )
             vertex.u = value;
-        else if( component == "v" )
+        else if( component == "v" || component == "t" )
             vertex.v = value;
         else
 			throw new Exception( "Unexpected vertex component: " + component );
@@ -212,8 +212,8 @@ void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineList::iterat
     if( ( *propertyArray )[0] != "property" ||
         ( *propertyArray )[1] != "list" ||
         ( *propertyArray )[2] != "uchar" ||
-        ( *propertyArray )[3] != "int" ||
-        ( *propertyArray )[4] != "vertex_index" )
+        ( ( *propertyArray )[3] != "int" && ( *propertyArray )[3] != "uint" )||
+        ( *propertyArray )[4] != "vertex_indices" )
     {
         throw new Exception( "Unsupported face format." );
     }
@@ -234,6 +234,7 @@ PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
 {
 	LineList* lineList = new LineList();
 
+	// TODO: This is too slow.  Also support binary PLY or can this be sped up?
 	std::string line;
 	while( std::getline( stream, line ) )
 	{
