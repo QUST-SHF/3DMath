@@ -123,7 +123,7 @@ void LinearTransform::GetTranspose( LinearTransform& linearTransform ) const
 
 	xAxisT.Set( xAxis.x, yAxis.x, zAxis.x );
 	yAxisT.Set( xAxis.y, yAxis.y, zAxis.y );
-	zAxisT.Set( xAxis.z, xAxis.y, xAxis.z );
+	zAxisT.Set( xAxis.z, yAxis.z, zAxis.z );
 
 	linearTransform.xAxis = xAxisT;
 	linearTransform.yAxis = yAxisT;
@@ -170,9 +170,21 @@ bool LinearTransform::GetRotation( Vector& unitAxis, double& angle ) const
 	return false;
 }
 
+// TODO: We may want to provide an argument that lets the caller specify which of the 3 axes to use as anchor.
 bool LinearTransform::Orthogonalize( void )
 {
-	return false;
+	if( Determinant() == 0.0 )
+		return false;
+
+	yAxis.RejectFrom( xAxis );
+	zAxis.RejectFrom( xAxis );
+	zAxis.RejectFrom( yAxis );
+
+	xAxis.Normalize();
+	yAxis.Normalize();
+	zAxis.Normalize();
+
+	return true;
 }
 
 bool LinearTransform::Decompose( LinearTransform& scale, LinearTransform& shear, LinearTransform& rotation )
