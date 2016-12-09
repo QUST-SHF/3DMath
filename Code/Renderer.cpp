@@ -14,10 +14,12 @@ using namespace _3DMath;
 Renderer::Renderer( void )
 {
 	drawStyle = DRAW_STYLE_SOLID;
+	cachedEdgeSet = new TriangleMesh::EdgeSet;
 }
 
 /*virtual*/ Renderer::~Renderer( void )
 {
+	delete cachedEdgeSet;
 }
 
 void Renderer::DrawVector( const Vector& vector, const Vector& position, double arrowRadius, int arrowSegments /*= 8*/ )
@@ -117,12 +119,12 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 		}
 		case DRAW_STYLE_WIRE_FRAME:
 		{
-			TriangleMesh::EdgeSet edgeSet;
-			triangleMesh.GenerateEdgeSet( edgeSet );
+			if( cachedEdgeSet->size() == 0 )
+				triangleMesh.GenerateEdgeSet( *cachedEdgeSet );
 
 			BeginDrawMode( DRAW_MODE_LINES );
 			
-			for( TriangleMesh::EdgeSet::iterator iter = edgeSet.begin(); iter != edgeSet.end(); iter++ )
+			for( TriangleMesh::EdgeSet::iterator iter = cachedEdgeSet->begin(); iter != cachedEdgeSet->end(); iter++ )
 			{
 				uint64_t edgePair = *iter;
 

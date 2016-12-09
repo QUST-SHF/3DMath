@@ -14,6 +14,7 @@ namespace _3DMath
 	class Triangle;
 	class AffineTransform;
 	class AxisAlignedBox;
+	class Vertex;
 }
 
 class _3DMATH_API _3DMath::TriangleMesh
@@ -72,7 +73,7 @@ public:
 
 	// TODO: May want to write a tri-stripper one day.
 
-	VertexArray* vertexArray;
+	std::vector< Vertex >* vertexArray;
 	IndexTriangleList* triangleList;
 };
 

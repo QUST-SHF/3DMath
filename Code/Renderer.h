@@ -4,6 +4,7 @@
 
 #include "Defines.h"
 #include "Vector.h"
+#include "TriangleMesh.h"
 
 namespace _3DMath
 {
@@ -78,6 +79,8 @@ public:
 	void DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags = DRAW_BOXES );
 
 	void CorrectUV( double texCoordAnchor, double& texCoord );
+
+	std::set< uint64_t >* cachedEdgeSet;
 };
 
 class _3DMATH_API _3DMath::Vertex
