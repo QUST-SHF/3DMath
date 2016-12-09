@@ -68,6 +68,8 @@ PlyFormat::PlyFormat( void )
     
     try
     {
+		// TODO: Support binary PLY format too.
+
         triangleMesh.Clear();
 
         lineList = TokenizeFile( stream );
@@ -234,13 +236,13 @@ PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
 {
 	LineList* lineList = new LineList();
 
-	// TODO: This is too slow.  Also support binary PLY or can this be sped up?
 	std::string line;
 	while( std::getline( stream, line ) )
 	{
 		StringArray* stringArray = new StringArray();
 		lineList->push_back( stringArray );
 
+#if 0
 		std::regex regex( "(\\S+)" );
 		std::sregex_iterator iter( line.begin(), line.end(), regex );
 		while( iter != std::sregex_iterator() )
@@ -250,6 +252,24 @@ PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
 			stringArray->push_back( word );
 			iter++;
 		}
+#else
+		std::string word;
+		int length = line.length();
+		for( int i = 0; i < length; i++ )
+		{
+			char ch = line.c_str()[i];
+			if( !::isspace( ch ) )
+				word += ch;
+			else if( word.size() > 0 )
+			{
+				stringArray->push_back( word );
+				word.clear();
+			}
+		}
+
+		if( word.size() > 0 )
+			stringArray->push_back( word );
+#endif
 	}
 
     return lineList;
