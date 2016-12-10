@@ -63,6 +63,7 @@ public:
 	enum TriangleMeshDrawFlags
 	{
 		UV_CORRECTION					= 0x00000001,
+		DRAW_NORMALS					= 0x00000002,
 	};
 
 	enum BoundingBoxTreeDrawFlags
@@ -71,7 +72,7 @@ public:
 		DRAW_TRIANGLES					= 0x00000002,
 	};
 
-	void DrawVector( const Vector& vector, const Vector& position, double arrowRadius, int arrowSegments = 8 );
+	void DrawVector( const Vector& vector, const Vector& position, const Vector& color, double arrowRadius, int arrowSegments = 8 );
 	void DrawLineSegment( const LineSegment& lineSegment );
 	void DrawTriangle( const Triangle& triangle );
 	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0, const AffineTransform* transform = nullptr );
@@ -89,6 +90,7 @@ public:
 
 	Vertex( void );
 	Vertex( const Vector& position );
+	Vertex( const Vector& position, const Vector& color );
 	Vertex( const Vector& position, const Vector& normal, double u, double v );
 	~Vertex( void );
 
@@ -96,6 +98,7 @@ public:
 	Vector normal;
 	Vector color;
 	double u, v;
+	double alpha;
 };
 
 namespace _3DMath

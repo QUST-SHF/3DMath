@@ -22,41 +22,44 @@ Renderer::Renderer( void )
 	delete cachedEdgeSet;
 }
 
-void Renderer::DrawVector( const Vector& vector, const Vector& position, double arrowRadius, int arrowSegments /*= 8*/ )
+void Renderer::DrawVector( const Vector& vector, const Vector& position, const Vector& color, double arrowRadius, int arrowSegments /*= 8*/ )
 {
 	Vector unitVector;
 	if( !vector.GetNormalized( unitVector ) )
 		return;
 
-	LinearTransform rotation;
-	rotation.SetRotation( unitVector, 2.0 * M_PI / double( arrowSegments ) );
-
 	Vector arrowPoint;
 	arrowPoint.Add( position, vector );
 
 	BeginDrawMode( DRAW_MODE_LINES );
-	IssueVertex( Vertex( position ) );
-	IssueVertex( Vertex( arrowPoint ) );
+	IssueVertex( Vertex( position, color ) );
+	IssueVertex( Vertex( arrowPoint, color ) );
 	EndDrawMode();
 
-	Vector arrowHeadBasePos;
-	arrowHeadBasePos.AddScale( position, unitVector, vector.Length() - arrowRadius );
-
-	Vector orthoVector;
-	unitVector.Orthogonal( orthoVector );
-	orthoVector.Scale( arrowRadius / orthoVector.Length() );
-
-	Vertex vertex;
-	vertex.position.Add( arrowHeadBasePos, orthoVector );
-
-	BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
-	IssueVertex( Vertex( arrowPoint ) );
-	for( int i = 0; i <= arrowSegments; i++ )
+	if( arrowSegments > 2 )
 	{
-		IssueVertex( vertex );
-		rotation.Transform( vertex.position );
+		LinearTransform rotation;
+		rotation.SetRotation( unitVector, 2.0 * M_PI / double( arrowSegments ) );
+
+		Vector arrowHeadBasePos;
+		arrowHeadBasePos.AddScale( position, unitVector, vector.Length() - arrowRadius );
+
+		Vector orthoVector;
+		unitVector.Orthogonal( orthoVector );
+		orthoVector.Scale( arrowRadius / orthoVector.Length() );
+
+		Vertex vertex;
+		vertex.position.Add( arrowHeadBasePos, orthoVector );
+
+		BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
+		IssueVertex( Vertex( arrowPoint ) );
+		for( int i = 0; i <= arrowSegments; i++ )
+		{
+			IssueVertex( vertex );
+			rotation.Transform( vertex.position );
+		}
+		EndDrawMode();
 	}
-	EndDrawMode();
 }
 
 void Renderer::DrawLineSegment( const LineSegment& lineSegment )
@@ -158,6 +161,29 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 			break;
 		}
 	}
+
+	if( drawFlags & DRAW_NORMALS )
+	{
+		TriangleMesh::IndexTriangleList::iterator iter = triangleMesh.triangleList->begin();
+		while( iter != triangleMesh.triangleList->end() )
+		{
+			const TriangleMesh::IndexTriangle& indexTriangle = *iter;
+
+			Triangle triangle;
+			indexTriangle.GetTriangle( triangle );
+
+			Plane plane;
+			indexTriangle.GetPlane( plane );
+
+			Vector center;
+			triangle.GetCenter( center );
+			
+			plane.normal.Scale( 0.2 );
+			DrawVector( plane.normal, center, Vector( 1.0, 0.0, 0.0 ), 0.0, 0 );
+
+			iter++;
+		}
+	}
 }
 
 void Renderer::DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags /*= DRAW_PARTICLES*/ )
@@ -225,14 +251,27 @@ Vertex::Vertex( void )
 	color.Set( 1.0, 1.0, 1.0 );
 	u = 0.0;
 	v = 0.0;
+	alpha = 1.0;
 }
 
 Vertex::Vertex( const Vector& position )
 {
 	this->position = position;
 	normal.Set( 0.0, 0.0, 0.0 );
+	color.Set( 0.0, 0.0, 0.0 );
 	u = 0.0;
 	v = 0.0;
+	alpha = 1.0;
+}
+
+Vertex::Vertex( const Vector& position, const Vector& color )
+{
+	this->position = position;
+	this->color = color;
+	normal.Set( 0.0, 1.0, 0.0 );
+	u = 0.0;
+	v = 0.0;
+	alpha = 1.0;
 }
 
 Vertex::Vertex( const Vector& position, const Vector& normal, double u, double v )
@@ -241,6 +280,8 @@ Vertex::Vertex( const Vector& position, const Vector& normal, double u, double v
 	this->normal = normal;
 	this->v = v;
 	this->u = u;
+	color.Set( 0.0, 0.0, 0.0 );
+	alpha = 1.0;
 }
 
 Vertex::~Vertex( void )

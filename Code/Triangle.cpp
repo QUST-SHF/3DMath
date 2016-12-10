@@ -28,6 +28,13 @@ void Triangle::GetNormal( Vector& normal ) const
 	normal.Cross( edge[0], edge[1] );
 }
 
+void Triangle::GetCenter( Vector& center ) const
+{
+	center.Add( vertex[0], vertex[1] );
+	center.Add( vertex[2] );
+	center.Scale( 1.0 / 3.0 );
+}
+
 double Triangle::Area( void ) const
 {
 	Vector normal;

@@ -23,6 +23,7 @@ public:
 	double Area( void ) const;
 	void GetNormal( Vector& normal ) const;
 	void GetPlane( Plane& plane ) const;
+	void GetCenter( Vector& center ) const;
 	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
 	bool IsDegenerate( double eps = EPSILON ) const;
 	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint ) const;
