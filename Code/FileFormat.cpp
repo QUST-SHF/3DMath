@@ -317,3 +317,24 @@ PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
 }
 
 // FileFormat.cpp
+
+
+// TODO: Try to write a simple python script to export PLY format from Blender since Blender's native export of PLY sucks.
+
+/*
+# Export to PLY format.
+
+import bpy
+
+obj = bpy.data.objects[ 'TrackMesh' ]
+
+i = 0
+for vert in obj.data.vertices:
+print( str(i) + ' -> ' + str( obj.matrix_world * v.co ) )
+i += 1
+
+for poly in obj.data.polygons:
+	print( 'poly...' )
+	for index in poly.loop_indices:
+		print( str( index ) )
+*/

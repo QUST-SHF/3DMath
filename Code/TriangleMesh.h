@@ -47,11 +47,12 @@ public:
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );
 	void CalculateSphericalUVs( void );
-	void SubdivideAllTriangles( double radius );
+	void SubdivideAllTriangles( double radius );	// TODO: A better version of this could smooth any ridged mesh.  This one only knows convex meshes at origin.
 	void Transform( const AffineTransform& affineTransform );
 	bool GenerateBoundingBox( AxisAlignedBox& boundingBox ) const;
 	void GenerateTriangleList( TriangleList& triangleList ) const;
-	//void GenerateMeshUsingString( const std::string& string, double fontSize );
+	//void GenerateStringMesh( const std::string& string, double fontSize );
+	//void Compress( void );		// TODO: Consolidate identical vertices.
 
 	typedef std::set< uint64_t > EdgeSet;
 
