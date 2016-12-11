@@ -10,14 +10,21 @@ class PLYExportOperator( bpy.types.Operator ):
 
     @classmethod
     def poll( cls, context ):
-        return context.active_object is not None
+        if context.active_object is None:
+            return False
+        if context.active_object.data.uv_layers.active is None:
+            return False
+        return True
 
     def execute( self, context ):
         
+        bpy.ops.object.mode_set( mode = 'OBJECT' )
+
         obj = context.active_object
 
-        vert_list = list( obj.data.vertices )
-        poly_list = list( obj.data.polygons )
+        vert_list = obj.data.vertices
+        poly_list = obj.data.polygons
+        uv_list = obj.data.uv_layers.active.data
 
         ply_export = 'ply\n'
         ply_export += 'format ascii 1.0\n'
@@ -35,9 +42,31 @@ class PLYExportOperator( bpy.types.Operator ):
         ply_export += 'property list uchar int vertex_indices\n'
         ply_export += 'end_header\n'
 
+        class PlyVertex:
+            def __init__( self, co, nm, uv ):
+                self.co = co
+                self.nm = nm
+                self.uv = uv
+
+        ply_vert_array = []
         for vert in vert_list:
             co = obj.matrix_world * vert.co
-            ply_export += '%f %f %f\n' % ( co.x, co.y, co.z )
+            nm = obj.matrix_world * vert.normal		# Use inverse transpose?
+            ply_vert_array.append( PlyVertex( co, nm, None ) )
+            
+        for poly in poly_list:
+            loop_stop = poly.loop_start + poly.loop_total
+            for loop_index in range( poly.loop_start, loop_stop ):
+                vert_index = obj.data.loops[ loop_index ].vertex_index
+                uv = uv_list[ loop_index ].uv
+                ply_vert_array[ vert_index ].uv = uv
+
+        for i in range( len( ply_vert_array ) ):
+            ply_vert = ply_vert_array[i]
+            ply_export += '%f %f %f %f %f %f %f %f\n' % (
+                    ply_vert.co.x, ply_vert.co.y, ply_vert.co.z,
+                    ply_vert.nm.x, ply_vert.nm.y, ply_vert.nm.z,
+                    ply_vert.uv.x, ply_vert.uv.y )
 
         for poly in poly_list:
             ply_export += str( poly.loop_total ) + ' '
@@ -48,7 +77,7 @@ class PLYExportOperator( bpy.types.Operator ):
 
         print( ply_export )
 
-        return {'FINISHED'}
+        return{ 'FINISHED' }
 
 def register():
     bpy.utils.register_class( PLYExportOperator )
