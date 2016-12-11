@@ -178,6 +178,9 @@
     <ClCompile Include="Code\TriangleMesh.cpp" />
     <ClCompile Include="Code\Vector.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\PLYExport.py" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

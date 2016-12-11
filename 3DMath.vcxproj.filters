@@ -5,6 +5,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{748f34b6-571c-45bb-a56e-164a819ce5f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Defines.h">
@@ -108,5 +111,10 @@
     <ClCompile Include="Code\FileFormat.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\PLYExport.py">
+      <Filter>Scripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

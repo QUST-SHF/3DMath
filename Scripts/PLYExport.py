@@ -39,12 +39,11 @@ class PLYExportOperator( bpy.types.Operator ):
             co = obj.matrix_world * vert.co
             ply_export += '%f %f %f\n' % ( co.x, co.y, co.z )
 
-		# TODO: Why are the indices wrong?  What am I not understanding about the mesh data structure?
         for poly in poly_list:
-            index_list = list( poly.loop_indices )
-            ply_export += str( len( index_list ) ) + ' '
-            for i in index_list:
-                ply_export += str(i) + ' '
+            ply_export += str( poly.loop_total ) + ' '
+            loop_stop = poly.loop_start + poly.loop_total
+            for loop_index in range( poly.loop_start, loop_stop ):
+                ply_export += str( obj.data.loops[ loop_index ].vertex_index ) + ' '
             ply_export += '\n'
 
         print( ply_export )
