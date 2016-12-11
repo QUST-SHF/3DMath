@@ -79,7 +79,7 @@ class PLYExportOperator( bpy.types.Operator, ExportHelper ):
             ply_export += '%f %f %f %f %f %f %f %f\n' % (
                     ply_vert.co.x, ply_vert.co.y, ply_vert.co.z,
                     ply_vert.nm.x, ply_vert.nm.y, ply_vert.nm.z,
-                    ply_vert.uv.x, ply_vert.uv.y )
+                    ply_vert.uv.x, 1.0 - ply_vert.uv.y )
 
         for poly in poly_list:
             ply_export += str( poly.loop_total ) + ' '
