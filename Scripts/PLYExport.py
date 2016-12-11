@@ -1,12 +1,25 @@
 # PLYExport.py
 
-import bpy
+bl_info = {
+    'name' : 'PLYExport',
+    'description' : 'Exports active object to PLY format.',
+    'author' : 'Spencer',
+    'version' : ( 0, 1 ),
+    'blender' : ( 2, 28, 0 ),
+    'location' : 'File > Import-Export',
+    'category' : 'Import-Export'
+}
 
-class PLYExportOperator( bpy.types.Operator ):
+import bpy
+from bpy_extras.io_utils import ExportHelper
+
+class PLYExportOperator( bpy.types.Operator, ExportHelper ):
     """Export object to PLY format."""
     
-    bl_idname = "object.ply_export_operator"
-    bl_label = "PLY Object Exporter"
+    bl_idname = "model.ply"
+    bl_label = "Export PLY"
+    bl_options = { 'PRESET' }
+    filename_ext = '.ply'
 
     @classmethod
     def poll( cls, context ):
@@ -75,15 +88,21 @@ class PLYExportOperator( bpy.types.Operator ):
                 ply_export += str( obj.data.loops[ loop_index ].vertex_index ) + ' '
             ply_export += '\n'
 
-        print( ply_export )
+        with open( self.filepath, 'w' ) as file:
+            file.write( ply_export )
 
         return{ 'FINISHED' }
 
+def menu_func( self, context ):
+    self.layout.operator( PLYExportOperator.bl_idname, text = 'PLY (.ply)' )
+
 def register():
     bpy.utils.register_class( PLYExportOperator )
+    bpy.types.INFO_MT_file_export.append( menu_func )
 
 def unregister():
     bpy.utils.unregister_class( PLYExportOperator )
+    bpy.types.INFO_MT_file_export.remove( menu_func )
 
 if __name__ == "__main__":
     register()
