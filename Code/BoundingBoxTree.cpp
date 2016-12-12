@@ -99,6 +99,8 @@ BoundingBoxTree::BranchNode::BranchNode( void )
 
 BoundingBoxTree::BranchNode::~BranchNode( void )
 {
+	delete frontNode;
+	delete backNode;
 }
 
 bool BoundingBoxTree::BranchNode::InsertTriangle( const Triangle& triangle )

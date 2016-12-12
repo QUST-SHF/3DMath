@@ -129,7 +129,32 @@ void AxisAlignedBox::Render( Renderer& renderer ) const
 {
 	renderer.BeginDrawMode( Renderer::DRAW_MODE_LINES );
 
-	//...
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, negCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, negCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, posCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, posCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, negCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, negCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, posCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, posCorner.y, posCorner.z ) ) );
+
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, negCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, posCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, negCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, posCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, negCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, posCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, negCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, posCorner.y, posCorner.z ) ) );
+
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, negCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, negCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, negCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, negCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, posCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( negCorner.x, posCorner.y, posCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, posCorner.y, negCorner.z ) ) );
+	renderer.IssueVertex( Vertex( Vector( posCorner.x, posCorner.y, posCorner.z ) ) );
 
 	renderer.EndDrawMode();
 }
