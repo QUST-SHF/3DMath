@@ -189,8 +189,8 @@ void TriangleMesh::CalculateSphericalUVs( void )
 		if( longitudeAngle < 0.0 )
 			longitudeAngle += 2.0 * M_PI;
 
-		vertex->u = 1.0 - longitudeAngle / ( 2.0 * M_PI );
-		vertex->v = lattitudeAngle / M_PI;
+		vertex->texCoords.x = 1.0 - longitudeAngle / ( 2.0 * M_PI );
+		vertex->texCoords.y = lattitudeAngle / M_PI;
 	}
 }
 

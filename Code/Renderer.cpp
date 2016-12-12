@@ -99,10 +99,10 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 
 				if( drawFlags & UV_CORRECTION )
 				{
-					CorrectUV( vertex[0].u, vertex[1].u );
-					CorrectUV( vertex[0].u, vertex[2].u );
-					CorrectUV( vertex[0].v, vertex[1].v );
-					CorrectUV( vertex[0].v, vertex[2].v );
+					CorrectUV( vertex[0].texCoords.x, vertex[1].texCoords.x );
+					CorrectUV( vertex[0].texCoords.x, vertex[2].texCoords.x );
+					CorrectUV( vertex[0].texCoords.y, vertex[1].texCoords.y );
+					CorrectUV( vertex[0].texCoords.y, vertex[2].texCoords.y );
 				}
 
 				for( int i = 0; i < 3; i++ )
@@ -249,8 +249,7 @@ Vertex::Vertex( void )
 	position.Set( 0.0, 0.0, 0.0 );
 	normal.Set( 0.0, 0.0, 0.0 );
 	color.Set( 1.0, 1.0, 1.0 );
-	u = 0.0;
-	v = 0.0;
+	texCoords.Set( 0.0, 0.0, 0.0 );
 	alpha = 1.0;
 }
 
@@ -259,8 +258,7 @@ Vertex::Vertex( const Vector& position )
 	this->position = position;
 	normal.Set( 0.0, 0.0, 0.0 );
 	color.Set( 0.0, 0.0, 0.0 );
-	u = 0.0;
-	v = 0.0;
+	texCoords.Set( 0.0, 0.0, 0.0 );
 	alpha = 1.0;
 }
 
@@ -269,8 +267,7 @@ Vertex::Vertex( const Vector& position, const Vector& color )
 	this->position = position;
 	this->color = color;
 	normal.Set( 0.0, 1.0, 0.0 );
-	u = 0.0;
-	v = 0.0;
+	texCoords.Set( 0.0, 0.0, 0.0 );
 	alpha = 1.0;
 }
 
@@ -278,8 +275,7 @@ Vertex::Vertex( const Vector& position, const Vector& normal, double u, double v
 {
 	this->position = position;
 	this->normal = normal;
-	this->v = v;
-	this->u = u;
+	texCoords.Set( u, v, 0.0 );
 	color.Set( 0.0, 0.0, 0.0 );
 	alpha = 1.0;
 }

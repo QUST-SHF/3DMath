@@ -97,7 +97,7 @@ public:
 	Vector position;
 	Vector normal;
 	Vector color;
-	double u, v;
+	Vector texCoords;
 	double alpha;
 };
 

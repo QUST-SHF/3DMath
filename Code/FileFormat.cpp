@@ -46,7 +46,53 @@ FileFormat::FileFormat( void )
 	if( file.find( ".ply" ) >= 0 )
 		fileFormat = new PlyFormat();
 
+	if( file.find( ".obj" ) >= 0 )
+		fileFormat = new ObjFormat();
+
 	return fileFormat;
+}
+
+FileFormat::LineArray* FileFormat::TokenizeFile( std::istream& stream )
+{
+	LineArray* lineArray = new LineArray();
+
+	std::string line;
+	while( std::getline( stream, line ) )
+	{
+		StringArray* stringArray = new StringArray();
+		lineArray->push_back( stringArray );
+
+#if 0
+		std::regex regex( "(\\S+)" );
+		std::sregex_iterator iter( line.begin(), line.end(), regex );
+		while( iter != std::sregex_iterator() )
+		{
+			std::smatch match = *iter;
+			std::string word = match.str();
+			stringArray->push_back( word );
+			iter++;
+		}
+#else
+		std::string word;
+		int length = line.length();
+		for( int i = 0; i < length; i++ )
+		{
+			char ch = line.c_str()[i];
+			if( !::isspace( ch ) )
+				word += ch;
+			else if( word.size() > 0 )
+			{
+				stringArray->push_back( word );
+				word.clear();
+			}
+		}
+
+		if( word.size() > 0 )
+			stringArray->push_back( word );
+#endif
+	}
+
+    return lineArray;
 }
 
 //---------------------------------------------------------------------
@@ -64,19 +110,19 @@ PlyFormat::PlyFormat( void )
 /*virtual*/ bool PlyFormat::LoadTriangleMesh( TriangleMesh& triangleMesh, std::istream& stream )
 {
     bool success = true;
-    LineList* lineList = nullptr;
+    LineArray* lineArray = nullptr;
     
     try
     {
-		// TODO: Support binary PLY format too.
+		// TODO: Support binary PLY format too?
 
         triangleMesh.Clear();
 
-        lineList = TokenizeFile( stream );
-        if( !lineList || lineList->size() == 0 )
+        lineArray = TokenizeFile( stream );
+        if( !lineArray || lineArray->size() == 0 )
             throw new Exception( "Failed to tokenize." );
 
-        LineList::iterator headerIter = lineList->begin();
+        LineArray::iterator headerIter = lineArray->begin();
         StringArray* headerArray = *headerIter;
         if( headerArray->size() == 0 || ( *headerArray )[0] != "ply" )
             throw new Exception( "Not a ply file." );
@@ -94,7 +140,7 @@ PlyFormat::PlyFormat( void )
         }
         while( ( *headerArray )[0] == "comment" );
 
-        LineList::iterator bodyIter = headerIter;
+        LineArray::iterator bodyIter = headerIter;
         StringArray* bodyArray = nullptr;
 
         do
@@ -143,25 +189,25 @@ PlyFormat::PlyFormat( void )
         success = false;
     }
 
-    if( lineList )
+    if( lineArray )
     {
-        while( lineList->size() > 0 )
+        while( lineArray->size() > 0 )
         {
-            LineList::iterator iter = lineList->begin();
+            LineArray::iterator iter = lineArray->begin();
             StringArray* stringArray = *iter;
             delete stringArray;
-            lineList->erase( iter );
+            lineArray->erase( iter );
         }
 
-        delete lineList;
+        delete lineArray;
     }
 
     return success;
 }
 
-void PlyFormat::AddVertex( TriangleMesh& triangleMesh, const LineList::iterator& headerIter, const LineList::iterator& bodyIter )
+void PlyFormat::AddVertex( TriangleMesh& triangleMesh, const LineArray::iterator& headerIter, const LineArray::iterator& bodyIter )
 {
-    LineList::iterator propretyIter = headerIter;
+    LineArray::iterator propretyIter = headerIter;
     const StringArray* bodyArray = *bodyIter;
     Vertex vertex;
 
@@ -195,9 +241,9 @@ void PlyFormat::AddVertex( TriangleMesh& triangleMesh, const LineList::iterator&
         else if( component == "nz" )
             vertex.normal.z = value;
         else if( component == "u" || component == "s" )
-            vertex.u = value;
+            vertex.texCoords.x = value;
         else if( component == "v" || component == "t" )
-            vertex.v = value;
+            vertex.texCoords.y = value;
         else
 			throw new Exception( "Unexpected vertex component: " + component );
     }
@@ -205,9 +251,9 @@ void PlyFormat::AddVertex( TriangleMesh& triangleMesh, const LineList::iterator&
     triangleMesh.vertexArray->push_back( vertex );
 }
 
-void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineList::iterator& headerIter, const LineList::iterator& bodyIter )
+void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineArray::iterator& headerIter, const LineArray::iterator& bodyIter )
 {
-    LineList::iterator propretyIter = headerIter;
+    LineArray::iterator propretyIter = headerIter;
     const StringArray* bodyArray = *bodyIter;
 
     const StringArray* propertyArray = *( ++propretyIter );
@@ -230,49 +276,6 @@ void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineList::iterat
 
         triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( vertex0, vertex1, vertex2, &triangleMesh ) );
     }
-}
-
-PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
-{
-	LineList* lineList = new LineList();
-
-	std::string line;
-	while( std::getline( stream, line ) )
-	{
-		StringArray* stringArray = new StringArray();
-		lineList->push_back( stringArray );
-
-#if 0
-		std::regex regex( "(\\S+)" );
-		std::sregex_iterator iter( line.begin(), line.end(), regex );
-		while( iter != std::sregex_iterator() )
-		{
-			std::smatch match = *iter;
-			std::string word = match.str();
-			stringArray->push_back( word );
-			iter++;
-		}
-#else
-		std::string word;
-		int length = line.length();
-		for( int i = 0; i < length; i++ )
-		{
-			char ch = line.c_str()[i];
-			if( !::isspace( ch ) )
-				word += ch;
-			else if( word.size() > 0 )
-			{
-				stringArray->push_back( word );
-				word.clear();
-			}
-		}
-
-		if( word.size() > 0 )
-			stringArray->push_back( word );
-#endif
-	}
-
-    return lineList;
 }
 
 /*virtual*/ bool PlyFormat::SaveTriangleMesh( const TriangleMesh& triangleMesh, std::ostream& stream )
@@ -303,7 +306,7 @@ PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
 		stream << vertex.position.x << " " << vertex.position.y << " " << vertex.position.z << " ";
 		stream << vertex.normal.x << " " << vertex.normal.y << " " << vertex.normal.z << " ";
 		stream << vertex.color.x << " " << vertex.color.y << " " << vertex.color.z << " ";
-		stream << vertex.u << " " << vertex.v << std::endl;
+		stream << vertex.texCoords.x << " " << vertex.texCoords.y << std::endl;
 	}
 
 	for( TriangleMesh::IndexTriangleList::const_iterator iter = triangleMesh.triangleList->cbegin(); iter != triangleMesh.triangleList->cend(); iter++ )
@@ -314,6 +317,153 @@ PlyFormat::LineList* PlyFormat::TokenizeFile( std::istream& stream )
 	}
 
     return true;
+}
+
+//---------------------------------------------------------------------
+//                               ObjFormat
+//---------------------------------------------------------------------
+
+ObjFormat::ObjFormat( void )
+{
+}
+
+/*virtual*/ ObjFormat::~ObjFormat( void )
+{
+}
+
+/*virtual*/ bool ObjFormat::LoadTriangleMesh( TriangleMesh& triangleMesh, std::istream& stream )
+{
+	bool success = true;
+
+	LineArray* lineArray = nullptr;
+    
+    try
+    {
+		triangleMesh.Clear();
+
+        lineArray = TokenizeFile( stream );
+        if( !lineArray || lineArray->size() == 0 )
+            throw new Exception( "Failed to tokenize." );
+
+		int positionIndexBase = FindFirstLine( lineArray, "v" );
+		if( positionIndexBase < 0 )
+			throw new Exception( "Did not find vertex buffer." );
+
+		int faceIndexBase = FindFirstLine( lineArray, "f" );
+		if( faceIndexBase < 0 )
+			throw new Exception( "Did not find face buffer." );
+
+		// These are optional.
+		int texCoordIndexBase = FindFirstLine( lineArray, "vt" );
+		int normalIndexBase = FindFirstLine( lineArray, "vn" );
+
+		// This will most likely not be as compressed as it could be.
+		for( int faceIndex = 0; faceIndexBase + faceIndex < ( signed )lineArray->size(); faceIndex++ )
+		{
+			StringArray* faceLine = ( *lineArray )[ faceIndexBase + faceIndex ];
+			if( ( *faceLine )[0] == "f" )
+			{
+				int j = triangleMesh.vertexArray->size();
+
+				for( int i = 1; i < ( signed )faceLine->size(); i++ )
+				{
+					int positionIndex, texCoordIndex, normalIndex;
+					std::string& vertexString = ( *faceLine )[i];
+					if( !ParseVertex( vertexString, positionIndex, texCoordIndex, normalIndex ) )
+						throw new Exception( "Failed to parse vertex: " + vertexString );
+
+					StringArray* positionLine = ( positionIndex >= 0 ) ? ( *lineArray )[ positionIndexBase + positionIndex - 1 ] : nullptr;
+					StringArray* texCoordLine = ( texCoordIndex >= 0 ) ? ( *lineArray )[ texCoordIndexBase + texCoordIndex - 1 ] : nullptr;
+					StringArray* normalLine = ( normalIndex >= 0 ) ? ( *lineArray )[ normalIndexBase + normalIndex - 1 ] : nullptr;
+
+					Vertex vertex;
+					PopulateVector( positionLine, 1, vertex.position );
+					PopulateVector( texCoordLine, 1, vertex.texCoords );
+					PopulateVector( normalLine, 1, vertex.normal );
+
+					vertex.texCoords.y = 1.0 - vertex.texCoords.y;
+
+					triangleMesh.vertexArray->push_back( vertex );
+				}
+
+				// Choose an arbitrary tesselation of the face.
+				int vertexCount = ( signed )faceLine->size() - 1;
+				for( int i = 0; i < vertexCount - 2; i++ )
+					triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( j, j + i + 1, j + i + 2, &triangleMesh ) );
+			}
+		}
+	}
+	catch( Exception* exception )
+	{
+		exception->Handle();
+		delete exception;
+		success = false;
+	}
+
+	for( int i = 0; i < ( signed )lineArray->size(); i++ )
+		delete ( *lineArray )[i];
+	delete lineArray;
+
+	return success;
+}
+
+/*virtual*/ bool ObjFormat::SaveTriangleMesh( const TriangleMesh& triangleMesh, std::ostream& stream )
+{
+	return false;
+}
+
+int ObjFormat::FindFirstLine( const LineArray* lineArray, const std::string& lineType )
+{
+	for( int i = 0; i < ( signed )lineArray->size(); i++ )
+	{
+		StringArray* stringArray = ( *lineArray )[i];
+		if( stringArray->size() > 0 && ( *stringArray )[0] == lineType )
+			return i;
+	}
+
+	return -1;
+}
+
+bool ObjFormat::ParseVertex( const std::string& vertexString, int& positionIndex, int& texCoordIndex, int& normalIndex )
+{
+	positionIndex = -1;
+	texCoordIndex = -1;
+	normalIndex = -1;
+
+	std::string stringList[3];
+
+	int i = 0, j = 0;
+
+	while( j < 3 && vertexString.data()[i] != '\0' )
+	{
+		while( vertexString.data()[i] != '/' && vertexString.data()[i] != '\0' )
+			stringList[j] += vertexString.data()[ i++ ];
+
+		j++;
+
+		if( vertexString.data()[i] == '/' )
+			i++;
+	}
+
+	if( stringList[0].length() > 0 )
+		positionIndex = atoi( stringList[0].c_str() );
+
+	if( stringList[1].length() > 0 )
+		texCoordIndex = atoi( stringList[1].c_str() );
+
+	if( stringList[2].length() > 0 )
+		normalIndex = atoi( stringList[2].c_str() );
+
+	return true;
+}
+
+void ObjFormat::PopulateVector( const StringArray* stringArray, int startIndex, Vector& vector )
+{
+	vector.Set( 0.0, 0.0, 0.0 );
+	int j = 0;
+	double* component = &vector.x;
+	for( int i = startIndex; i < ( signed )stringArray->size() && j < 3; i++ )
+		component[ j++ ] = atof( ( *stringArray )[i].c_str() );
 }
 
 // FileFormat.cpp
