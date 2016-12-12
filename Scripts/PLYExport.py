@@ -34,10 +34,11 @@ class PLYExportOperator( bpy.types.Operator, ExportHelper ):
         bpy.ops.object.mode_set( mode = 'OBJECT' )
 
         obj = context.active_object
-
-        vert_list = obj.data.vertices
-        poly_list = obj.data.polygons
-        uv_list = obj.data.uv_layers.active.data
+        mesh = obj.data
+        mesh.update( calc_tessface = True )
+        tex = mesh.tessface_uv_textures.active
+        vert_list = mesh.vertices
+        poly_list = mesh.polygons
 
         ply_export = 'ply\n'
         ply_export += 'format ascii 1.0\n'
@@ -66,13 +67,15 @@ class PLYExportOperator( bpy.types.Operator, ExportHelper ):
             co = obj.matrix_world * vert.co
             nm = obj.matrix_world * vert.normal		# Use inverse transpose?
             ply_vert_array.append( PlyVertex( co, nm, None ) )
-            
+        
+        face_index = 0
         for poly in poly_list:
             loop_stop = poly.loop_start + poly.loop_total
             for loop_index in range( poly.loop_start, loop_stop ):
-                vert_index = obj.data.loops[ loop_index ].vertex_index
-                uv = uv_list[ loop_index ].uv
+                vert_index = mesh.loops[ loop_index ].vertex_index
+                uv = getattr( tex.data[ face_index ], 'uv' + str( loop_index - poly.loop_start + 1 ) )
                 ply_vert_array[ vert_index ].uv = uv
+                face_index += 1
 
         for i in range( len( ply_vert_array ) ):
             ply_vert = ply_vert_array[i]
@@ -85,7 +88,7 @@ class PLYExportOperator( bpy.types.Operator, ExportHelper ):
             ply_export += str( poly.loop_total ) + ' '
             loop_stop = poly.loop_start + poly.loop_total
             for loop_index in range( poly.loop_start, loop_stop ):
-                ply_export += str( obj.data.loops[ loop_index ].vertex_index ) + ' '
+                ply_export += str( mesh.loops[ loop_index ].vertex_index ) + ' '
             ply_export += '\n'
 
         with open( self.filepath, 'w' ) as file:
