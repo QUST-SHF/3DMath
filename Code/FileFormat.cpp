@@ -381,8 +381,6 @@ ObjFormat::ObjFormat( void )
 					PopulateVector( texCoordLine, 1, vertex.texCoords );
 					PopulateVector( normalLine, 1, vertex.normal );
 
-					vertex.texCoords.y = 1.0 - vertex.texCoords.y;
-
 					triangleMesh.vertexArray->push_back( vertex );
 				}
 
