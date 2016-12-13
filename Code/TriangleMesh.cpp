@@ -42,14 +42,16 @@ bool TriangleMesh::GenerateBoundingBox( AxisAlignedBox& boundingBox ) const
 	return true;
 }
 
-void TriangleMesh::GenerateTriangleList( TriangleList& triangleList ) const
+void TriangleMesh::GenerateTriangleList( TriangleList& triangleList, bool skipDegenerates /*= true*/ ) const
 {
 	for( IndexTriangleList::const_iterator iter = this->triangleList->cbegin(); iter != this->triangleList->cend(); iter++ )
 	{
 		const IndexTriangle& indexTriangle = *iter;
 		Triangle triangle;
 		indexTriangle.GetTriangle( triangle );
-		triangleList.push_back( triangle );
+		bool isDegenerate = triangle.IsDegenerate();
+		if( !isDegenerate || !skipDegenerates )
+			triangleList.push_back( triangle );
 	}
 }
 

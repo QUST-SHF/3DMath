@@ -50,7 +50,7 @@ public:
 	void SubdivideAllTriangles( double radius );	// TODO: A better version of this could smooth any ridged mesh.  This one only knows convex meshes at origin.
 	void Transform( const AffineTransform& affineTransform );
 	bool GenerateBoundingBox( AxisAlignedBox& boundingBox ) const;
-	void GenerateTriangleList( TriangleList& triangleList ) const;
+	void GenerateTriangleList( TriangleList& triangleList, bool skipDegenerates = true ) const;
 	//void GenerateStringMesh( const std::string& string, double fontSize );
 	//void Compress( void );		// TODO: Consolidate identical vertices.
 

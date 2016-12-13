@@ -31,12 +31,12 @@ public:
 	void GetCenter( Vector& center ) const;
 	void SplitInTwo( AxisAlignedBox& boxA, AxisAlignedBox& boxB, Plane* plane = nullptr, int split = -1 ) const;
 
-	bool ContainsPoint( const Vector& point ) const;
-	bool ContainsTriangle( const Triangle& triangle ) const;
-	bool ContainsLineSegment( const LineSegment& lineSegment ) const;
+	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
+	bool ContainsTriangle( const Triangle& triangle, double eps = EPSILON ) const;
+	bool ContainsLineSegment( const LineSegment& lineSegment, double eps = EPSILON ) const;
 
 	static void ExpandInterval( double& min, double& max, double value );
-	static bool InInterval( double min, double max, double value );
+	static bool InInterval( double min, double max, double value, double eps = EPSILON );
 
 	void Render( Renderer& renderer ) const;
 

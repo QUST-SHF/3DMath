@@ -5,6 +5,7 @@
 #include "Defines.h"
 #include "Vector.h"
 #include "TriangleMesh.h"
+#include "Random.h"
 
 namespace _3DMath
 {
@@ -33,6 +34,7 @@ public:
 		DRAW_MODE_TRIANGLES,
 		DRAW_MODE_QUADS,
 		DRAW_MODE_LINE_STRIP,
+		DRAW_MODE_LINE_LOOP,
 		DRAW_MODE_TRIANGLE_STRIP,
 		DRAW_MODE_QUAD_STRIP,
 		DRAW_MODE_TRIANGLE_FAN,
@@ -82,6 +84,7 @@ public:
 	void CorrectUV( double texCoordAnchor, double& texCoord );
 
 	std::set< uint64_t >* cachedEdgeSet;
+	Random random;
 };
 
 class _3DMATH_API _3DMath::Vertex

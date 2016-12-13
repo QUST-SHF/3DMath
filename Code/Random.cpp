@@ -42,4 +42,15 @@ void Random::VectorInCone( const Vector& unitAxis, double coneAngle, Vector& ran
 	//...
 }
 
+void Random::VectorInBox( const AxisAlignedBox& box, Vector& randomVector )
+{
+}
+
+void Random::VectorInInterval( double min, double max, Vector& randomVector )
+{
+	randomVector.x = Float( min, max );
+	randomVector.y = Float( min, max );
+	randomVector.z = Float( min, max );
+}
+
 // Random.cpp

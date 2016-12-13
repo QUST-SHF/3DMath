@@ -228,6 +228,10 @@ void Renderer::DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlag
 
 			if( drawFlags & DRAW_TRIANGLES )
 			{
+				Vector color;
+				random.VectorInInterval( 0.5, 1.0, color );
+				Color( color );
+
 				BeginDrawMode( DRAW_MODE_TRIANGLES );
 
 				for( TriangleList::const_iterator iter = leafNode->triangleList->cbegin(); iter != leafNode->triangleList->cend(); iter++ )

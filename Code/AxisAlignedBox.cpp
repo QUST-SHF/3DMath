@@ -159,36 +159,36 @@ void AxisAlignedBox::Render( Renderer& renderer ) const
 	renderer.EndDrawMode();
 }
 
-/*static*/ bool AxisAlignedBox::InInterval( double min, double max, double value )
+/*static*/ bool AxisAlignedBox::InInterval( double min, double max, double value, double eps /*= EPSILON*/ )
 {
-	if( min <= value && value <= max )
+	if( min - eps <= value && value <= max + eps )
 		return true;
 	return false;
 }
 
-bool AxisAlignedBox::ContainsPoint( const Vector& point ) const
+bool AxisAlignedBox::ContainsPoint( const Vector& point, double eps /*= EPSILON*/ ) const
 {
-	if( !InInterval( negCorner.x, posCorner.x, point.x ) )
+	if( !InInterval( negCorner.x, posCorner.x, point.x, eps ) )
 		return false;
-	if( !InInterval( negCorner.y, posCorner.y, point.y ) )
+	if( !InInterval( negCorner.y, posCorner.y, point.y, eps ) )
 		return false;
-	if( !InInterval( negCorner.z, posCorner.z, point.z ) )
+	if( !InInterval( negCorner.z, posCorner.z, point.z, eps ) )
 		return false;
 	return true;
 }
 
-bool AxisAlignedBox::ContainsTriangle( const Triangle& triangle ) const
+bool AxisAlignedBox::ContainsTriangle( const Triangle& triangle, double eps /*= EPSILON*/ ) const
 {
 	for( int i = 0; i < 3; i++ )
-		if( !ContainsPoint( triangle.vertex[i] ) )
+		if( !ContainsPoint( triangle.vertex[i], eps ) )
 			return false;
 	return true;
 }
 
-bool AxisAlignedBox::ContainsLineSegment( const LineSegment& lineSegment ) const
+bool AxisAlignedBox::ContainsLineSegment( const LineSegment& lineSegment, double eps /*= EPSILON*/ ) const
 {
 	for( int i = 0; i < 2; i++ )
-		if( !ContainsPoint( lineSegment.vertex[i] ) )
+		if( !ContainsPoint( lineSegment.vertex[i], eps ) )
 			return false;
 	return true;
 }
