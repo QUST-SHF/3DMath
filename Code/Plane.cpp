@@ -2,7 +2,7 @@
 
 #include "Plane.h"
 #include "LineSegment.h"
-#include "AxisAlignedBox.h"
+#include "Line.h"
 
 using namespace _3DMath;
 
@@ -49,18 +49,24 @@ void Plane::NearestPoint( Vector& point ) const
 	point.AddScale( normal, -distance );
 }
 
-bool Plane::Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps /*= EPSILON*/ ) const
+bool Plane::Intersect( const Line& line, Vector& intersectionPoint, double eps /*= EPSILON*/ ) const
 {
-	return false;
-
-	/*
-	Line line( lineSegment );
-	if( !Intersect( line, intersectionPoint ) )
+	double dot = line.normal.Dot( normal );
+	if( fabs( dot ) < eps )
 		return false;
 
-	double lambda = lineSegment.LerpInverse( intersectionPoint );
-	return AxisAlignedBox.InInterval( 0.0, 1.0, lambda, eps );
-	*/
+	double lambda = ( centerDotNormal - line.center.Dot( normal ) ) / dot;
+	intersectionPoint.AddScale( line.center, line.normal, lambda );
+	return true;
+}
+
+bool Plane::Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps /*= EPSILON*/ ) const
+{
+	Line line( lineSegment );
+	if( !Intersect( line, intersectionPoint, eps ) )
+		return false;
+
+	return lineSegment.ContainsPoint( intersectionPoint, eps );
 }
 
 bool Plane::SplitTriangle( const Triangle& triangle, TriangleList& frontList, TriangleList& backList ) const

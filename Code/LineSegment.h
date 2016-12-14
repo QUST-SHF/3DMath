@@ -21,7 +21,8 @@ public:
 
 	double Length( void );
 	void Lerp( double lambda, Vector& point ) const;
-	double LerpInverse( const Vector& point ) const;
+	bool LerpInverse( double& lambda, const Vector& point, double eps = EPSILON ) const;
+	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
 
 	Vector vertex[2];
 };

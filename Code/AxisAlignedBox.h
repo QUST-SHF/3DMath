@@ -34,6 +34,7 @@ public:
 	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
 	bool ContainsTriangle( const Triangle& triangle, double eps = EPSILON ) const;
 	bool ContainsLineSegment( const LineSegment& lineSegment, double eps = EPSILON ) const;
+	bool IntersectsWithLineSegment( const LineSegment& lineSegment, double eps = EPSILON ) const;
 
 	static void ExpandInterval( double& min, double& max, double value );
 	static bool InInterval( double min, double max, double value, double eps = EPSILON );

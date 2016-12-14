@@ -129,8 +129,7 @@ BoundingBoxTree::BranchNode::BranchNode( void )
 
 /*virtual*/ bool BoundingBoxTree::BranchNode::FindIntersection( const LineSegment& lineSegment, const Triangle*& intersectedTriangle, Vector& intersectionPoint ) const
 {
-	// TODO: What we really need to do here is ask: does the line segment intersect our bounding box in any way?
-	if( boundingBox.ContainsPoint( lineSegment.vertex[0] ) || boundingBox.ContainsPoint( lineSegment.vertex[1] ) )
+	if( boundingBox.IntersectsWithLineSegment( lineSegment ) )
 	{
 		if( backNode->FindIntersection( lineSegment, intersectedTriangle, intersectionPoint ) )
 			return true;

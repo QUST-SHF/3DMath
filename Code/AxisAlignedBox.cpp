@@ -3,6 +3,7 @@
 #include "AxisAlignedBox.h"
 #include "Triangle.h"
 #include "LineSegment.h"
+#include "Line.h"
 #include "Plane.h"
 #include "Renderer.h"
 
@@ -191,6 +192,63 @@ bool AxisAlignedBox::ContainsLineSegment( const LineSegment& lineSegment, double
 		if( !ContainsPoint( lineSegment.vertex[i], eps ) )
 			return false;
 	return true;
+}
+
+bool AxisAlignedBox::IntersectsWithLineSegment( const LineSegment& lineSegment, double eps /*= EPSILON*/ ) const
+{
+	for( int i = 0; i < 2; i++ )
+		if( ContainsPoint( lineSegment.vertex[i], eps ) )
+			return true;
+
+	Line line( lineSegment );
+
+	for( int i = 0; i < 6; i++ )
+	{
+		Plane plane;
+
+		switch(i)
+		{
+			case 0:
+			{
+				plane.SetCenterAndNormal( Vector( negCorner ), Vector( -1.0, 0.0, 0.0 ) );
+				break;
+			}
+			case 1:
+			{
+				plane.SetCenterAndNormal( Vector( negCorner ), Vector( 0.0, -1.0, 0.0 ) );
+				break;
+			}
+			case 2:
+			{
+				plane.SetCenterAndNormal( Vector( negCorner ), Vector( 0.0, 0.0, -1.0 ) );
+				break;
+			}
+			case 3:
+			{
+				plane.SetCenterAndNormal( Vector( posCorner ), Vector( 1.0, 0.0, 0.0 ) );
+				break;
+			}
+			case 4:
+			{
+				plane.SetCenterAndNormal( Vector( posCorner ), Vector( 0.0, 1.0, 0.0 ) );
+				break;
+			}
+			case 5:
+			{
+				plane.SetCenterAndNormal( Vector( posCorner ), Vector( 0.0, 0.0, 1.0 ) );
+				break;
+			}
+		}
+
+		Vector intersectionPoint;
+		if( plane.Intersect( line, intersectionPoint, eps ) && ContainsPoint( intersectionPoint, eps ) )
+		{
+			if( lineSegment.ContainsPoint( intersectionPoint, eps ) )
+				return true;
+		}
+	}
+
+	return false;
 }
 
 // AxisAlignedBox.cpp

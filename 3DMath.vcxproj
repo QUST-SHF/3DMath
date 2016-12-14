@@ -167,6 +167,7 @@
     <ClCompile Include="Code\BoundingBoxTree.cpp" />
     <ClCompile Include="Code\Exception.cpp" />
     <ClCompile Include="Code\FileFormat.cpp" />
+    <ClCompile Include="Code\Line.cpp" />
     <ClCompile Include="Code\LinearTransform.cpp" />
     <ClCompile Include="Code\LineSegment.cpp" />
     <ClCompile Include="Code\ObjectCollection.cpp" />

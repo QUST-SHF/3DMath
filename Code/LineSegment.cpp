@@ -1,6 +1,7 @@
 // LineSegment.cpp
 
 #include "LineSegment.h"
+#include "AxisAlignedBox.h"
 
 using namespace _3DMath;
 
@@ -38,9 +39,28 @@ void LineSegment::Lerp( double lambda, Vector& point ) const
 	point.AddScale( vertex[0], lambda, vertex[1], 1.0 - lambda );
 }
 
-double LineSegment::LerpInverse( const Vector& point ) const
+bool LineSegment::LerpInverse( double& lambda, const Vector& point, double eps /*= EPSILON*/ ) const
 {
-	return 0.0;
+	Vector vecX, vecY;
+	vecX.Subtract( point, vertex[0] );
+	vecY.Subtract( vertex[1], vertex[0] );
+
+	Vector cross;
+	cross.Cross( vecX, vecY );
+	if( cross.Length() > eps )
+		return false;
+
+	lambda = vecX.Dot( vecY ) / vecX.Dot( vecX );
+	return true;
+}
+
+bool LineSegment::ContainsPoint( const Vector& point, double eps /*= EPSILON*/ ) const
+{
+	double lambda;
+	if( !LerpInverse( lambda, point, eps ) )
+		return false;
+
+	return AxisAlignedBox::InInterval( 0.0, 1.0, lambda, eps );
 }
 
 // LineSegment.cpp

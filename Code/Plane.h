@@ -10,6 +10,7 @@ namespace _3DMath
 {
 	class Plane;
 	class LineSegment;
+	class Line;
 }
 
 class _3DMATH_API _3DMath::Plane
@@ -33,6 +34,7 @@ public:
 	double Distance( const Vector& point ) const;
 	void NearestPoint( Vector& point ) const;
 	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps = EPSILON ) const;
+	bool Intersect( const Line& line, Vector& intersectionPoint, double eps = EPSILON ) const;
 	bool SplitTriangle( const Triangle& triangle, TriangleList& frontList, TriangleList& backList ) const;
 
 	Vector normal;
