@@ -52,6 +52,9 @@
     <ClCompile Include="Code\FileFormat.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Line.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h">
