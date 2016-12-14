@@ -167,7 +167,15 @@ void LinearTransform::Multiply( const Vector& vectorA, const Vector& vectorB )
 
 bool LinearTransform::GetRotation( Vector& unitAxis, double& angle ) const
 {
+	// The rotation axis is an Eigen vector.
 	return false;
+}
+
+void LinearTransform::SetScale( double scale )
+{
+	xAxis.Set( scale, 0.0, 0.0 );
+	yAxis.Set( 0.0, scale, 0.0 );
+	zAxis.Set( 0.0, 0.0, scale );
 }
 
 // TODO: We may want to provide an argument that lets the caller specify which of the 3 axes to use as anchor.

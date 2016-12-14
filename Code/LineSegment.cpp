@@ -50,7 +50,7 @@ bool LineSegment::LerpInverse( double& lambda, const Vector& point, double eps /
 	if( cross.Length() > eps )
 		return false;
 
-	lambda = vecX.Dot( vecY ) / vecX.Dot( vecX );
+	lambda = vecX.Dot( vecY ) / vecY.Dot( vecY );
 	return true;
 }
 

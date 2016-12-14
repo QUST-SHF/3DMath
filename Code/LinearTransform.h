@@ -45,6 +45,8 @@ public:
 	void SetRotation( const Vector& unitAxis, double angle );
 	bool GetRotation( Vector& unitAxis, double& angle ) const;
 
+	void SetScale( double scale );
+
 	void Multiply( const Vector& vectorA, const Vector& vectorB );
 
 	bool Orthogonalize( void );
