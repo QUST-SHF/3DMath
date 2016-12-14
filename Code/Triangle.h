@@ -26,7 +26,7 @@ public:
 	void GetCenter( Vector& center ) const;
 	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
 	bool IsDegenerate( double eps = EPSILON ) const;
-	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint ) const;
+	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps = EPSILON ) const;
 
 	Vector vertex[3];
 };

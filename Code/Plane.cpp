@@ -2,13 +2,14 @@
 
 #include "Plane.h"
 #include "LineSegment.h"
+#include "AxisAlignedBox.h"
 
 using namespace _3DMath;
 
 Plane::Plane( void )
 {
 	normal.Set( 0.0, 0.0, 1.0 );
-	dot = 0.0;
+	centerDotNormal = 0.0;
 }
 
 Plane::~Plane( void )
@@ -18,17 +19,17 @@ Plane::~Plane( void )
 void Plane::SetCenterAndNormal( const Vector& center, const Vector& normal )
 {
 	normal.GetNormalized( this->normal );
-	dot = -center.Dot( this->normal );
+	centerDotNormal = center.Dot( this->normal );
 }
 
 void Plane::GetCenter( Vector& center ) const
 {
-	normal.GetScaled( center, dot );
+	normal.GetScaled( center, centerDotNormal );
 }
 
 double Plane::Distance( const Vector& point ) const
 {
-	double distance = point.Dot( normal ) + dot;
+	double distance = point.Dot( normal ) - centerDotNormal;
 	return distance;
 }
 
@@ -48,20 +49,18 @@ void Plane::NearestPoint( Vector& point ) const
 	point.AddScale( normal, -distance );
 }
 
-bool Plane::Intersect( const LineSegment& lineSegment, Vector& intersectionPoint ) const
+bool Plane::Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps /*= EPSILON*/ ) const
 {
-	double dist0 = Distance( lineSegment.vertex[0] );
-	double dist1 = Distance( lineSegment.vertex[1] );
-	if( ( dist0 <= 0.0 && dist1 >= 0.0 ) || ( dist1 <= 0.0 && dist0 >= 0.0 ) )
-	{
-		dist0 = fabs( dist0 );
-		dist1 = fabs( dist1 );
-		double lambda = dist0 / ( dist0 + dist1 );
-		intersectionPoint.AddScale( lineSegment.vertex[0], 1.0 - lambda, lineSegment.vertex[1], lambda );
-		return true;
-	}
-	
 	return false;
+
+	/*
+	Line line( lineSegment );
+	if( !Intersect( line, intersectionPoint ) )
+		return false;
+
+	double lambda = lineSegment.LerpInverse( intersectionPoint );
+	return AxisAlignedBox.InInterval( 0.0, 1.0, lambda, eps );
+	*/
 }
 
 bool Plane::SplitTriangle( const Triangle& triangle, TriangleList& frontList, TriangleList& backList ) const

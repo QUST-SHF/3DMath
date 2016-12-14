@@ -20,6 +20,8 @@ public:
 	~LineSegment( void );
 
 	double Length( void );
+	void Lerp( double lambda, Vector& point ) const;
+	double LerpInverse( const Vector& point ) const;
 
 	Vector vertex[2];
 };

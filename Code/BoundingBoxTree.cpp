@@ -1,6 +1,7 @@
 // BoundingBoxTree.cpp
 
 #include "BoundingBoxTree.h"
+#include "LineSegment.h"
 
 using namespace _3DMath;
 
@@ -83,7 +84,7 @@ BoundingBoxTree::Node::Node( void )
 {
 }
 
-BoundingBoxTree::Node::~Node( void )
+/*virtual*/ BoundingBoxTree::Node::~Node( void )
 {
 }
 
@@ -97,13 +98,13 @@ BoundingBoxTree::BranchNode::BranchNode( void )
 	backNode = nullptr;
 }
 
-BoundingBoxTree::BranchNode::~BranchNode( void )
+/*virtual*/ BoundingBoxTree::BranchNode::~BranchNode( void )
 {
 	delete frontNode;
 	delete backNode;
 }
 
-bool BoundingBoxTree::BranchNode::InsertTriangle( const Triangle& triangle )
+/*virtual*/ bool BoundingBoxTree::BranchNode::InsertTriangle( const Triangle& triangle )
 {
 	if( !boundingBox.ContainsTriangle( triangle ) )
 		return false;
@@ -126,16 +127,17 @@ bool BoundingBoxTree::BranchNode::InsertTriangle( const Triangle& triangle )
 	return true;
 }
 
-bool BoundingBoxTree::BranchNode::FindIntersection( const LineSegment& lineSegment, const Triangle*& intersectedTriangle, Vector& intersectionPoint ) const
+/*virtual*/ bool BoundingBoxTree::BranchNode::FindIntersection( const LineSegment& lineSegment, const Triangle*& intersectedTriangle, Vector& intersectionPoint ) const
 {
-	if( !boundingBox.ContainsLineSegment( lineSegment ) )
-		return false;
+	// TODO: What we really need to do here is ask: does the line segment intersect our bounding box in any way?
+	if( boundingBox.ContainsPoint( lineSegment.vertex[0] ) || boundingBox.ContainsPoint( lineSegment.vertex[1] ) )
+	{
+		if( backNode->FindIntersection( lineSegment, intersectedTriangle, intersectionPoint ) )
+			return true;
 
-	if( backNode->FindIntersection( lineSegment, intersectedTriangle, intersectionPoint ) )
-		return true;
-
-	if( frontNode->FindIntersection( lineSegment, intersectedTriangle, intersectionPoint ) )
-		return true;
+		if( frontNode->FindIntersection( lineSegment, intersectedTriangle, intersectionPoint ) )
+			return true;
+	}
 
 	return false;
 }
@@ -149,12 +151,12 @@ BoundingBoxTree::LeafNode::LeafNode( void )
 	triangleList = new TriangleList();
 }
 
-BoundingBoxTree::LeafNode::~LeafNode( void )
+/*virtual*/ BoundingBoxTree::LeafNode::~LeafNode( void )
 {
 	delete triangleList;
 }
 
-bool BoundingBoxTree::LeafNode::InsertTriangle( const Triangle& triangle )
+/*virtual*/ bool BoundingBoxTree::LeafNode::InsertTriangle( const Triangle& triangle )
 {
 	if( boundingBox.ContainsTriangle( triangle ) )
 	{
@@ -165,7 +167,7 @@ bool BoundingBoxTree::LeafNode::InsertTriangle( const Triangle& triangle )
 	return false;
 }
 
-bool BoundingBoxTree::LeafNode::FindIntersection( const LineSegment& lineSegment, const Triangle*& intersectedTriangle, Vector& intersectionPoint ) const
+/*virtual*/ bool BoundingBoxTree::LeafNode::FindIntersection( const LineSegment& lineSegment, const Triangle*& intersectedTriangle, Vector& intersectionPoint ) const
 {
 	// There might be more than one triangle in our list intersecting with the given line-segment, but let's start with this.
 

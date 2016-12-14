@@ -32,11 +32,11 @@ public:
 	Side GetSide( const Vector& point, double eps = EPSILON ) const;
 	double Distance( const Vector& point ) const;
 	void NearestPoint( Vector& point ) const;
-	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint ) const;
+	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps = EPSILON ) const;
 	bool SplitTriangle( const Triangle& triangle, TriangleList& frontList, TriangleList& backList ) const;
 
 	Vector normal;
-	double dot;
+	double centerDotNormal;
 };
 
 // Plane.h

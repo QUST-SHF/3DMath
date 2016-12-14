@@ -33,4 +33,14 @@ double LineSegment::Length( void )
 	return vector.Length();
 }
 
+void LineSegment::Lerp( double lambda, Vector& point ) const
+{
+	point.AddScale( vertex[0], lambda, vertex[1], 1.0 - lambda );
+}
+
+double LineSegment::LerpInverse( const Vector& point ) const
+{
+	return 0.0;
+}
+
 // LineSegment.cpp

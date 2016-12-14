@@ -73,15 +73,15 @@ bool Triangle::IsDegenerate( double eps /*= EPSILON*/ ) const
 	return false;
 }
 
-bool Triangle::Intersect( const LineSegment& lineSegment, Vector& intersectionPoint ) const
+bool Triangle::Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps /*= EPSILON*/ ) const
 {
 	Plane plane;
 	GetPlane( plane );
 
-	if( !plane.Intersect( lineSegment, intersectionPoint ) )
+	if( !plane.Intersect( lineSegment, intersectionPoint, eps ) )
 		return false;
 
-	return ContainsPoint( intersectionPoint );
+	return ContainsPoint( intersectionPoint, eps );
 }
 
 // Triangle.cpp
