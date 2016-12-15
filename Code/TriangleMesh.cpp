@@ -28,6 +28,17 @@ void TriangleMesh::Clear( void )
 	triangleList->clear();
 }
 
+void TriangleMesh::Clone( const TriangleMesh& triangleMesh )
+{
+	Clear();
+
+	for( int i = 0; i < ( signed )triangleMesh.vertexArray->size(); i++ )
+		vertexArray->push_back( ( *triangleMesh.vertexArray )[i] );
+
+	for( IndexTriangleList::const_iterator iter = triangleMesh.triangleList->cbegin(); iter != triangleMesh.triangleList->cend(); iter++ )
+		triangleList->push_back( *iter );
+}
+
 bool TriangleMesh::GenerateBoundingBox( AxisAlignedBox& boundingBox ) const
 {
 	if( vertexArray->size() == 0 )
@@ -48,7 +59,7 @@ void TriangleMesh::GenerateTriangleList( TriangleList& triangleList, bool skipDe
 	{
 		const IndexTriangle& indexTriangle = *iter;
 		Triangle triangle;
-		indexTriangle.GetTriangle( triangle );
+		indexTriangle.GetTriangle( triangle, vertexArray );
 		bool isDegenerate = triangle.IsDegenerate();
 		if( !isDegenerate || !skipDegenerates )
 			triangleList.push_back( triangle );
@@ -77,17 +88,17 @@ bool TriangleMesh::FindConvexHull( void )
 
 	if( linearTransform.Determinant() > 0.0 )
 	{
-		AddOrRemoveTriangle( IndexTriangle( 0, 1, 3, this ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 3, 2, this ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 2, 1, this ) );
-		AddOrRemoveTriangle( IndexTriangle( 1, 2, 3, this ) );
+		AddOrRemoveTriangle( IndexTriangle( 0, 1, 3 ) );
+		AddOrRemoveTriangle( IndexTriangle( 0, 3, 2 ) );
+		AddOrRemoveTriangle( IndexTriangle( 0, 2, 1 ) );
+		AddOrRemoveTriangle( IndexTriangle( 1, 2, 3 ) );
 	}
 	else
 	{
-		AddOrRemoveTriangle( IndexTriangle( 0, 3, 1, this ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 2, 3, this ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 1, 2, this ) );
-		AddOrRemoveTriangle( IndexTriangle( 3, 2, 1, this ) );
+		AddOrRemoveTriangle( IndexTriangle( 0, 3, 1 ) );
+		AddOrRemoveTriangle( IndexTriangle( 0, 2, 3 ) );
+		AddOrRemoveTriangle( IndexTriangle( 0, 1, 2 ) );
+		AddOrRemoveTriangle( IndexTriangle( 3, 2, 1 ) );
 	}
 
 	while( pointCloud.size() > 0 )
@@ -113,13 +124,13 @@ bool TriangleMesh::FindConvexHull( void )
 				if( !indexTriangle.HasVertex( index ) )
 				{
 					Plane plane;
-					indexTriangle.GetPlane( plane );
+					indexTriangle.GetPlane( plane, vertexArray );
 
 					if( plane.GetSide( point ) == Plane::SIDE_FRONT )
 					{
-						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[0], indexTriangle.vertex[1], this ) );
-						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[1], indexTriangle.vertex[2], this ) );
-						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[2], indexTriangle.vertex[0], this ) );
+						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[0], indexTriangle.vertex[1] ) );
+						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[1], indexTriangle.vertex[2] ) );
+						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[2], indexTriangle.vertex[0] ) );
 						AddOrRemoveTriangle( indexTriangle );
 
 						keepGoing = true;
@@ -161,7 +172,7 @@ void TriangleMesh::CalculateNormals( void )
 		IndexTriangle& indexTriangle = *iter;
 
 		Plane plane;
-		indexTriangle.GetPlane( plane );
+		indexTriangle.GetPlane( plane, vertexArray );
 
 		for( int i = 0; i < 3; i++ )
 		{
@@ -208,7 +219,7 @@ void TriangleMesh::SubdivideAllTriangles( double radius )
 		triangleList->erase( iter );
 
 		Triangle triangle;
-		indexTriangle.GetTriangle( triangle );
+		indexTriangle.GetTriangle( triangle, vertexArray );
 
 		Vector point[3];
 		for( int i = 0; i < 3; i++ )
@@ -222,9 +233,9 @@ void TriangleMesh::SubdivideAllTriangles( double radius )
 			index[i] = FindIndex( point[i], EPSILON, true );
 
 		for( int i = 0; i < 3; i++ )
-			triangleList->push_front( IndexTriangle( indexTriangle.vertex[i], index[i], index[ ( i + 2 ) % 3 ], this ) );
+			triangleList->push_front( IndexTriangle( indexTriangle.vertex[i], index[i], index[ ( i + 2 ) % 3 ] ) );
 
-		triangleList->push_front( IndexTriangle( index[0], index[1], index[2], this ) );
+		triangleList->push_front( IndexTriangle( index[0], index[1], index[2] ) );
 
 		iter = nextIter;
 	}
@@ -346,10 +357,15 @@ void TriangleMesh::GenerateEdgeSet( EdgeSet& edgeSet ) const
 	}
 }
 
-TriangleMesh::IndexTriangle::IndexTriangle( int vertex0, int vertex1, int vertex2, TriangleMesh* mesh )
+TriangleMesh::IndexTriangle::IndexTriangle( void )
 {
-	this->mesh = mesh;
+	vertex[0] = 0;
+	vertex[1] = 0;
+	vertex[2] = 0;
+}
 
+TriangleMesh::IndexTriangle::IndexTriangle( int vertex0, int vertex1, int vertex2 )
+{
 	vertex[0] = vertex0;
 	vertex[1] = vertex1;
 	vertex[2] = vertex2;
@@ -359,16 +375,17 @@ TriangleMesh::IndexTriangle::~IndexTriangle( void )
 {
 }
 
-void TriangleMesh::IndexTriangle::GetTriangle( Triangle& triangle ) const
+void TriangleMesh::IndexTriangle::GetTriangle( Triangle& triangle, const std::vector< Vertex >* vertexArray ) const
 {
+	// TODO: Bounds check for safety?
 	for( int i = 0; i < 3; i++ )
-		triangle.vertex[i] = ( *mesh->vertexArray )[ vertex[i] ].position;
+		triangle.vertex[i] = ( *vertexArray )[ vertex[i] ].position;
 }
 
-void TriangleMesh::IndexTriangle::GetPlane( Plane& plane ) const
+void TriangleMesh::IndexTriangle::GetPlane( Plane& plane, const std::vector< Vertex >* vertexArray ) const
 {
 	Triangle triangle;
-	GetTriangle( triangle );
+	GetTriangle( triangle, vertexArray );
 	triangle.GetPlane( plane );
 }
 

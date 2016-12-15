@@ -28,21 +28,22 @@ public:
 	{
 	public:
 
-		IndexTriangle( int vertex0, int vertex1, int vertex2, TriangleMesh* mesh );
+		IndexTriangle( void );
+		IndexTriangle( int vertex0, int vertex1, int vertex2 );
 		~IndexTriangle( void );
 
-		void GetTriangle( Triangle& triangle ) const;
-		void GetPlane( Plane& plane ) const;
+		void GetTriangle( Triangle& triangle, const std::vector< Vertex >* vertexArray ) const;
+		void GetPlane( Plane& plane, const std::vector< Vertex >* vertexArray ) const;
 		bool HasVertex( int index ) const;
 		bool CoincidentWith( const IndexTriangle& indexTriangle ) const;
 
 		int vertex[3];
-		TriangleMesh* mesh;
 	};
 
 	typedef std::list< IndexTriangle > IndexTriangleList;
 
 	void Clear( void );
+	void Clone( const TriangleMesh& triangleMesh );
 	bool FindConvexHull( void );
 	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );

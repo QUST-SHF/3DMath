@@ -77,6 +77,7 @@
     <ClCompile Include="Code\AffineTransform.cpp" />
     <ClCompile Include="Code\AxisAlignedBox.cpp" />
     <ClCompile Include="Code\BoundingBoxTree.cpp" />
+    <ClCompile Include="Code\BspTree.cpp" />
     <ClCompile Include="Code\Exception.cpp" />
     <ClCompile Include="Code\FileFormat.cpp" />
     <ClCompile Include="Code\Line.cpp" />
@@ -87,6 +88,7 @@
     <ClCompile Include="Code\Plane.cpp" />
     <ClCompile Include="Code\Random.cpp" />
     <ClCompile Include="Code\Renderer.cpp" />
+    <ClCompile Include="Code\TimeKeeper.cpp" />
     <ClCompile Include="Code\Triangle.cpp" />
     <ClCompile Include="Code\TriangleMesh.cpp" />
     <ClCompile Include="Code\Vector.cpp" />
@@ -95,6 +97,7 @@
     <ClInclude Include="Code\AffineTransform.h" />
     <ClInclude Include="Code\AxisAlignedBox.h" />
     <ClInclude Include="Code\BoundingBoxTree.h" />
+    <ClInclude Include="Code\BspTree.h" />
     <ClInclude Include="Code\Defines.h" />
     <ClInclude Include="Code\Exception.h" />
     <ClInclude Include="Code\FileFormat.h" />
@@ -106,6 +109,7 @@
     <ClInclude Include="Code\Plane.h" />
     <ClInclude Include="Code\Random.h" />
     <ClInclude Include="Code\Renderer.h" />
+    <ClInclude Include="Code\TimeKeeper.h" />
     <ClInclude Include="Code\Triangle.h" />
     <ClInclude Include="Code\TriangleMesh.h" />
     <ClInclude Include="Code\Vector.h" />

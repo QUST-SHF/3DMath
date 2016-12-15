@@ -55,6 +55,12 @@
     <ClCompile Include="Code\Line.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\TimeKeeper.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\BspTree.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h">
@@ -106,6 +112,12 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\FileFormat.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\TimeKeeper.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\BspTree.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

@@ -170,10 +170,10 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 			const TriangleMesh::IndexTriangle& indexTriangle = *iter;
 
 			Triangle triangle;
-			indexTriangle.GetTriangle( triangle );
+			indexTriangle.GetTriangle( triangle, triangleMesh.vertexArray );
 
 			Plane plane;
-			indexTriangle.GetPlane( plane );
+			indexTriangle.GetPlane( plane, triangleMesh.vertexArray );
 
 			Vector center;
 			triangle.GetCenter( center );

@@ -274,7 +274,7 @@ void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineArray::itera
 		int vertex1 = atoi( ( *bodyArray )[ 1 + i + 1 ].c_str() );
 		int vertex2 = atoi( ( *bodyArray )[ 1 + i + 2 ].c_str() );
 
-        triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( vertex0, vertex1, vertex2, &triangleMesh ) );
+        triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( vertex0, vertex1, vertex2 ) );
     }
 }
 
@@ -387,7 +387,7 @@ ObjFormat::ObjFormat( void )
 				// Choose an arbitrary tesselation of the face.
 				int vertexCount = ( signed )faceLine->size() - 1;
 				for( int i = 0; i < vertexCount - 2; i++ )
-					triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( j, j + i + 1, j + i + 2, &triangleMesh ) );
+					triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( j, j + i + 1, j + i + 2 ) );
 			}
 		}
 	}

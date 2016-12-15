@@ -111,6 +111,10 @@ BoundingBoxTree::BranchNode::BranchNode( void )
 
 	if( !backNode->InsertTriangle( triangle ) && !frontNode->InsertTriangle( triangle ) )
 	{
+		// At the expense of duplicating triangles in the tree, we might consider inserting
+		// down multiple branches.  Forgoing the split, we may actually net fewer triangles
+		// per leaf node, and therefore fewer checks.
+
 		TriangleList frontList, backList;
 		if( !plane.SplitTriangle( triangle, frontList, backList ) )
 			return false;
