@@ -39,7 +39,7 @@ double Triangle::Area( void ) const
 {
 	Vector normal;
 	GetNormal( normal );
-	double area = normal.Length();
+	double area = normal.Length() / 2.0;
 	return area;
 }
 
@@ -58,12 +58,18 @@ bool Triangle::ContainsPoint( const Vector& point, double eps /*= EPSILON*/ ) co
 	if( plane.GetSide( point, eps ) != Plane::SIDE_NEITHER )
 		return false;
 
-	double totalArea = Area();
-	double accumulatedArea = 0.0;
 	for( int i = 0; i < 3; i++ )
-		accumulatedArea = Triangle( vertex[i], vertex[ ( i + 1 ) % 3 ], point ).Area();
+	{
+		Vector edge, vec, cross;
+		edge.Subtract( vertex[ ( i + 1 ) % 3 ], vertex[i] );
+		vec.Subtract( point, vertex[i] );
+		cross.Cross( edge, vec );
+		double dot = cross.Dot( plane.normal );
+		if( dot < 0.0 )
+			return false;
+	}
 
-	return( fabs( totalArea - accumulatedArea ) < eps ? true : false );
+	return true;
 }
 
 bool Triangle::IsDegenerate( double eps /*= EPSILON*/ ) const

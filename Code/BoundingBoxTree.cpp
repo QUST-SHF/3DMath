@@ -180,7 +180,7 @@ BoundingBoxTree::LeafNode::LeafNode( void )
 		}
 	}
 
-	return true;
+	return false;
 }
 
 // BoundingBoxTree.cpp

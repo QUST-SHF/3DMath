@@ -10,6 +10,9 @@ TimeKeeper::TimeKeeper( void )
 	lastTime = 0.0;
 	deltaTime = 0.0;
 	baseTime = 0.0;
+#ifdef _DEBUG
+	debugDeltaTime = 0.0;
+#endif
 }
 
 /*virtual*/ TimeKeeper::~TimeKeeper( void )
@@ -28,6 +31,11 @@ TimeKeeper::TimeKeeper( void )
 
 	deltaTime = currentTime - lastTime;
 	lastTime = currentTime;
+
+#ifdef _DEBUG
+	if( debugDeltaTime != 0.0 )
+		deltaTime = debugDeltaTime;
+#endif
 }
 
 /*virtual*/ double TimeKeeper::AskSystemForCurrentTimeMilliseconds( void )

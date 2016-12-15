@@ -24,6 +24,10 @@ public:
 	double GetDeltaTimeMilliseconds( void ) const;
 	double GetDeltaTimeSeconds( void ) const;
 
+#ifdef _DEBUG
+	double debugDeltaTime;
+#endif
+
 protected:
 
 	double currentTime;
