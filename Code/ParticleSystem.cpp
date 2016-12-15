@@ -4,6 +4,7 @@
 #include "TriangleMesh.h"
 #include "AxisAlignedBox.h"
 #include "BoundingBoxTree.h"
+#include "TimeKeeper.h"
 
 using namespace _3DMath;
 
@@ -14,7 +15,6 @@ using namespace _3DMath;
 ParticleSystem::ParticleSystem( void )
 {
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
-	previousTime = 0.0;
 	integrationMethod = INTEGRATE_VERLET;
 }
 
@@ -25,7 +25,6 @@ ParticleSystem::ParticleSystem( void )
 void ParticleSystem::Clear( void )
 {
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
-	previousTime = 0.0;
 
 	particleCollection.Clear();
 	forceCollection.Clear();
@@ -33,18 +32,20 @@ void ParticleSystem::Clear( void )
 	emitterCollection.Clear();
 }
 
-void ParticleSystem::Simulate( double currentTime )
+void ParticleSystem::Simulate( const _3DMath::TimeKeeper& timeKeeper )
 {
-	CullDeadParticles( currentTime );
+	CullDeadParticles( timeKeeper );
 	ResetParticlePhysics();
 	CalculateCenterOfMass();
 	AccumulateForces();
-	IntegrateParticles( currentTime );
+	IntegrateParticles( timeKeeper );
 	ResolveCollisions();
 }
 
-void ParticleSystem::CullDeadParticles( double currentTime )
+void ParticleSystem::CullDeadParticles( const _3DMath::TimeKeeper& timeKeeper )
 {
+	double currentTime = timeKeeper.GetCurrentTimeSeconds();
+
 	ObjectMap::iterator iter = particleCollection.objectMap->begin();
 	while( iter != particleCollection.objectMap->end() )
 	{
@@ -94,13 +95,9 @@ void ParticleSystem::AccumulateForces( void )
 	}
 }
 
-void ParticleSystem::IntegrateParticles( double currentTime )
+void ParticleSystem::IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper )
 {
-	if( previousTime == 0.0 )
-		previousTime = currentTime;
-
-	double deltaTime = ( currentTime - previousTime ) / 1000.0;
-	deltaTime = 0.016;		// debug...
+	double deltaTime = timeKeeper.GetDeltaTimeSeconds();
 
 	ObjectMap::iterator iter = particleCollection.objectMap->begin();
 	while( iter != particleCollection.objectMap->end() )
@@ -109,8 +106,6 @@ void ParticleSystem::IntegrateParticles( double currentTime )
 		particle->Integrate( deltaTime, integrationMethod );
 		iter++;
 	}
-	
-	previousTime = currentTime;
 }
 
 void ParticleSystem::ResolveCollisions( void )

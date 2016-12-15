@@ -64,6 +64,9 @@
     <ClInclude Include="Code\FileFormat.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\TimeKeeper.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Vector.cpp">
@@ -112,6 +115,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\Line.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\TimeKeeper.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>

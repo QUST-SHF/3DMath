@@ -16,6 +16,7 @@ namespace _3DMath
 	class TriangleMesh;
 	class BoundingBoxTree;
 	class AxisAlignedBox;
+	class TimeKeeper;
 }
 
 class _3DMATH_API _3DMath::ParticleSystem
@@ -248,7 +249,7 @@ public:
 	};
 
 	void Clear( void );
-	void Simulate( double currentTime );
+	void Simulate( const TimeKeeper& timeKeeper );
 
 	ObjectCollection particleCollection;
 	ObjectCollection forceCollection;
@@ -257,15 +258,14 @@ public:
 
 	IntegrationMethod integrationMethod;
 	Vector centerOfMass;
-	double previousTime;
 	Random random;
 
 private:
 
-	void CullDeadParticles( double currentTime );
+	void CullDeadParticles( const _3DMath::TimeKeeper& timeKeeper );
 	void ResetParticlePhysics( void );
 	void AccumulateForces( void );
-	void IntegrateParticles( double currentTime );
+	void IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper );
 	void ResolveCollisions( void );
 	void CalculateCenterOfMass( void );
 };

@@ -31,5 +31,6 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
+#include <time.h>
 
 // Defines.h
