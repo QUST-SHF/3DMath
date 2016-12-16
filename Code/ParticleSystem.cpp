@@ -607,6 +607,11 @@ ParticleSystem::BoundingBoxTreeCollisionObject::BoundingBoxTreeCollisionObject( 
 	if( !boxTree->FindIntersection( impactInfo.lineOfMotion, intersectedTriangle, intersectionPoint ) )
 		return false;
 
+	Plane plane;
+	intersectedTriangle->GetPlane( plane );
+	if( Plane::SIDE_FRONT == plane.GetSide( impactInfo.lineOfMotion.vertex[1] ) )
+		return false;
+
 	intersectedTriangle->GetNormal( impactInfo.contactUnitNormal );
 	impactInfo.contactPosition = intersectionPoint;
 	impactInfo.friction = friction;
