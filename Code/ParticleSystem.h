@@ -17,6 +17,7 @@ namespace _3DMath
 	class BoundingBoxTree;
 	class AxisAlignedBox;
 	class TimeKeeper;
+	class MotionIntegrator;
 }
 
 class _3DMATH_API _3DMath::ParticleSystem
@@ -25,12 +26,6 @@ public:
 
 	ParticleSystem( void );
 	virtual ~ParticleSystem( void );
-
-	enum IntegrationMethod
-	{
-		INTEGRATE_EULER,
-		INTEGRATE_VERLET,
-	};
 
 	class _3DMATH_API Particle : public Object
 	{
@@ -41,8 +36,6 @@ public:
 
 		virtual void GetPosition( Vector& position ) const = 0;
 		virtual void SetPosition( const Vector& position ) = 0;
-
-		virtual void Integrate( double deltaTime, IntegrationMethod method );
 
 		void GetPreviousPosition( Vector& position ) const;
 
@@ -256,7 +249,7 @@ public:
 	ObjectCollection collisionObjectCollection;
 	ObjectCollection emitterCollection;
 
-	IntegrationMethod integrationMethod;
+	MotionIntegrator* motionIntegrator;
 	Vector centerOfMass;
 	Random random;
 

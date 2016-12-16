@@ -61,6 +61,9 @@
     <ClCompile Include="Code\BspTree.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\MotionIntegrator.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h">
@@ -118,6 +121,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\BspTree.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\MotionIntegrator.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

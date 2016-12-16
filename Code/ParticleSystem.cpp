@@ -5,21 +5,23 @@
 #include "AxisAlignedBox.h"
 #include "BoundingBoxTree.h"
 #include "TimeKeeper.h"
+#include "MotionIntegrator.h"
 
 using namespace _3DMath;
 
 //-------------------------------------------------------------------------------------------------
-//                                        Particlesystem
+//                                        ParticleSystem
 //-------------------------------------------------------------------------------------------------
 
 ParticleSystem::ParticleSystem( void )
 {
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
-	integrationMethod = INTEGRATE_VERLET;
+	motionIntegrator = new EulerMotionIntegrator();
 }
 
 /*virtual*/ ParticleSystem::~ParticleSystem( void )
 {
+	delete motionIntegrator;
 }
 
 void ParticleSystem::Clear( void )
@@ -103,7 +105,20 @@ void ParticleSystem::IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper )
 	while( iter != particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
-		particle->Integrate( deltaTime, integrationMethod );
+		
+		particle->acceleration.SetScaled( particle->netForce, 1.0 / particle->mass );
+
+		Vector currentPosition;
+		particle->GetPosition( currentPosition );
+
+		particle->previousPositionList->push_front( currentPosition );
+		while( particle->previousPositionList->size() > ( unsigned )particle->previousPositionMax )
+			particle->previousPositionList->pop_back();
+
+		motionIntegrator->Integrate( currentPosition, particle->velocity, particle->acceleration, deltaTime );
+
+		particle->SetPosition( currentPosition );
+
 		iter++;
 	}
 }
@@ -198,56 +213,6 @@ void ParticleSystem::Particle::GetPreviousPosition( Vector& position ) const
 		GetPosition( position );
 	else
 		position = previousPositionList->front();
-}
-
-/*virtual*/ void ParticleSystem::Particle::Integrate( double deltaTime, IntegrationMethod method )
-{
-	// TODO: Despite the given delta, we should integrate over it with a fixed time-step
-	//       until we have consumed it.  I'm wondering if this would help us be a stable
-	//       simulation, despite the processor speed of the target machine.
-
-	acceleration.SetScaled( netForce, 1.0 / mass );
-
-	Vector currentPosition;
-	GetPosition( currentPosition );
-
-	Vector newPosition;
-
-	switch( method )
-	{
-		case INTEGRATE_EULER:
-		{
-			velocity.AddScale( acceleration, deltaTime );
-			newPosition.AddScale( currentPosition, velocity, deltaTime );
-			
-			break;
-		}
-		case INTEGRATE_VERLET:
-		{
-			velocity.AddScale( acceleration, deltaTime );
-
-			if( previousPositionList->size() == 0 )
-				newPosition.AddScale( currentPosition, velocity, deltaTime );
-			else
-			{
-				double damping = 0.02;
-
-				Vector previousPosition;
-				GetPreviousPosition( previousPosition );
-
-				newPosition.AddScale( currentPosition, 2.0 - damping, previousPosition, -( 1.0 - damping ) );
-				newPosition.AddScale( acceleration, deltaTime * deltaTime );	// TODO: Divide by 2?  Revisit formulas online for this stuff.
-			}
-
-			break;
-		}
-	}
-
-	previousPositionList->push_front( currentPosition );
-	while( previousPositionList->size() > ( unsigned )previousPositionMax )
-		previousPositionList->pop_back();
-
-	SetPosition( newPosition );
 }
 
 //-------------------------------------------------------------------------------------------------
