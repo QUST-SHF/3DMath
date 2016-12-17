@@ -11,7 +11,7 @@ using namespace _3DMath;
 
 MotionIntegrator::MotionIntegrator( void )
 {
-	dampingFactor = 0.995;
+	dampingFactor = 0.99;
 	fixedTimeStepSeconds = 0.005;
 }
 

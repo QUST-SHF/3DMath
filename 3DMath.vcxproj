@@ -152,6 +152,7 @@
     <ClInclude Include="Code\Line.h" />
     <ClInclude Include="Code\LinearTransform.h" />
     <ClInclude Include="Code\LineSegment.h" />
+    <ClInclude Include="Code\MotionIntegrator.h" />
     <ClInclude Include="Code\ObjectCollection.h" />
     <ClInclude Include="Code\ParticleSystem.h" />
     <ClInclude Include="Code\Plane.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="Code\Line.cpp" />
     <ClCompile Include="Code\LinearTransform.cpp" />
     <ClCompile Include="Code\LineSegment.cpp" />
+    <ClCompile Include="Code\MotionIntegrator.cpp" />
     <ClCompile Include="Code\ObjectCollection.cpp" />
     <ClCompile Include="Code\ParticleSystem.cpp" />
     <ClCompile Include="Code\Plane.cpp" />

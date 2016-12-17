@@ -64,6 +64,8 @@ public:
 
 	int FindIndex( const Vector& position, double eps = EPSILON, bool addIfNotFound = false ) const;
 
+	void CalculateCenter( Vector& center ) const;
+
 	bool SetVertexPosition( int index, const Vector& position );
 	bool GetVertexPosition( int index, Vector& position ) const;
 

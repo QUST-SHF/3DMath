@@ -159,6 +159,19 @@ void TriangleMesh::AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle )
 	triangleList->push_back( givenIndexTriangle );
 }
 
+void TriangleMesh::CalculateCenter( Vector& center ) const
+{
+	center.Set( 0.0, 0.0, 0.0 );
+
+	if( vertexArray->size() > 0 )
+	{
+		for( int i = 0; i < ( int )vertexArray->size(); i++ )
+			center.Add( ( *vertexArray )[i].position );
+
+		center.Scale( 1.0 / double( vertexArray->size() ) );
+	}
+}
+
 void TriangleMesh::CalculateNormals( void )
 {
 	for( int i = 0; i < ( int )vertexArray->size(); i++ )
@@ -303,9 +316,7 @@ int TriangleMesh::FindIndex( const Vector& position, double eps /*= EPSILON*/, b
 	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
 	{
 		const Vertex& vertex = ( *vertexArray )[i];
-		Vector vector;
-		vector.Subtract( position, vertex.position );
-		if( vector.Length() < eps )
+		if( vertex.position.IsEqualTo( position, eps ) )
 			return i;
 	}
 

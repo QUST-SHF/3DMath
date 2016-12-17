@@ -67,6 +67,9 @@
     <ClInclude Include="Code\TimeKeeper.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\MotionIntegrator.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Vector.cpp">
@@ -118,6 +121,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\TimeKeeper.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\MotionIntegrator.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>

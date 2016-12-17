@@ -376,6 +376,7 @@ ParticleSystem::TorqueForce::TorqueForce( ParticleSystem* system ) : Force( syst
 	Vector vector;
 	vector.Subtract( position, system->centerOfMass );
 
+	// TODO: Look this up in a textbook to verify its correctness.
 	Vector torqueForce;
 	torqueForce.Cross( torque, vector );
 	torqueForce.Scale( 1.0 / vector.Dot( vector ) );
@@ -416,6 +417,7 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 
 		double length = vector.Length();
 
+		// TODO: Look this up in a textbook to verify its correctness.
 		Vector springForce;
 		springForce.SetScaled( vector, stiffness * ( length - equilibriumLength ) / length );
 
@@ -468,15 +470,24 @@ ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( 
 	Particle* particle = ( Particle* )system->particleCollection.FindObject( particleId );
 	if( particle )
 	{
+		// TODO: Get out the physics book and check this; I think it's all wrong.
+		//       I might also consider making something up.  For example, the direction
+		//       of the friction force, I would imagine, would be somewhere in the contact plane.
+		//       Of course, that _should_ already happen if the current and previous positions
+		//       are making contact with that plane.
+
 		double normalForce = impactInfo.contactUnitNormal.Dot( impactInfo.netForceAtImpact );
 		if( normalForce <= 0.0 )
 		{
-			Vector impactUnitDir;
-			impactUnitDir.Subtract( impactInfo.lineOfMotion.vertex[1], impactInfo.lineOfMotion.vertex[0] );
-			impactUnitDir.Normalize();
+			Vector previousPosition, position;
+
+			particle->GetPosition( position );
+			particle->GetPreviousPosition( previousPosition );
 
 			Vector frictionForce;
-			frictionForce.SetScaled( impactUnitDir, impactInfo.friction * normalForce );
+			frictionForce.Subtract( previousPosition, position );
+			frictionForce.Normalize();
+			frictionForce.Scale( -impactInfo.friction * normalForce );
 
 			particle->netForce.Add( frictionForce );
 		}
@@ -510,6 +521,7 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 
 /*virtual*/ bool ParticleSystem::CollisionPlane::ResolveCollision( ImpactInfo& impactInfo )
 {
+#if 0
 	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
 		return false;
 
@@ -519,6 +531,19 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 	impactInfo.contactUnitNormal = plane.normal;
 	impactInfo.friction = friction;
 	return true;
+#else
+	if( !plane.Intersect( impactInfo.lineOfMotion, impactInfo.contactPosition ) )
+		return false;
+
+	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1] ) != Plane::SIDE_BACK )
+		return false;
+
+	impactInfo.contactPosition = impactInfo.lineOfMotion.vertex[1];
+	plane.NearestPoint( impactInfo.contactPosition );
+	impactInfo.contactUnitNormal = plane.normal;
+	impactInfo.friction = friction;
+	return true;
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -574,11 +599,14 @@ ParticleSystem::BoundingBoxTreeCollisionObject::BoundingBoxTreeCollisionObject( 
 
 	Plane plane;
 	intersectedTriangle->GetPlane( plane );
-	if( Plane::SIDE_FRONT == plane.GetSide( impactInfo.lineOfMotion.vertex[1] ) )
+	if( Plane::SIDE_BACK != plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) )
 		return false;
 
-	intersectedTriangle->GetNormal( impactInfo.contactUnitNormal );
-	impactInfo.contactPosition = intersectionPoint;
+	// The contact position would, intuitively, be the intersection point,
+	// but I have found that the nearest point to the plane works better.
+	impactInfo.contactPosition = impactInfo.lineOfMotion.vertex[1];
+	plane.NearestPoint( impactInfo.contactPosition );
+	impactInfo.contactUnitNormal = plane.normal;
 	impactInfo.friction = friction;
 	return true;
 }
