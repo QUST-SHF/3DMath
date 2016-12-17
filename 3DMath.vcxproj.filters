@@ -126,6 +126,9 @@
     <ClCompile Include="Code\MotionIntegrator.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\BspTree.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\PLYExport.py">

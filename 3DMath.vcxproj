@@ -167,6 +167,7 @@
     <ClCompile Include="Code\AffineTransform.cpp" />
     <ClCompile Include="Code\AxisAlignedBox.cpp" />
     <ClCompile Include="Code\BoundingBoxTree.cpp" />
+    <ClCompile Include="Code\BspTree.cpp" />
     <ClCompile Include="Code\Exception.cpp" />
     <ClCompile Include="Code\FileFormat.cpp" />
     <ClCompile Include="Code\Line.cpp" />
