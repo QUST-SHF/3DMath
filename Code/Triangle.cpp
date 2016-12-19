@@ -1,7 +1,9 @@
 // Triangle.cpp
 
 #include "Triangle.h"
+#include "LineSegment.h"
 #include "Plane.h"
+#include "Line.h"
 
 using namespace _3DMath;
 
@@ -88,6 +90,50 @@ bool Triangle::Intersect( const LineSegment& lineSegment, Vector& intersectionPo
 		return false;
 
 	return ContainsPoint( intersectionPoint, eps );
+}
+
+void Triangle::GetEdges( LineSegment* edges ) const
+{
+	for( int i = 0; i < 3; i++ )
+	{
+		int j = ( i + 1 ) % 3;
+		edges[i].vertex[0] = vertex[i];
+		edges[i].vertex[1] = vertex[j];
+	}
+}
+
+double Triangle::DistanceToPoint( const Vector& point ) const
+{
+	Plane plane;
+	GetPlane( plane );
+
+	double distance = fabs( plane.Distance( point ) );
+	Vector nearestPoint = point;
+	plane.NearestPoint( nearestPoint );
+	if( ContainsPoint( nearestPoint ) )
+		return distance;
+
+	LineSegment edges[3];
+	GetEdges( edges );
+
+	for( int i = 0; i < 3; i++ )
+	{
+		Line line( edges[i] );
+		distance = line.ShortestDistance( point );
+		if( edges[i].ContainsPoint( point ) )
+			return distance;
+	}
+
+	double smallestDistance = 0.0;
+
+	for( int i = 0; i < 3; i++ )
+	{
+		distance = vertex[i].Distance( point );
+		if( distance < smallestDistance || smallestDistance == 0.0 )
+			smallestDistance = distance;
+	}
+
+	return smallestDistance;
 }
 
 // Triangle.cpp

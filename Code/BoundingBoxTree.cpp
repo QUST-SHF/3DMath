@@ -59,11 +59,25 @@ bool BoundingBoxTree::InsertTriangle( const Triangle& triangle )
 	return rootNode->InsertTriangle( triangle );
 }
 
-bool BoundingBoxTree::InsertTriangleList( const TriangleList& triangleList )
+bool BoundingBoxTree::InsertTriangleList( const TriangleList& triangleList, const Vector* normalFilter /*= nullptr*/, double angleFilter /*= 0.0*/ )
 {
 	for( TriangleList::const_iterator iter = triangleList.begin(); iter != triangleList.cend(); iter++ )
-		if( !InsertTriangle( *iter ) )
+	{
+		const Triangle& triangle = *iter;
+
+		if( normalFilter )
+		{
+			Vector normal;
+			triangle.GetNormal( normal );
+
+			double angle = normal.AngleBetween( *normalFilter );
+			if( angle >= angleFilter )
+				continue;
+		}
+
+		if( !InsertTriangle( triangle ) )
 			return false;
+	}
 
 	return true;
 }
@@ -74,6 +88,14 @@ bool BoundingBoxTree::FindIntersection( const LineSegment& lineSegment, const Tr
 		return false;
 
 	return rootNode->FindIntersection( lineSegment, intersectedTriangle, intersectionPoint );
+}
+
+bool BoundingBoxTree::FindNearestTriangle( const Vector& point, const Triangle*& nearestTriangle, double maxDistance ) const
+{
+	if( !rootNode )
+		return false;
+
+	return rootNode->FindNearestTriangle( point, nearestTriangle, maxDistance );
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -145,6 +167,20 @@ BoundingBoxTree::BranchNode::BranchNode( void )
 	return false;
 }
 
+/*virtual*/ bool BoundingBoxTree::BranchNode::FindNearestTriangle( const Vector& point, const Triangle*& nearestTriangle, double maxDistance ) const
+{
+	if( boundingBox.ContainsPoint( point ) )
+	{
+		if( backNode->FindNearestTriangle( point, nearestTriangle, maxDistance ) )
+			return true;
+
+		if( frontNode->FindNearestTriangle( point, nearestTriangle, maxDistance ) )
+			return true;
+	}
+
+	return false;
+}
+
 //-----------------------------------------------------------------------------------------------------------
 //                                                    LeafNode
 //-----------------------------------------------------------------------------------------------------------
@@ -172,19 +208,47 @@ BoundingBoxTree::LeafNode::LeafNode( void )
 
 /*virtual*/ bool BoundingBoxTree::LeafNode::FindIntersection( const LineSegment& lineSegment, const Triangle*& intersectedTriangle, Vector& intersectionPoint ) const
 {
-	// There might be more than one triangle in our list intersecting with the given line-segment, but let's start with this.
+	intersectedTriangle = nullptr;
+	double smallestLambda = 2.0;
 
 	for( TriangleList::const_iterator iter = triangleList->cbegin(); iter != triangleList->cend(); iter++ )
 	{
 		const Triangle& triangle = *iter;
 		if( triangle.Intersect( lineSegment, intersectionPoint ) )
 		{
-			intersectedTriangle = &triangle;
-			return true;
+			double lambda;
+			if( lineSegment.LerpInverse( lambda, intersectionPoint ) )
+			{
+				if( lambda < smallestLambda )
+				{
+					smallestLambda = lambda;
+					intersectedTriangle = &triangle;
+				}
+			}
 		}
 	}
 
-	return false;
+	return( intersectedTriangle ? true : false );
+}
+
+/*virtual*/ bool BoundingBoxTree::LeafNode::FindNearestTriangle( const Vector& point, const Triangle*& nearestTriangle, double maxDistance ) const
+{
+	double smallestDistance = maxDistance;
+	nearestTriangle = nullptr;
+
+	for( TriangleList::const_iterator iter = triangleList->cbegin(); iter != triangleList->cend(); iter++ )
+	{
+		const Triangle& triangle = *iter;
+
+		double distance = triangle.DistanceToPoint( point );
+		if( distance <= smallestDistance )
+		{
+			smallestDistance = distance;
+			nearestTriangle = &triangle;
+		}
+	}
+
+	return( nearestTriangle ? true : false );
 }
 
 // BoundingBoxTree.cpp

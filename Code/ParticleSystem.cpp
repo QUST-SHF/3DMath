@@ -573,6 +573,7 @@ ParticleSystem::BoundingBoxTreeCollisionObject::BoundingBoxTreeCollisionObject( 
 {
 	boxTree = nullptr;
 	friction = 0.0;
+	detectionDistance = 1.0;		// If this is too small, we'll tunnel.
 }
 
 /*virtual*/ ParticleSystem::BoundingBoxTreeCollisionObject::~BoundingBoxTreeCollisionObject( void )
@@ -584,14 +585,13 @@ ParticleSystem::BoundingBoxTreeCollisionObject::BoundingBoxTreeCollisionObject( 
 	if( !boxTree )
 		return false;
 
-	const Triangle* intersectedTriangle = nullptr;
-	Vector intersectionPoint;
-	if( !boxTree->FindIntersection( impactInfo.lineOfMotion, intersectedTriangle, intersectionPoint ) )
+	const Triangle* nearestTriangle = nullptr;
+	if( !boxTree->FindNearestTriangle( impactInfo.lineOfMotion.vertex[1], nearestTriangle, detectionDistance ) )
 		return false;
 
 	Plane plane;
-	intersectedTriangle->GetPlane( plane );
-	if( Plane::SIDE_BACK != plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) )
+	nearestTriangle->GetPlane( plane );
+	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
 		return false;
 
 	// The contact position would, intuitively, be the intersection point,

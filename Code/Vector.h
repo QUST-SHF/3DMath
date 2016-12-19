@@ -55,6 +55,7 @@ public:
 
 	double Dot( const Vector& vector ) const;
 	double Length( void ) const;
+	double Distance( const Vector& vector ) const;
 	double AngleBetween( const Vector& vector ) const;
 
 	void Rotate( const Vector& unitAxis, double angle, Vector& vector ) const;

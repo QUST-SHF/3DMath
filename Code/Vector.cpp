@@ -190,6 +190,13 @@ double Vector::Length( void ) const
 	return sqrt( Dot( *this ) );
 }
 
+double Vector::Distance( const Vector& vector ) const
+{
+	Vector diff;
+	diff.Subtract( *this, vector );
+	return diff.Length();
+}
+
 double Vector::AngleBetween( const Vector& vector ) const
 {
 	Vector unitVectorA, unitVectorB;

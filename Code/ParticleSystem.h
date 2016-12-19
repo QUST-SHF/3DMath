@@ -227,6 +227,7 @@ public:
 
 		BoundingBoxTree* boxTree;
 		double friction;
+		double detectionDistance;
 	};
 
 	class _3DMATH_API Emitter : public Object
