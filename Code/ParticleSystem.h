@@ -241,6 +241,7 @@ public:
 
 	void Clear( void );
 	void Simulate( const TimeKeeper& timeKeeper );
+	void ResetMotion( void );
 
 	ObjectCollection particleCollection;
 	ObjectCollection forceCollection;

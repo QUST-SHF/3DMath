@@ -96,6 +96,22 @@ void ParticleSystem::AccumulateForces( void )
 	}
 }
 
+void ParticleSystem::ResetMotion( void )
+{
+	ObjectMap::iterator iter = particleCollection.objectMap->begin();
+	while( iter != particleCollection.objectMap->end() )
+	{
+		Particle* particle = ( Particle* )iter->second;
+		Vector position;
+		particle->GetPosition( position );
+		particle->previousPosition = position;
+		particle->velocity.Set( 0.0, 0.0, 0.0 );
+		particle->acceleration.Set( 0.0, 0.0, 0.0 );
+		particle->netForce.Set( 0.0, 0.0, 0.0 );
+		iter++;
+	}
+}
+
 void ParticleSystem::IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper )
 {
 	ObjectMap::iterator iter = particleCollection.objectMap->begin();
