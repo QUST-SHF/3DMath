@@ -247,6 +247,7 @@ public:
 	ObjectCollection collisionObjectCollection;
 	ObjectCollection emitterCollection;
 
+	double damping;
 	Vector centerOfMass;
 	Random random;
 

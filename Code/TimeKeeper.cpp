@@ -6,13 +6,12 @@ using namespace _3DMath;
 
 TimeKeeper::TimeKeeper( void )
 {
+	diolationOfTime = 1.0;
 	currentTime = 0.0;
 	lastTime = 0.0;
 	deltaTime = 0.0;
 	baseTime = 0.0;
-#ifdef _DEBUG
-	debugDeltaTime = 0.0;
-#endif
+	fixedDeltaTime = 0.0;
 }
 
 /*virtual*/ TimeKeeper::~TimeKeeper( void )
@@ -29,13 +28,11 @@ TimeKeeper::TimeKeeper( void )
 	if( lastTime == 0.0 )
 		lastTime = currentTime;
 
-	deltaTime = currentTime - lastTime;
+	deltaTime = ( currentTime - lastTime ) * diolationOfTime;
 	lastTime = currentTime;
 
-#ifdef _DEBUG
-	if( debugDeltaTime != 0.0 )
-		deltaTime = debugDeltaTime;
-#endif
+	if( fixedDeltaTime != 0.0 )
+		deltaTime = fixedDeltaTime * diolationOfTime;
 }
 
 /*virtual*/ double TimeKeeper::AskSystemForCurrentTimeMilliseconds( void )

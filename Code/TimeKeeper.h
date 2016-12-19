@@ -24,9 +24,8 @@ public:
 	double GetDeltaTimeMilliseconds( void ) const;
 	double GetDeltaTimeSeconds( void ) const;
 
-#ifdef _DEBUG
-	double debugDeltaTime;
-#endif
+	double fixedDeltaTime;
+	double diolationOfTime;
 
 protected:
 

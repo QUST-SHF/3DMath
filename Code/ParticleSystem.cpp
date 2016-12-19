@@ -14,6 +14,8 @@ using namespace _3DMath;
 
 ParticleSystem::ParticleSystem( void )
 {
+	damping = 0.01;
+
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
 }
 
@@ -96,9 +98,6 @@ void ParticleSystem::AccumulateForces( void )
 
 void ParticleSystem::IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper )
 {
-	// Without damping, the simulation oscillates out of control.
-	double damping = 0.005;
-
 	ObjectMap::iterator iter = particleCollection.objectMap->begin();
 	while( iter != particleCollection.objectMap->end() )
 	{
@@ -199,18 +198,15 @@ ParticleSystem::Particle::Particle( void )
 	Vector position;
 	GetPosition( position );
 
-	if( previousPosition.Length() > EPSILON )
-	{
-		// This is the Verlet method.
-		Vector nextPosition;
-		nextPosition.AddScale( position, 2.0 - damping, previousPosition, damping - 1.0 );
-		nextPosition.AddScale( acceleration, deltaTime * deltaTime );
+	velocity.Subtract( position, previousPosition );
+	velocity.Scale( 1.0 / deltaTime );
 
-		SetPosition( nextPosition );
+	// This is the Verlet method.
+	Vector nextPosition;
+	nextPosition.AddScale( position, 2.0 - damping, previousPosition, damping - 1.0 );
+	nextPosition.AddScale( acceleration, deltaTime * deltaTime );
 
-		// Note that we're tracking velocity, but it does not influence our position.
-		velocity.AddScale( acceleration, deltaTime );
-	}
+	SetPosition( nextPosition );
 
 	previousPosition = position;
 }
@@ -419,7 +415,7 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 
 		// TODO: Look this up in a textbook to verify its correctness.
 		Vector springForce;
-		springForce.SetScaled( vector, stiffness * ( length - equilibriumLength ) / length );
+		springForce.SetScaled( vector, stiffness * ( length - equilibriumLength ) );
 
 		particleA->netForce.Add( springForce );
 		particleB->netForce.Subtract( springForce );
@@ -470,11 +466,7 @@ ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( 
 	Particle* particle = ( Particle* )system->particleCollection.FindObject( particleId );
 	if( particle )
 	{
-		// TODO: Get out the physics book and check this; I think it's all wrong.
-		//       I might also consider making something up.  For example, the direction
-		//       of the friction force, I would imagine, would be somewhere in the contact plane.
-		//       Of course, that _should_ already happen if the current and previous positions
-		//       are making contact with that plane.
+		// TODO: Get out the physics book and check this math.
 
 		double normalForce = impactInfo.contactUnitNormal.Dot( impactInfo.netForceAtImpact );
 		if( normalForce <= 0.0 )
@@ -519,7 +511,6 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 
 /*virtual*/ bool ParticleSystem::CollisionPlane::ResolveCollision( ImpactInfo& impactInfo )
 {
-#if 0
 	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
 		return false;
 
@@ -529,19 +520,6 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 	impactInfo.contactUnitNormal = plane.normal;
 	impactInfo.friction = friction;
 	return true;
-#else
-	if( !plane.Intersect( impactInfo.lineOfMotion, impactInfo.contactPosition ) )
-		return false;
-
-	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1] ) != Plane::SIDE_BACK )
-		return false;
-
-	impactInfo.contactPosition = impactInfo.lineOfMotion.vertex[1];
-	plane.NearestPoint( impactInfo.contactPosition );
-	impactInfo.contactUnitNormal = plane.normal;
-	impactInfo.friction = friction;
-	return true;
-#endif
 }
 
 //-------------------------------------------------------------------------------------------------
