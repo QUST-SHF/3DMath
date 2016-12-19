@@ -17,7 +17,6 @@ namespace _3DMath
 	class BoundingBoxTree;
 	class AxisAlignedBox;
 	class TimeKeeper;
-	class MotionIntegrator;
 }
 
 class _3DMATH_API _3DMath::ParticleSystem
@@ -37,13 +36,12 @@ public:
 		virtual void GetPosition( Vector& position ) const = 0;
 		virtual void SetPosition( const Vector& position ) = 0;
 
-		void GetPreviousPosition( Vector& position ) const;
+		virtual void Integrate( const _3DMath::TimeKeeper& timeKeeper, double damping = 0.0 );
 
 		Vector velocity;
 		Vector acceleration;
 		Vector netForce;
-		VectorList* previousPositionList;
-		int previousPositionMax;
+		Vector previousPosition;
 		double mass;
 		double timeOfDeath;
 	};
@@ -249,7 +247,6 @@ public:
 	ObjectCollection collisionObjectCollection;
 	ObjectCollection emitterCollection;
 
-	MotionIntegrator* motionIntegrator;
 	Vector centerOfMass;
 	Random random;
 

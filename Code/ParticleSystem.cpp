@@ -5,7 +5,6 @@
 #include "AxisAlignedBox.h"
 #include "BoundingBoxTree.h"
 #include "TimeKeeper.h"
-#include "MotionIntegrator.h"
 
 using namespace _3DMath;
 
@@ -16,12 +15,10 @@ using namespace _3DMath;
 ParticleSystem::ParticleSystem( void )
 {
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
-	motionIntegrator = new EulerMotionIntegrator();
 }
 
 /*virtual*/ ParticleSystem::~ParticleSystem( void )
 {
-	delete motionIntegrator;
 }
 
 void ParticleSystem::Clear( void )
@@ -99,26 +96,14 @@ void ParticleSystem::AccumulateForces( void )
 
 void ParticleSystem::IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper )
 {
-	double deltaTime = timeKeeper.GetDeltaTimeSeconds();
+	// Without damping, the simulation oscillates out of control.
+	double damping = 0.005;
 
 	ObjectMap::iterator iter = particleCollection.objectMap->begin();
 	while( iter != particleCollection.objectMap->end() )
 	{
 		Particle* particle = ( Particle* )iter->second;
-		
-		particle->acceleration.SetScaled( particle->netForce, 1.0 / particle->mass );
-
-		Vector currentPosition;
-		particle->GetPosition( currentPosition );
-
-		particle->previousPositionList->push_front( currentPosition );
-		while( particle->previousPositionList->size() > ( unsigned )particle->previousPositionMax )
-			particle->previousPositionList->pop_back();
-
-		motionIntegrator->Integrate( currentPosition, particle->velocity, particle->acceleration, deltaTime );
-
-		particle->SetPosition( currentPosition );
-
+		particle->Integrate( timeKeeper, damping );
 		iter++;
 	}
 }
@@ -135,7 +120,7 @@ void ParticleSystem::ResolveCollisions( void )
 		impactInfo.friction = 0.0;
 		impactInfo.contactPosition.Set( 0.0, 0.0, 0.0 );
 		impactInfo.contactUnitNormal.Set( 0.0, 0.0, 0.0 );
-		particle->GetPreviousPosition( impactInfo.lineOfMotion.vertex[0] );
+		impactInfo.lineOfMotion.vertex[0] = particle->previousPosition;
 		particle->GetPosition( impactInfo.lineOfMotion.vertex[1] );
 
 		ObjectMap::iterator collisionIter = collisionObjectCollection.objectMap->begin();
@@ -196,23 +181,38 @@ ParticleSystem::Particle::Particle( void )
 	velocity.Set( 0.0, 0.0, 0.0 );
 	acceleration.Set( 0.0, 0.0, 0.0 );
 	netForce.Set( 0.0, 0.0, 0.0 );
+	previousPosition.Set( 0.0, 0.0, 0.0 );
 	mass = 1.0;
 	timeOfDeath = 0.0;
-	previousPositionList = new VectorList();
-	previousPositionMax = 1;
 }
 
 /*virtual*/ ParticleSystem::Particle::~Particle( void )
 {
-	delete previousPositionList;
 }
 
-void ParticleSystem::Particle::GetPreviousPosition( Vector& position ) const
+/*virtual*/ void ParticleSystem::Particle::Integrate( const _3DMath::TimeKeeper& timeKeeper, double damping /*= 0.0*/ )
 {
-	if( previousPositionList->size() == 0 )
-		GetPosition( position );
-	else
-		position = previousPositionList->front();
+	double deltaTime = timeKeeper.GetDeltaTimeSeconds();
+
+	acceleration.SetScaled( netForce, 1.0 / mass );
+
+	Vector position;
+	GetPosition( position );
+
+	if( previousPosition.Length() > EPSILON )
+	{
+		// This is the Verlet method.
+		Vector nextPosition;
+		nextPosition.AddScale( position, 2.0 - damping, previousPosition, damping - 1.0 );
+		nextPosition.AddScale( acceleration, deltaTime * deltaTime );
+
+		SetPosition( nextPosition );
+
+		// Note that we're tracking velocity, but it does not influence our position.
+		velocity.AddScale( acceleration, deltaTime );
+	}
+
+	previousPosition = position;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -479,13 +479,11 @@ ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( 
 		double normalForce = impactInfo.contactUnitNormal.Dot( impactInfo.netForceAtImpact );
 		if( normalForce <= 0.0 )
 		{
-			Vector previousPosition, position;
-
+			Vector position;
 			particle->GetPosition( position );
-			particle->GetPreviousPosition( previousPosition );
 
 			Vector frictionForce;
-			frictionForce.Subtract( previousPosition, position );
+			frictionForce.Subtract( particle->previousPosition, position );
 			frictionForce.Normalize();
 			frictionForce.Scale( -impactInfo.friction * normalForce );
 
