@@ -188,6 +188,8 @@ public:
 		virtual ~CollisionObject( void );
 
 		virtual bool ResolveCollision( ImpactInfo& impactInfo ) = 0;
+
+		double friction;
 	};
 
 	class _3DMATH_API CollisionPlane : public CollisionObject
@@ -200,20 +202,19 @@ public:
 		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
 
 		Plane plane;
-		double friction;
 	};
 
-	class _3DMATH_API TriangleMeshCollisionObject : public CollisionObject
+	class _3DMATH_API ConvexTriangleMeshCollisionObject : public CollisionObject
 	{
 	public:
 
-		TriangleMeshCollisionObject( void );
-		virtual ~TriangleMeshCollisionObject( void );
+		ConvexTriangleMeshCollisionObject( void );
+		virtual ~ConvexTriangleMeshCollisionObject( void );
 
 		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
 
-		AxisAlignedBox* boundingBox;
-		TriangleMesh* mesh;
+		AxisAlignedBox* boundingBox;	// It is up to the user to keep this bounding box in sync with the mesh.
+		TriangleMesh* mesh;	// We assume the mesh forms a convex shape; if it doesn't, the behavior is left undefined.
 	};
 
 	class _3DMATH_API BoundingBoxTreeCollisionObject : public CollisionObject
@@ -226,7 +227,6 @@ public:
 		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
 
 		BoundingBoxTree* boxTree;
-		double friction;
 		double detectionDistance;
 	};
 

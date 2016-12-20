@@ -506,6 +506,7 @@ ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( 
 
 ParticleSystem::CollisionObject::CollisionObject( void )
 {
+	friction = 0.0;
 }
 
 /*virtual*/ ParticleSystem::CollisionObject::~CollisionObject( void )
@@ -518,7 +519,6 @@ ParticleSystem::CollisionObject::CollisionObject( void )
 
 ParticleSystem::CollisionPlane::CollisionPlane( void )
 {
-	friction = 0.0;
 }
 
 /*virtual*/ ParticleSystem::CollisionPlane::~CollisionPlane( void )
@@ -539,20 +539,20 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 }
 
 //-------------------------------------------------------------------------------------------------
-//                                      TriangleMeshCollisionObject
+//                                      ConvexTriangleMeshCollisionObject
 //-------------------------------------------------------------------------------------------------
 
-ParticleSystem::TriangleMeshCollisionObject::TriangleMeshCollisionObject( void )
+ParticleSystem::ConvexTriangleMeshCollisionObject::ConvexTriangleMeshCollisionObject( void )
 {
 	mesh = nullptr;
 	boundingBox = nullptr;
 }
 
-/*virtual*/ ParticleSystem::TriangleMeshCollisionObject::~TriangleMeshCollisionObject( void )
+/*virtual*/ ParticleSystem::ConvexTriangleMeshCollisionObject::~ConvexTriangleMeshCollisionObject( void )
 {
 }
 
-/*virtual*/ bool ParticleSystem::TriangleMeshCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
+/*virtual*/ bool ParticleSystem::ConvexTriangleMeshCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
 {
 	if( boundingBox && !boundingBox->ContainsPoint( impactInfo.lineOfMotion.vertex[1] ) )
 		return false;
@@ -560,9 +560,44 @@ ParticleSystem::TriangleMeshCollisionObject::TriangleMeshCollisionObject( void )
 	if( !mesh )
 		return false;
 
-	// TODO: Check collision against each triangle in the mesh.
+	int count = 0;
 
-	return false;
+	for( TriangleMesh::IndexTriangleList::const_iterator iter = mesh->triangleList->cbegin(); iter != mesh->triangleList->cend(); iter++ )
+	{
+		const TriangleMesh::IndexTriangle& indexTriangle = *iter;
+		
+		Plane plane;
+		indexTriangle.GetPlane( plane, mesh->vertexArray );
+
+		if( Plane::SIDE_BACK == plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) )
+			count++;
+	}
+
+	if( count < mesh->triangleList->size() )
+		return false;
+
+	double smallestDistance = -1.0;
+
+	for( TriangleMesh::IndexTriangleList::const_iterator iter = mesh->triangleList->cbegin(); iter != mesh->triangleList->cend(); iter++ )
+	{
+		const TriangleMesh::IndexTriangle& indexTriangle = *iter;
+		
+		Plane plane;
+		indexTriangle.GetPlane( plane, mesh->vertexArray );
+
+		Vector nearestPointOnPlane = impactInfo.lineOfMotion.vertex[1];
+		plane.NearestPoint( nearestPointOnPlane );
+		double distance = impactInfo.lineOfMotion.vertex[1].Distance( nearestPointOnPlane );
+		if( smallestDistance < 0.0 || distance < smallestDistance )
+		{
+			smallestDistance = distance;
+			impactInfo.contactPosition = nearestPointOnPlane;
+			impactInfo.contactUnitNormal = plane.normal;
+		}
+	}
+
+	impactInfo.friction = friction;
+	return true;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -572,7 +607,6 @@ ParticleSystem::TriangleMeshCollisionObject::TriangleMeshCollisionObject( void )
 ParticleSystem::BoundingBoxTreeCollisionObject::BoundingBoxTreeCollisionObject( void )
 {
 	boxTree = nullptr;
-	friction = 0.0;
 	detectionDistance = 1.0;		// If this is too small, we'll tunnel.
 }
 
