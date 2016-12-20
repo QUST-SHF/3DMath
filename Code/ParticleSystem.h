@@ -44,6 +44,7 @@ public:
 		Vector previousPosition;
 		double mass;
 		double timeOfDeath;
+		double friction;
 	};
 
 	class _3DMATH_API MeshVertexParticle : public Particle
@@ -59,12 +60,6 @@ public:
 		TriangleMesh* mesh;
 		int index;
 	};
-
-	// TODO: We'll need to tell the particle system where the camera is and how it's oriented.
-	//class _3DMATH_API BillboardParticle : public Particle
-	//{
-	//public:
-	//};
 
 	class _3DMATH_API Force : public Object
 	{
@@ -158,15 +153,6 @@ public:
 		double stiffness;
 	};
 
-	struct _3DMATH_API ImpactInfo
-	{
-		LineSegment lineOfMotion;
-		Vector netForceAtImpact;
-		Vector contactUnitNormal;
-		Vector contactPosition;
-		double friction;
-	};
-
 	class _3DMATH_API FrictionForce : public Force
 	{
 	public:
@@ -177,7 +163,9 @@ public:
 		virtual void Apply( void ) override;
 
 		int particleId;
-		ImpactInfo impactInfo;
+		Vector netForceAtImpact;
+		Vector contactUnitNormal;
+		double friction;
 	};
 
 	class _3DMATH_API CollisionObject : public Object
@@ -187,7 +175,7 @@ public:
 		CollisionObject( void );
 		virtual ~CollisionObject( void );
 
-		virtual bool ResolveCollision( ImpactInfo& impactInfo ) = 0;
+		virtual bool ResolveCollision( const LineSegment& lineOfMotion, Vector& contactPosition, Vector& contactUnitNormal ) = 0;
 
 		double friction;
 	};
@@ -199,7 +187,7 @@ public:
 		CollisionPlane( void );
 		virtual ~CollisionPlane( void );
 
-		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
+		virtual bool ResolveCollision( const LineSegment& lineOfMotion, Vector& contactPosition, Vector& contactUnitNormal ) override;
 
 		Plane plane;
 	};
@@ -211,7 +199,7 @@ public:
 		ConvexTriangleMeshCollisionObject( void );
 		virtual ~ConvexTriangleMeshCollisionObject( void );
 
-		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
+		virtual bool ResolveCollision( const LineSegment& lineOfMotion, Vector& contactPosition, Vector& contactUnitNormal ) override;
 
 		AxisAlignedBox* boundingBox;	// It is up to the user to keep this bounding box in sync with the mesh.
 		TriangleMesh* mesh;	// We assume the mesh forms a convex shape; if it doesn't, the behavior is left undefined.
@@ -224,7 +212,7 @@ public:
 		BoundingBoxTreeCollisionObject( void );
 		virtual ~BoundingBoxTreeCollisionObject( void );
 
-		virtual bool ResolveCollision( ImpactInfo& impactInfo ) override;
+		virtual bool ResolveCollision( const LineSegment& lineOfMotion, Vector& contactPosition, Vector& contactUnitNormal ) override;
 
 		BoundingBoxTree* boxTree;
 		double detectionDistance;

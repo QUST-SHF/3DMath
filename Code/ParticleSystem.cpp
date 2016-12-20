@@ -130,28 +130,28 @@ void ParticleSystem::ResolveCollisions( void )
 	{
 		Particle* particle = ( Particle* )iter->second;
 
-		ImpactInfo impactInfo;
-		impactInfo.netForceAtImpact = particle->netForce;
-		impactInfo.friction = 0.0;
-		impactInfo.contactPosition.Set( 0.0, 0.0, 0.0 );
-		impactInfo.contactUnitNormal.Set( 0.0, 0.0, 0.0 );
-		impactInfo.lineOfMotion.vertex[0] = particle->previousPosition;
-		particle->GetPosition( impactInfo.lineOfMotion.vertex[1] );
+		LineSegment lineOfMotion;
+		lineOfMotion.vertex[0] = particle->previousPosition;
+		particle->GetPosition( lineOfMotion.vertex[1] );
 
 		ObjectMap::iterator collisionIter = collisionObjectCollection.objectMap->begin();
 		while( collisionIter != collisionObjectCollection.objectMap->end() )
 		{
 			CollisionObject* collisionObject = ( CollisionObject* )collisionIter->second;
 
-			if( collisionObject->ResolveCollision( impactInfo ) )
+			Vector contactPosition, contactUnitNormal;
+			if( collisionObject->ResolveCollision( lineOfMotion, contactPosition, contactUnitNormal ) )
 			{
-				particle->SetPosition( impactInfo.contactPosition );
+				particle->SetPosition( contactPosition );
 
-				if( impactInfo.friction != 0.0 )
+				double friction = collisionObject->friction * particle->friction;
+				if( friction != 0.0 )
 				{
 					FrictionForce* frictionForce = new FrictionForce( this );
-					frictionForce->impactInfo = impactInfo;
+					frictionForce->netForceAtImpact = particle->netForce;
 					frictionForce->particleId = particle->id;
+					frictionForce->contactUnitNormal = contactUnitNormal;
+					frictionForce->friction = friction;
 					forceCollection.AddObject( frictionForce );
 				}
 			}
@@ -199,6 +199,7 @@ ParticleSystem::Particle::Particle( void )
 	previousPosition.Set( 0.0, 0.0, 0.0 );
 	mass = 1.0;
 	timeOfDeath = 0.0;
+	friction = 1.0;
 }
 
 /*virtual*/ ParticleSystem::Particle::~Particle( void )
@@ -466,10 +467,9 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( system )
 {
 	particleId = 0;
-	impactInfo.contactPosition.Set( 0.0, 0.0, 0.0 );
-	impactInfo.contactUnitNormal.Set( 0.0, 0.0, 0.0 );
-	impactInfo.netForceAtImpact.Set( 0.0, 0.0, 0.0 );
-	impactInfo.friction = 0.0;
+	contactUnitNormal.Set( 0.0, 0.0, 0.0 );
+	netForceAtImpact.Set( 0.0, 0.0, 0.0 );
+	friction = 0.0;
 	transient = true;
 }
 
@@ -484,7 +484,7 @@ ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( 
 	{
 		// TODO: Get out the physics book and check this math.
 
-		double normalForce = impactInfo.contactUnitNormal.Dot( impactInfo.netForceAtImpact );
+		double normalForce = contactUnitNormal.Dot( netForceAtImpact );
 		if( normalForce <= 0.0 )
 		{
 			Vector position;
@@ -493,7 +493,7 @@ ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( 
 			Vector frictionForce;
 			frictionForce.Subtract( particle->previousPosition, position );
 			frictionForce.Normalize();
-			frictionForce.Scale( -impactInfo.friction * normalForce );
+			frictionForce.Scale( -friction * normalForce );
 
 			particle->netForce.Add( frictionForce );
 		}
@@ -525,16 +525,15 @@ ParticleSystem::CollisionPlane::CollisionPlane( void )
 {
 }
 
-/*virtual*/ bool ParticleSystem::CollisionPlane::ResolveCollision( ImpactInfo& impactInfo )
+/*virtual*/ bool ParticleSystem::CollisionPlane::ResolveCollision( const LineSegment& lineOfMotion, Vector& contactPosition, Vector& contactUnitNormal )
 {
-	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
+	if( plane.GetSide( lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
 		return false;
 
-	impactInfo.contactPosition = impactInfo.lineOfMotion.vertex[1];
-	plane.NearestPoint( impactInfo.contactPosition );
+	contactPosition = lineOfMotion.vertex[1];
+	plane.NearestPoint( contactPosition );
 
-	impactInfo.contactUnitNormal = plane.normal;
-	impactInfo.friction = friction;
+	contactUnitNormal = plane.normal;
 	return true;
 }
 
@@ -552,9 +551,9 @@ ParticleSystem::ConvexTriangleMeshCollisionObject::ConvexTriangleMeshCollisionOb
 {
 }
 
-/*virtual*/ bool ParticleSystem::ConvexTriangleMeshCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
+/*virtual*/ bool ParticleSystem::ConvexTriangleMeshCollisionObject::ResolveCollision( const LineSegment& lineOfMotion, Vector& contactPosition, Vector& contactUnitNormal )
 {
-	if( boundingBox && !boundingBox->ContainsPoint( impactInfo.lineOfMotion.vertex[1] ) )
+	if( boundingBox && !boundingBox->ContainsPoint( lineOfMotion.vertex[1] ) )
 		return false;
 
 	if( !mesh )
@@ -569,11 +568,11 @@ ParticleSystem::ConvexTriangleMeshCollisionObject::ConvexTriangleMeshCollisionOb
 		Plane plane;
 		indexTriangle.GetPlane( plane, mesh->vertexArray );
 
-		if( Plane::SIDE_BACK == plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) )
+		if( Plane::SIDE_BACK == plane.GetSide( lineOfMotion.vertex[1], 0.0 ) )
 			count++;
 	}
 
-	if( count < mesh->triangleList->size() )
+	if( count < ( signed )mesh->triangleList->size() )
 		return false;
 
 	double smallestDistance = -1.0;
@@ -585,18 +584,17 @@ ParticleSystem::ConvexTriangleMeshCollisionObject::ConvexTriangleMeshCollisionOb
 		Plane plane;
 		indexTriangle.GetPlane( plane, mesh->vertexArray );
 
-		Vector nearestPointOnPlane = impactInfo.lineOfMotion.vertex[1];
+		Vector nearestPointOnPlane = lineOfMotion.vertex[1];
 		plane.NearestPoint( nearestPointOnPlane );
-		double distance = impactInfo.lineOfMotion.vertex[1].Distance( nearestPointOnPlane );
+		double distance = lineOfMotion.vertex[1].Distance( nearestPointOnPlane );
 		if( smallestDistance < 0.0 || distance < smallestDistance )
 		{
 			smallestDistance = distance;
-			impactInfo.contactPosition = nearestPointOnPlane;
-			impactInfo.contactUnitNormal = plane.normal;
+			contactPosition = nearestPointOnPlane;
+			contactUnitNormal = plane.normal;
 		}
 	}
 
-	impactInfo.friction = friction;
 	return true;
 }
 
@@ -614,26 +612,25 @@ ParticleSystem::BoundingBoxTreeCollisionObject::BoundingBoxTreeCollisionObject( 
 {
 }
 
-/*virtual*/ bool ParticleSystem::BoundingBoxTreeCollisionObject::ResolveCollision( ImpactInfo& impactInfo )
+/*virtual*/ bool ParticleSystem::BoundingBoxTreeCollisionObject::ResolveCollision( const LineSegment& lineOfMotion, Vector& contactPosition, Vector& contactUnitNormal )
 {
 	if( !boxTree )
 		return false;
 
 	const Triangle* nearestTriangle = nullptr;
-	if( !boxTree->FindNearestTriangle( impactInfo.lineOfMotion.vertex[1], nearestTriangle, detectionDistance ) )
+	if( !boxTree->FindNearestTriangle( lineOfMotion.vertex[1], nearestTriangle, detectionDistance ) )
 		return false;
 
 	Plane plane;
 	nearestTriangle->GetPlane( plane );
-	if( plane.GetSide( impactInfo.lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
+	if( plane.GetSide( lineOfMotion.vertex[1], 0.0 ) != Plane::SIDE_BACK )
 		return false;
 
 	// The contact position would, intuitively, be the intersection point,
 	// but I have found that the nearest point to the plane works better.
-	impactInfo.contactPosition = impactInfo.lineOfMotion.vertex[1];
-	plane.NearestPoint( impactInfo.contactPosition );
-	impactInfo.contactUnitNormal = plane.normal;
-	impactInfo.friction = friction;
+	contactPosition = lineOfMotion.vertex[1];
+	plane.NearestPoint( contactPosition );
+	contactUnitNormal = plane.normal;
 	return true;
 }
 
