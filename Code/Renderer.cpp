@@ -8,6 +8,7 @@
 #include "ParticleSystem.h"
 #include "BoundingBoxTree.h"
 #include "AffineTransform.h"
+#include "ListFunctions.h"
 
 using namespace _3DMath;
 
@@ -189,16 +190,16 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 void Renderer::DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags /*= DRAW_PARTICLES*/ )
 {
 	if( ( drawFlags & DRAW_FORCES ) != 0 )
-		particleSystem.forceCollection.Render( this );
+		RenderList< ParticleSystem::Force >( *particleSystem.forceList, *this );
 
 	if( ( drawFlags & DRAW_PARTICLES ) != 0 )
-		particleSystem.particleCollection.Render( this );
+		RenderList< ParticleSystem::Particle >( *particleSystem.particleList, *this );
 
 	if( ( drawFlags & DRAW_EMITTERS ) != 0 )
-		particleSystem.emitterCollection.Render( this );
+		RenderList< ParticleSystem::Emitter >( *particleSystem.emitterList, *this );
 
 	if( ( drawFlags & DRAW_COLLISION_OBJECTS ) != 0 )
-		particleSystem.collisionObjectCollection.Render( this );
+		RenderList< ParticleSystem::CollisionObject >( *particleSystem.collisionObjectList, *this );
 }
 
 void Renderer::DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags/*= DRAW_BOXES*/ )

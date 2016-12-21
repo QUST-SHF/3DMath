@@ -5,6 +5,7 @@
 #include "AxisAlignedBox.h"
 #include "BoundingBoxTree.h"
 #include "TimeKeeper.h"
+#include "ListFunctions.h"
 
 using namespace _3DMath;
 
@@ -17,20 +18,31 @@ ParticleSystem::ParticleSystem( void )
 	damping = 0.01;
 
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
+
+	particleList = new ParticleList;
+	forceList = new ForceList;
+	collisionObjectList = new CollisionObjectList;
+	emitterList = new EmitterList;
 }
 
 /*virtual*/ ParticleSystem::~ParticleSystem( void )
 {
+	Clear();
+
+	delete particleList;
+	delete forceList;
+	delete collisionObjectList;
+	delete emitterList;
 }
 
 void ParticleSystem::Clear( void )
 {
 	centerOfMass.Set( 0.0, 0.0, 0.0 );
 
-	particleCollection.Clear();
-	forceCollection.Clear();
-	collisionObjectCollection.Clear();
-	emitterCollection.Clear();
+	FreeList< Particle >( *particleList );
+	FreeList< Force >( *forceList );
+	FreeList< CollisionObject >( *collisionObjectList );
+	FreeList< Emitter >( *emitterList );
 }
 
 void ParticleSystem::Simulate( const _3DMath::TimeKeeper& timeKeeper )
@@ -47,16 +59,16 @@ void ParticleSystem::CullDeadParticles( const _3DMath::TimeKeeper& timeKeeper )
 {
 	double currentTime = timeKeeper.GetCurrentTimeSeconds();
 
-	ObjectMap::iterator iter = particleCollection.objectMap->begin();
-	while( iter != particleCollection.objectMap->end() )
+	ParticleList::iterator iter = particleList->begin();
+	while( iter != particleList->end() )
 	{
-		ObjectMap::iterator nextIter = iter;
+		ParticleList::iterator nextIter = iter;
 		nextIter++;
 
-		Particle* particle = ( Particle* )iter->second;
+		Particle* particle = ( Particle* )*iter;
 		if( particle->timeOfDeath != 0.0 && particle->timeOfDeath <= currentTime )
 		{
-			particleCollection.objectMap->erase( iter );
+			particleList->erase( iter );
 			delete particle;
 		}
 
@@ -66,10 +78,10 @@ void ParticleSystem::CullDeadParticles( const _3DMath::TimeKeeper& timeKeeper )
 
 void ParticleSystem::ResetParticlePhysics( void )
 {
-	ObjectMap::iterator iter = particleCollection.objectMap->begin();
-	while( iter != particleCollection.objectMap->end() )
+	ParticleList::iterator iter = particleList->begin();
+	while( iter != particleList->end() )
 	{
-		Particle* particle = ( Particle* )iter->second;
+		Particle* particle = ( Particle* )*iter;
 		particle->netForce.Set( 0.0, 0.0, 0.0 );
 		iter++;
 	}
@@ -77,19 +89,19 @@ void ParticleSystem::ResetParticlePhysics( void )
 
 void ParticleSystem::AccumulateForces( void )
 {
-	ObjectMap::iterator iter = forceCollection.objectMap->begin();
-	while( iter != forceCollection.objectMap->end() )
+	ForceList::iterator iter = forceList->begin();
+	while( iter != forceList->end() )
 	{
-		ObjectMap::iterator nextIter = iter;
+		ForceList::iterator nextIter = iter;
 		nextIter++;
 		
-		Force* force = ( Force* )iter->second;
+		Force* force = ( Force* )*iter;
 		force->Apply();
 
 		if( force->transient )
 		{
 			delete force;
-			forceCollection.objectMap->erase( iter );
+			forceList->erase( iter );
 		}
 
 		iter = nextIter;
@@ -98,10 +110,10 @@ void ParticleSystem::AccumulateForces( void )
 
 void ParticleSystem::ResetMotion( void )
 {
-	ObjectMap::iterator iter = particleCollection.objectMap->begin();
-	while( iter != particleCollection.objectMap->end() )
+	ParticleList::iterator iter = particleList->begin();
+	while( iter != particleList->end() )
 	{
-		Particle* particle = ( Particle* )iter->second;
+		Particle* particle = ( Particle* )*iter;
 		Vector position;
 		particle->GetPosition( position );
 		particle->previousPosition = position;
@@ -110,14 +122,18 @@ void ParticleSystem::ResetMotion( void )
 		particle->netForce.Set( 0.0, 0.0, 0.0 );
 		iter++;
 	}
+
+	// Should we remove certain forces here too?
+	// We can't remove them all; some were added by the user.
+	// We should maybe delete all friction and torque forces.
 }
 
 void ParticleSystem::IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper )
 {
-	ObjectMap::iterator iter = particleCollection.objectMap->begin();
-	while( iter != particleCollection.objectMap->end() )
+	ParticleList::iterator iter = particleList->begin();
+	while( iter != particleList->end() )
 	{
-		Particle* particle = ( Particle* )iter->second;
+		Particle* particle = ( Particle* )*iter;
 		particle->Integrate( timeKeeper, damping );
 		iter++;
 	}
@@ -125,19 +141,19 @@ void ParticleSystem::IntegrateParticles( const _3DMath::TimeKeeper& timeKeeper )
 
 void ParticleSystem::ResolveCollisions( void )
 {
-	ObjectMap::iterator iter = particleCollection.objectMap->begin();
-	while( iter != particleCollection.objectMap->end() )
+	ParticleList::iterator iter = particleList->begin();
+	while( iter != particleList->end() )
 	{
-		Particle* particle = ( Particle* )iter->second;
+		Particle* particle = ( Particle* )*iter;
 
 		LineSegment lineOfMotion;
 		lineOfMotion.vertex[0] = particle->previousPosition;
 		particle->GetPosition( lineOfMotion.vertex[1] );
 
-		ObjectMap::iterator collisionIter = collisionObjectCollection.objectMap->begin();
-		while( collisionIter != collisionObjectCollection.objectMap->end() )
+		CollisionObjectList::iterator collisionIter = collisionObjectList->begin();
+		while( collisionIter != collisionObjectList->end() )
 		{
-			CollisionObject* collisionObject = ( CollisionObject* )collisionIter->second;
+			CollisionObject* collisionObject = ( CollisionObject* )*collisionIter;
 
 			Vector contactPosition, contactUnitNormal;
 			if( collisionObject->ResolveCollision( lineOfMotion, contactPosition, contactUnitNormal ) )
@@ -149,10 +165,10 @@ void ParticleSystem::ResolveCollisions( void )
 				{
 					FrictionForce* frictionForce = new FrictionForce( this );
 					frictionForce->netForceAtImpact = particle->netForce;
-					frictionForce->particleId = particle->id;
+					frictionForce->particleHandle = particle->GetHandle();
 					frictionForce->contactUnitNormal = contactUnitNormal;
 					frictionForce->friction = friction;
-					forceCollection.AddObject( frictionForce );
+					forceList->push_back( frictionForce );
 				}
 			}
 
@@ -168,10 +184,10 @@ void ParticleSystem::CalculateCenterOfMass( void )
 	double totalMass = 0.0;
 	Vector totalMoments( 0.0, 0.0, 0.0 );
 
-	ObjectMap::iterator iter = particleCollection.objectMap->begin();
-	while( iter != particleCollection.objectMap->end() )
+	ParticleList::iterator iter = particleList->begin();
+	while( iter != particleList->end() )
 	{
-		Particle* particle = ( Particle* )iter->second;
+		Particle* particle = ( Particle* )*iter;
 
 		totalMass += particle->mass;
 
@@ -273,10 +289,10 @@ ParticleSystem::Force::Force( ParticleSystem* system )
 
 /*virtual*/ void ParticleSystem::Force::Apply( void )
 {
-	ObjectMap::iterator iter = system->particleCollection.objectMap->begin();
-	while( iter != system->particleCollection.objectMap->end() )
+	ParticleList::iterator iter = system->particleList->begin();
+	while( iter != system->particleList->end() )
 	{
-		Particle* particle = ( Particle* )iter->second;
+		Particle* particle = ( Particle* )*iter;
 		Apply( particle );
 		iter++;
 	}
@@ -403,8 +419,8 @@ ParticleSystem::TorqueForce::TorqueForce( ParticleSystem* system ) : Force( syst
 
 ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( system )
 {
-	endPointParticleIds[0] = 0;
-	endPointParticleIds[1] = 0;
+	endPointParticleHandles[0] = 0;
+	endPointParticleHandles[1] = 0;
 	equilibriumLength = 1.0;
 	stiffness = 1.0;
 }
@@ -415,8 +431,8 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 
 /*virtual*/ void ParticleSystem::SpringForce::Apply( void )
 {
-	Particle* particleA = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[0] );
-	Particle* particleB = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[1] );
+	Particle* particleA = ( Particle* )HandleObject::Dereference( endPointParticleHandles[0] );
+	Particle* particleB = ( Particle* )HandleObject::Dereference( endPointParticleHandles[1] );
 
 	if( particleA && particleB )
 	{
@@ -439,10 +455,10 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 	}
 }
 
-/*virtual*/ void ParticleSystem::SpringForce::Render( Renderer* renderer ) const
+void ParticleSystem::SpringForce::Render( Renderer& renderer ) const
 {
-	Particle* particleA = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[0] );
-	Particle* particleB = ( Particle* )system->particleCollection.FindObject( endPointParticleIds[1] );
+	Particle* particleA = ( Particle* )HandleObject::Dereference( endPointParticleHandles[0] );
+	Particle* particleB = ( Particle* )HandleObject::Dereference( endPointParticleHandles[1] );
 
 	if( particleA && particleB )
 	{
@@ -451,12 +467,12 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 		particleA->GetPosition( positionA );
 		particleB->GetPosition( positionB );
 
-		renderer->BeginDrawMode( Renderer::DRAW_MODE_LINES );
+		renderer.BeginDrawMode( Renderer::DRAW_MODE_LINES );
 
-		renderer->IssueVertex( Vertex( positionA ) );
-		renderer->IssueVertex( Vertex( positionB ) );
+		renderer.IssueVertex( Vertex( positionA ) );
+		renderer.IssueVertex( Vertex( positionB ) );
 
-		renderer->EndDrawMode();
+		renderer.EndDrawMode();
 	}
 }
 
@@ -466,7 +482,7 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 
 ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( system )
 {
-	particleId = 0;
+	particleHandle = 0;
 	contactUnitNormal.Set( 0.0, 0.0, 0.0 );
 	netForceAtImpact.Set( 0.0, 0.0, 0.0 );
 	friction = 0.0;
@@ -479,7 +495,7 @@ ParticleSystem::FrictionForce::FrictionForce( ParticleSystem* system ) : Force( 
 
 /*virtual*/ void ParticleSystem::FrictionForce::Apply( void )
 {
-	Particle* particle = ( Particle* )system->particleCollection.FindObject( particleId );
+	Particle* particle = ( Particle* )HandleObject::Dereference( particleHandle );
 	if( particle )
 	{
 		// TODO: Get out the physics book and check this math.

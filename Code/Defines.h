@@ -20,6 +20,7 @@
 #	define _USE_MATH_DEFINES
 #endif
 
+// TODO: Get rid of these includes and place them where appropriate.
 #include <math.h>
 #include <stdint.h>
 #include <list>

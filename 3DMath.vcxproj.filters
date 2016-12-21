@@ -40,9 +40,6 @@
     <ClInclude Include="Code\ParticleSystem.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\ObjectCollection.h">
-      <Filter>Code</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Random.h">
       <Filter>Code</Filter>
     </ClInclude>
@@ -67,6 +64,12 @@
     <ClInclude Include="Code\TimeKeeper.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\HandleObject.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ListFunctions.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Vector.cpp">
@@ -85,9 +88,6 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\Triangle.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\ObjectCollection.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\ParticleSystem.cpp">
@@ -121,6 +121,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\BspTree.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\HandleObject.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>

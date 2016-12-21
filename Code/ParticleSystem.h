@@ -5,9 +5,9 @@
 #include "Defines.h"
 #include "Vector.h"
 #include "Plane.h"
-#include "ObjectCollection.h"
 #include "Random.h"
 #include "LineSegment.h"
+#include "HandleObject.h"
 
 namespace _3DMath
 {
@@ -26,7 +26,7 @@ public:
 	ParticleSystem( void );
 	virtual ~ParticleSystem( void );
 
-	class _3DMATH_API Particle : public Object
+	class _3DMATH_API Particle : public HandleObject	// This is a bit expensive, but I'm going to see if I can get away with it.
 	{
 	public:
 
@@ -61,7 +61,7 @@ public:
 		int index;
 	};
 
-	class _3DMATH_API Force : public Object
+	class _3DMATH_API Force : public HandleObject
 	{
 	public:
 
@@ -145,10 +145,11 @@ public:
 		SpringForce( ParticleSystem* system );
 		virtual ~SpringForce( void );
 
-		virtual void Render( Renderer* renderer ) const override;
+		void Render( Renderer& renderer ) const;
+
 		virtual void Apply( void ) override;
 
-		int endPointParticleIds[2];
+		int endPointParticleHandles[2];
 		double equilibriumLength;
 		double stiffness;
 	};
@@ -162,13 +163,13 @@ public:
 
 		virtual void Apply( void ) override;
 
-		int particleId;
+		int particleHandle;
 		Vector netForceAtImpact;
 		Vector contactUnitNormal;
 		double friction;
 	};
 
-	class _3DMATH_API CollisionObject : public Object
+	class _3DMATH_API CollisionObject : public HandleObject
 	{
 	public:
 
@@ -218,7 +219,7 @@ public:
 		double detectionDistance;
 	};
 
-	class _3DMATH_API Emitter : public Object
+	class _3DMATH_API Emitter : public HandleObject
 	{
 	public:
 
@@ -232,10 +233,15 @@ public:
 	void Simulate( const TimeKeeper& timeKeeper );
 	void ResetMotion( void );
 
-	ObjectCollection particleCollection;
-	ObjectCollection forceCollection;
-	ObjectCollection collisionObjectCollection;
-	ObjectCollection emitterCollection;
+	typedef std::list< Particle* > ParticleList;
+	typedef std::list< Force* > ForceList;
+	typedef std::list< CollisionObject* > CollisionObjectList;
+	typedef std::list< Emitter* > EmitterList;
+
+	ParticleList* particleList;
+	ForceList* forceList;
+	CollisionObjectList* collisionObjectList;
+	EmitterList* emitterList;
 
 	double damping;
 	Vector centerOfMass;
