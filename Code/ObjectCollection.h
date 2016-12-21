@@ -13,6 +13,8 @@ namespace _3DMath
 	typedef std::map< int, Object* > ObjectMap;
 }
 
+// TODO: May want to revisit all this.  I also need the idea of a handle system.  Can this be consolidated with that?
+
 class _3DMATH_API _3DMath::Object
 {
 public:
