@@ -80,10 +80,10 @@
     <ClCompile Include="Code\BspTree.cpp" />
     <ClCompile Include="Code\Exception.cpp" />
     <ClCompile Include="Code\FileFormat.cpp" />
+    <ClCompile Include="Code\HandleObject.cpp" />
     <ClCompile Include="Code\Line.cpp" />
     <ClCompile Include="Code\LinearTransform.cpp" />
     <ClCompile Include="Code\LineSegment.cpp" />
-    <ClCompile Include="Code\ObjectCollection.cpp" />
     <ClCompile Include="Code\ParticleSystem.cpp" />
     <ClCompile Include="Code\Plane.cpp" />
     <ClCompile Include="Code\Random.cpp" />
@@ -101,10 +101,10 @@
     <ClInclude Include="Code\Defines.h" />
     <ClInclude Include="Code\Exception.h" />
     <ClInclude Include="Code\FileFormat.h" />
+    <ClInclude Include="Code\HandleObject.h" />
     <ClInclude Include="Code\Line.h" />
     <ClInclude Include="Code\LinearTransform.h" />
     <ClInclude Include="Code\LineSegment.h" />
-    <ClInclude Include="Code\ObjectCollection.h" />
     <ClInclude Include="Code\ParticleSystem.h" />
     <ClInclude Include="Code\Plane.h" />
     <ClInclude Include="Code\Random.h" />

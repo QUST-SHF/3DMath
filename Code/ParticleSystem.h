@@ -145,8 +145,7 @@ public:
 		SpringForce( ParticleSystem* system );
 		virtual ~SpringForce( void );
 
-		void Render( Renderer& renderer ) const;
-
+		virtual void Render( Renderer& renderer ) const override;
 		virtual void Apply( void ) override;
 
 		int endPointParticleHandles[2];

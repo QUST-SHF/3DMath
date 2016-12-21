@@ -20,6 +20,7 @@ public:
 	virtual ~HandleObject( void );
 
 	virtual void Render( Renderer& renderer ) const;
+	virtual HandleObject* Clone( void ) const;
 
 	int GetHandle( void ) const { return handle; }
 

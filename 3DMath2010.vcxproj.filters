@@ -16,9 +16,6 @@
     <ClCompile Include="Code\LineSegment.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\ObjectCollection.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
     <ClCompile Include="Code\ParticleSystem.cpp">
       <Filter>Code</Filter>
     </ClCompile>
@@ -61,6 +58,9 @@
     <ClCompile Include="Code\BspTree.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\HandleObject.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h">
@@ -76,9 +76,6 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\LineSegment.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\ObjectCollection.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\ParticleSystem.h">
@@ -118,6 +115,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\BspTree.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HandleObject.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

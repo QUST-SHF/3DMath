@@ -24,6 +24,7 @@ public:
 	~AxisAlignedBox( void );
 
 	void GrowToIncludePoint( const Vector& point );
+	void SetCenterAndDimensions( const Vector& center, const Vector& dimensions );
 
 	bool Intersect( const AxisAlignedBox& boxA, const AxisAlignedBox& boxB );
 	void Combine( const AxisAlignedBox& boxA, const AxisAlignedBox& boxB );

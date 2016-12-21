@@ -455,7 +455,7 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 	}
 }
 
-void ParticleSystem::SpringForce::Render( Renderer& renderer ) const
+/*virtual*/ void ParticleSystem::SpringForce::Render( Renderer& renderer ) const
 {
 	Particle* particleA = ( Particle* )HandleObject::Dereference( endPointParticleHandles[0] );
 	Particle* particleB = ( Particle* )HandleObject::Dereference( endPointParticleHandles[1] );

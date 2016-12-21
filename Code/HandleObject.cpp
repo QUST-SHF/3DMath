@@ -44,4 +44,9 @@ HandleObject::HandleObject( void )
 {
 }
 
+/*virtual*/ HandleObject* HandleObject::Clone( void ) const
+{
+	return nullptr;
+}
+
 // HandleObject.cpp

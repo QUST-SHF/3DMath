@@ -38,6 +38,12 @@ void AxisAlignedBox::GrowToIncludePoint( const Vector& point )
 	ExpandInterval( negCorner.z, posCorner.z, point.z );
 }
 
+void AxisAlignedBox::SetCenterAndDimensions( const Vector& center, const Vector& dimensions )
+{
+	negCorner.AddScale( center, 1.0, dimensions, -0.5 );
+	posCorner.AddScale( center, 1.0, dimensions, 0.5 );
+}
+
 /*static*/ void AxisAlignedBox::ExpandInterval( double& min, double& max, double value )
 {
 	if( value < min )
