@@ -22,6 +22,7 @@ public:
 	~Line( void );
 
 	double ShortestDistance( const Vector& point ) const;
+	void Reflect( Vector& vector ) const;
 
 	Vector center, normal;
 };

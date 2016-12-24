@@ -322,4 +322,9 @@ bool Vector::Orthogonal( Vector& orthogonalVector ) const
 	return true;
 }
 
+void Vector::Reflect( Vector& vector ) const
+{
+	//...
+}
+
 // Vector.cpp

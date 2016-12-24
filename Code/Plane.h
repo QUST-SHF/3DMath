@@ -11,6 +11,8 @@ namespace _3DMath
 	class Plane;
 	class LineSegment;
 	class Line;
+	class AffineTransform;
+	class LinearTransform;
 }
 
 class _3DMATH_API _3DMath::Plane
@@ -36,6 +38,8 @@ public:
 	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps = EPSILON ) const;
 	bool Intersect( const Line& line, Vector& intersectionPoint, double eps = EPSILON ) const;
 	bool SplitTriangle( const Triangle& triangle, TriangleList& frontList, TriangleList& backList ) const;
+	void Reflect( Vector& point ) const;
+	void Transform( const AffineTransform& affineTransform, const LinearTransform* normalTransform = nullptr );
 
 	Vector normal;
 	double centerDotNormal;

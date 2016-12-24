@@ -200,4 +200,13 @@ bool LinearTransform::Decompose( LinearTransform& scale, LinearTransform& shear,
 	return false;
 }
 
+bool LinearTransform::GetNormalTransform( LinearTransform& normalTransform ) const
+{
+	if( !GetInverse( normalTransform ) )
+		return false;
+
+	normalTransform.Tranpose();
+	return true;
+}
+
 // LinearTransform.cpp

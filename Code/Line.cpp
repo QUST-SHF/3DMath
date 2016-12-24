@@ -35,4 +35,8 @@ double Line::ShortestDistance( const Vector& point ) const
 	return distance;
 }
 
+void Line::Reflect( Vector& vector ) const
+{
+}
+
 // Line.cpp

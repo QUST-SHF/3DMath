@@ -52,6 +52,8 @@ public:
 	bool Orthogonalize( void );
 	bool Decompose( LinearTransform& scale, LinearTransform& shear, LinearTransform& rotation );
 
+	bool GetNormalTransform( LinearTransform& normalTransform ) const;
+
 	Vector xAxis, yAxis, zAxis;
 };
 

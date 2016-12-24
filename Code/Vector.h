@@ -79,6 +79,8 @@ public:
 
 	bool Orthogonal( Vector& orthogonalVector ) const;
 
+	void Reflect( Vector& vector ) const;
+
 	double x, y, z;
 };
 

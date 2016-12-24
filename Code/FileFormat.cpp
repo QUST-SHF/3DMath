@@ -378,8 +378,10 @@ ObjFormat::ObjFormat( void )
 
 					Vertex vertex;
 					PopulateVector( positionLine, 1, vertex.position );
-					PopulateVector( texCoordLine, 1, vertex.texCoords );
-					PopulateVector( normalLine, 1, vertex.normal );
+					if( texCoordLine )
+						PopulateVector( texCoordLine, 1, vertex.texCoords );
+					if( normalLine )
+						PopulateVector( normalLine, 1, vertex.normal );
 
 					triangleMesh.vertexArray->push_back( vertex );
 				}

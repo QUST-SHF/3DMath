@@ -3,6 +3,7 @@
 #include "BspTree.h"
 #include "LineSegment.h"
 #include "Exception.h"
+#include "AffineTransform.h"
 
 using namespace _3DMath;
 
@@ -57,14 +58,32 @@ bool BspTree::Generate( const TriangleMesh& triangleMesh )
 	return true;
 }
 
-void BspTree::Render( Renderer& renderer, RenderMode renderMode, const Vector& eye ) const
+void BspTree::Render( Renderer& renderer, RenderMode renderMode, const Vector& eye, const AffineTransform* transform /*= nullptr*/, int vertexFlags /*= 0*/ ) const
 {
+	AffineTransform identityTransform;
+	if( !transform )
+	{
+		identityTransform.Identity();
+		transform = &identityTransform;
+	}
+
+	LinearTransform normalTransform;
+	transform->linearTransform.GetNormalTransform( normalTransform );
+
 	if( rootNode )
 	{
 		renderer.BeginDrawMode( Renderer::DRAW_MODE_TRIANGLES );
-		rootNode->Render( renderer, renderMode, eye, this );
+		rootNode->Render( renderer, renderMode, eye, this, *transform, normalTransform, vertexFlags );
 		renderer.EndDrawMode();
 	}
+}
+
+void BspTree::Transform( const AffineTransform& transform )
+{
+	if( rootNode )
+		rootNode->Transform( transform );
+
+	transform.Transform( *vertexArray );
 }
 
 /*virtual*/ bool BspTree::FrontSpaceVisible( const Node* node ) const
@@ -95,9 +114,23 @@ BspTree::Node::Node( void )
 	delete triangleList;
 }
 
-void BspTree::Node::Render( Renderer& renderer, RenderMode renderMode, const Vector& eye, const BspTree* bspTree ) const
+void BspTree::Node::Transform( const AffineTransform& transform )
 {
-	Plane::Side side = partitioningPlane.GetSide( eye );
+	partitioningPlane.Transform( transform );
+
+	if( frontNode )
+		frontNode->Transform( transform );
+
+	if( backNode )
+		backNode->Transform( transform );
+}
+
+void BspTree::Node::Render( Renderer& renderer, RenderMode renderMode, const Vector& eye, const BspTree* bspTree, const AffineTransform& transform, const LinearTransform& normalTransform, int vertexFlags ) const
+{
+	Plane plane = partitioningPlane;
+	plane.Transform( transform, &normalTransform );
+
+	Plane::Side side = plane.GetSide( eye );
 
 	int order = 0;
 
@@ -144,18 +177,22 @@ void BspTree::Node::Render( Renderer& renderer, RenderMode renderMode, const Vec
 	}
 
 	if( firstNode )
-		firstNode->Render( renderer, renderMode, eye, bspTree );
+		firstNode->Render( renderer, renderMode, eye, bspTree, transform, normalTransform, vertexFlags );
 
 	for( TriangleMesh::IndexTriangleList::const_iterator iter = triangleList->cbegin(); iter != triangleList->cend(); iter++ )
 	{
 		const TriangleMesh::IndexTriangle& indexTriangle = *iter;
 
 		for( int i = 0; i < 3; i++ )
-			renderer.IssueVertex( ( *bspTree->vertexArray )[ indexTriangle.vertex[i] ] );
+		{
+			Vertex vertex = ( *bspTree->vertexArray )[ indexTriangle.vertex[i] ];
+			transform.Transform( vertex, &normalTransform );
+			renderer.IssueVertex( vertex, vertexFlags );
+		}
 	}
 
 	if( lastNode )
-		lastNode->Render( renderer, renderMode, eye, bspTree );
+		lastNode->Render( renderer, renderMode, eye, bspTree, transform, normalTransform, vertexFlags );
 }
 
 void BspTree::Node::Generate( TriangleMesh::IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray )

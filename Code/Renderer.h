@@ -49,9 +49,17 @@ public:
 
 	DrawStyle drawStyle;
 
+	enum VertexFlags
+	{
+		VTX_FLAG_POSITION				= 0x00000001,
+		VTX_FLAG_NORMAL					= 0x00000002,
+		VTX_FLAG_COLOR					= 0x00000004,
+		VTX_FLAG_TEXCOORDS				= 0x00000008,
+	};
+
 	virtual void BeginDrawMode( DrawMode drawMode ) = 0;
 	virtual void EndDrawMode( void ) = 0;
-	virtual void IssueVertex( const Vertex& vertex ) = 0;
+	virtual void IssueVertex( const Vertex& vertex, int vertexFlags = VTX_FLAG_POSITION | VTX_FLAG_NORMAL | VTX_FLAG_COLOR | VTX_FLAG_TEXCOORDS ) = 0;
 	virtual void Color( const Vector& color, double alpha = 1.0 ) = 0;
 	
 	enum ParticleSystemDrawFlag

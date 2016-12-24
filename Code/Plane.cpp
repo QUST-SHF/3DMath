@@ -3,6 +3,7 @@
 #include "Plane.h"
 #include "LineSegment.h"
 #include "Line.h"
+#include "AffineTransform.h"
 
 using namespace _3DMath;
 
@@ -108,6 +109,9 @@ bool Plane::SplitTriangle( const Triangle& triangle, TriangleList& frontList, Tr
 		triangle.vertex[1] = vertexArray[ ( q + i + 1 ) % vertexArray.size() ];
 		triangle.vertex[2] = vertexArray[ ( q + i + 2 ) % vertexArray.size() ];
 
+		if( triangle.IsDegenerate() )
+			continue;
+
 		int k;
 		for( k = 0; k < 3; k++ )
 		{
@@ -129,6 +133,30 @@ bool Plane::SplitTriangle( const Triangle& triangle, TriangleList& frontList, Tr
 	}
 
 	return true;
+}
+
+void Plane::Reflect( Vector& point ) const
+{
+	//...
+}
+
+void Plane::Transform( const AffineTransform& affineTransform, const LinearTransform* normalTransform /*= nullptr*/ )
+{
+	Vector center;
+	GetCenter( center );
+
+	affineTransform.Transform( center );
+
+	static LinearTransform normalTransformStorage;		// This makes us non-thread-safe, by the way.
+	if( !normalTransform )
+	{
+		affineTransform.linearTransform.GetNormalTransform( normalTransformStorage );
+		normalTransform = &normalTransformStorage;
+	}
+
+	normalTransform->Transform( normal );
+
+	SetCenterAndNormal( center, normal );
 }
 
 // Plane.cpp

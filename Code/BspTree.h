@@ -13,6 +13,7 @@ namespace _3DMath
 	class Triangle;
 	class TriangleMesh;
 	class Renderer;
+	class AffineTransform;
 }
 
 class _3DMATH_API _3DMath::BspTree
@@ -31,7 +32,8 @@ public:
 		RENDER_FRONT_TO_BACK,
 	};
 
-	void Render( Renderer& renderer, RenderMode renderMode, const Vector& eye ) const;
+	void Render( Renderer& renderer, RenderMode renderMode, const Vector& eye, const AffineTransform* transform = nullptr, int vertexFlags = 0 ) const;
+	void Transform( const AffineTransform& transform );
 
 	class _3DMATH_API Node
 	{
@@ -46,7 +48,8 @@ public:
 		TriangleMesh::IndexTriangleList* triangleList;
 
 		void Generate( TriangleMesh::IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray );
-		void Render( Renderer& renderer, RenderMode renderMode, const Vector& eye, const BspTree* bspTree ) const;
+		void Render( Renderer& renderer, RenderMode renderMode, const Vector& eye, const BspTree* bspTree, const AffineTransform& transform, const LinearTransform& normalTransform, int vertexFlags ) const;
+		void Transform( const AffineTransform& transform );
 
 		TriangleMesh::IndexTriangleList::iterator ChooseBestPartitioningTriangle( TriangleMesh::IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray );
 

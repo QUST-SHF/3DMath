@@ -59,21 +59,31 @@ void AffineTransform::Transform( Vector* vectorArray, int arraySize ) const
 		Transform( vectorArray[i] );
 }
 
-void AffineTransform::Transform( Vertex& vertex, bool transformNormal /*= false*/ ) const
+void AffineTransform::Transform( Vertex& vertex, const LinearTransform* normalTransform /*= nullptr*/ ) const
 {
 	Transform( vertex.position );
 
-	if( transformNormal )
+	if( !normalTransform )
 	{
-		// TODO: I think we actually want to send these through the inverse transpose.
-		linearTransform.Transform( vertex.normal );
+		static LinearTransform normalTransformStorage;
+		normalTransform = &normalTransformStorage;
+		linearTransform.GetNormalTransform( normalTransformStorage );
 	}
+
+	normalTransform->Transform( vertex.normal );
+	vertex.normal.Normalize();		// Account for accumulated round-off error.
 }
 
-void AffineTransform::Transform( VertexArray& vertexArray, bool transformNormals /*= false*/ ) const
+bool AffineTransform::Transform( VertexArray& vertexArray ) const
 {
+	LinearTransform normalTransform;
+	if( !linearTransform.GetNormalTransform( normalTransform ) )
+		return false;
+
 	for( int i = 0; i < ( signed )vertexArray.size(); i++ )
-		Transform( vertexArray[i], transformNormals );
+		Transform( vertexArray[i], &normalTransform );
+
+	return true;
 }
 
 bool AffineTransform::Invert( void )
@@ -121,6 +131,8 @@ void AffineTransform::Concatinate( const AffineTransform& affineTransform )
 
 void AffineTransform::Concatinate( const AffineTransform& affineTransformA, const AffineTransform& affineTransformB )
 {
+	// TODO: Is there a bug here?  Redo the math on paper.
+
 	linearTransform.xAxis.Add( affineTransformA.linearTransform.xAxis, affineTransformA.translation );
 	linearTransform.yAxis.Add( affineTransformA.linearTransform.yAxis, affineTransformA.translation );
 	linearTransform.zAxis.Add( affineTransformA.linearTransform.zAxis, affineTransformA.translation );
