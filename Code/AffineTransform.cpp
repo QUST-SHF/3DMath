@@ -131,15 +131,9 @@ void AffineTransform::Concatinate( const AffineTransform& affineTransform )
 
 void AffineTransform::Concatinate( const AffineTransform& affineTransformA, const AffineTransform& affineTransformB )
 {
-	// TODO: Is there a bug here?  Redo the math on paper.
-
-	linearTransform.xAxis.Add( affineTransformA.linearTransform.xAxis, affineTransformA.translation );
-	linearTransform.yAxis.Add( affineTransformA.linearTransform.yAxis, affineTransformA.translation );
-	linearTransform.zAxis.Add( affineTransformA.linearTransform.zAxis, affineTransformA.translation );
-
-	affineTransformB.Transform( linearTransform.xAxis );
-	affineTransformB.Transform( linearTransform.yAxis );
-	affineTransformB.Transform( linearTransform.zAxis );
+	linearTransform.Concatinate( affineTransformA.linearTransform, affineTransformB.linearTransform );
+	translation = affineTransformA.translation;
+	affineTransformB.Transform( translation );
 }
 
 void AffineTransform::SetRigidBodyMotion( const Vector& unitAxis, double angle, const Vector& translation )

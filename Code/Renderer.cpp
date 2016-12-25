@@ -87,6 +87,10 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 	{
 		case DRAW_STYLE_SOLID:
 		{
+			LinearTransform normalTransform;
+			if( transform )
+				transform->linearTransform.GetNormalTransform( normalTransform );
+
 			BeginDrawMode( DRAW_MODE_TRIANGLES );
 
 			TriangleMesh::IndexTriangleList::iterator iter = triangleMesh.triangleList->begin();
@@ -109,7 +113,7 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 				for( int i = 0; i < 3; i++ )
 				{
 					if( transform )
-						transform->Transform( vertex[i] );
+						transform->Transform( vertex[i], &normalTransform );
 
 					IssueVertex( vertex[i] );
 				}
