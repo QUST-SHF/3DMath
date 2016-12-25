@@ -4,14 +4,17 @@
 
 using namespace _3DMath;
 
+//-----------------------------------------------------------------------
+//                               TimeKeeper
+//-----------------------------------------------------------------------
+
 TimeKeeper::TimeKeeper( void )
 {
-	diolationOfTime = 1.0;
-	currentTime = 0.0;
-	lastTime = 0.0;
-	deltaTime = 0.0;
-	baseTime = 0.0;
-	fixedDeltaTime = 0.0;
+	currentTimeMilliseconds = 0.0;
+	lastTimeMilliseconds = 0.0;
+	deltaTimeMilliseconds = 0.0;
+	baseTimeMilliseconds = 0.0;
+	fixedDeltaTimeMilliseconds = 0.0;
 }
 
 /*virtual*/ TimeKeeper::~TimeKeeper( void )
@@ -20,19 +23,16 @@ TimeKeeper::TimeKeeper( void )
 
 /*virtual*/ void TimeKeeper::MarkCurrentTime( void )
 {
-	if( baseTime == 0.0 )
-		baseTime = AskSystemForCurrentTimeMilliseconds();
+	if( baseTimeMilliseconds == 0.0 )
+		baseTimeMilliseconds = AskSystemForCurrentTimeMilliseconds();
 
-	currentTime = AskSystemForCurrentTimeMilliseconds() - baseTime;
+	currentTimeMilliseconds = AskSystemForCurrentTimeMilliseconds() - baseTimeMilliseconds;
 
-	if( lastTime == 0.0 )
-		lastTime = currentTime;
+	if( lastTimeMilliseconds == 0.0 )
+		lastTimeMilliseconds = currentTimeMilliseconds;
 
-	deltaTime = ( currentTime - lastTime ) * diolationOfTime;
-	lastTime = currentTime;
-
-	if( fixedDeltaTime != 0.0 )
-		deltaTime = fixedDeltaTime * diolationOfTime;
+	deltaTimeMilliseconds = currentTimeMilliseconds - lastTimeMilliseconds;
+	lastTimeMilliseconds = currentTimeMilliseconds;
 }
 
 /*virtual*/ double TimeKeeper::AskSystemForCurrentTimeMilliseconds( void )
@@ -43,22 +43,25 @@ TimeKeeper::TimeKeeper( void )
 
 double TimeKeeper::GetCurrentTimeMilliseconds( void ) const
 {
-	return currentTime;
+	return currentTimeMilliseconds;
 }
 
 double TimeKeeper::GetCurrentTimeSeconds( void ) const
 {
-	return currentTime / 1000.0;
+	return GetCurrentTimeMilliseconds() / 1000.0;
 }
 
 double TimeKeeper::GetDeltaTimeMilliseconds( void ) const
 {
-	return deltaTime;
+	if( fixedDeltaTimeMilliseconds != 0.0 )
+		return fixedDeltaTimeMilliseconds;
+	
+	return deltaTimeMilliseconds;
 }
 
 double TimeKeeper::GetDeltaTimeSeconds( void ) const
 {
-	return deltaTime / 1000.0;
+	return GetDeltaTimeMilliseconds() / 1000.0;
 }
 
 // TimeKeeper.cpp

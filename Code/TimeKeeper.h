@@ -24,15 +24,14 @@ public:
 	double GetDeltaTimeMilliseconds( void ) const;
 	double GetDeltaTimeSeconds( void ) const;
 
-	double fixedDeltaTime;
-	double diolationOfTime;
+	mutable double fixedDeltaTimeMilliseconds;
 
 protected:
 
-	double currentTime;
-	double lastTime;
-	double deltaTime;
-	double baseTime;
+	double currentTimeMilliseconds;
+	double lastTimeMilliseconds;
+	double deltaTimeMilliseconds;
+	double baseTimeMilliseconds;
 };
 
 // TimeKeeper.h

@@ -28,6 +28,9 @@ HandleObject::HandleObject( void )
 	}
 }
 
+// Of course, we can't gurantee that the returned pointer can't somehow become
+// stale before the caller is finished using it.  A better handle system might
+// be built on top of a reference counting scheme.
 /*static*/ HandleObject* HandleObject::Dereference( int handle )
 {
 	if( handleObjectMap )
