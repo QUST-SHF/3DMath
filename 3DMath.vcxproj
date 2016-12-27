@@ -150,18 +150,22 @@
     <ClInclude Include="Code\Exception.h" />
     <ClInclude Include="Code\FileFormat.h" />
     <ClInclude Include="Code\HandleObject.h" />
+    <ClInclude Include="Code\IndexTriangle.h" />
     <ClInclude Include="Code\Line.h" />
     <ClInclude Include="Code\LinearTransform.h" />
     <ClInclude Include="Code\LineSegment.h" />
     <ClInclude Include="Code\ListFunctions.h" />
     <ClInclude Include="Code\ParticleSystem.h" />
     <ClInclude Include="Code\Plane.h" />
+    <ClInclude Include="Code\Polygon.h" />
     <ClInclude Include="Code\Random.h" />
     <ClInclude Include="Code\Renderer.h" />
+    <ClInclude Include="Code\Sphere.h" />
     <ClInclude Include="Code\TimeKeeper.h" />
     <ClInclude Include="Code\Triangle.h" />
     <ClInclude Include="Code\TriangleMesh.h" />
     <ClInclude Include="Code\Vector.h" />
+    <ClInclude Include="Code\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\AffineTransform.cpp" />
@@ -171,17 +175,21 @@
     <ClCompile Include="Code\Exception.cpp" />
     <ClCompile Include="Code\FileFormat.cpp" />
     <ClCompile Include="Code\HandleObject.cpp" />
+    <ClCompile Include="Code\IndexTriangle.cpp" />
     <ClCompile Include="Code\Line.cpp" />
     <ClCompile Include="Code\LinearTransform.cpp" />
     <ClCompile Include="Code\LineSegment.cpp" />
     <ClCompile Include="Code\ParticleSystem.cpp" />
     <ClCompile Include="Code\Plane.cpp" />
+    <ClCompile Include="Code\Polygon.cpp" />
     <ClCompile Include="Code\Random.cpp" />
     <ClCompile Include="Code\Renderer.cpp" />
+    <ClCompile Include="Code\Sphere.cpp" />
     <ClCompile Include="Code\TimeKeeper.cpp" />
     <ClCompile Include="Code\Triangle.cpp" />
     <ClCompile Include="Code\TriangleMesh.cpp" />
     <ClCompile Include="Code\Vector.cpp" />
+    <ClCompile Include="Code\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\PLYExport.py" />

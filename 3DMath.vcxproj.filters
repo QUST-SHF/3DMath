@@ -70,6 +70,18 @@
     <ClInclude Include="Code\ListFunctions.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Polygon.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\IndexTriangle.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sphere.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Vertex.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Vector.cpp">
@@ -124,6 +136,18 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\HandleObject.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\IndexTriangle.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Polygon.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sphere.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Vertex.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>

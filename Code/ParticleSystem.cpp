@@ -577,9 +577,9 @@ ParticleSystem::ConvexTriangleMeshCollisionObject::ConvexTriangleMeshCollisionOb
 
 	int count = 0;
 
-	for( TriangleMesh::IndexTriangleList::const_iterator iter = mesh->triangleList->cbegin(); iter != mesh->triangleList->cend(); iter++ )
+	for( IndexTriangleList::const_iterator iter = mesh->triangleList->cbegin(); iter != mesh->triangleList->cend(); iter++ )
 	{
-		const TriangleMesh::IndexTriangle& indexTriangle = *iter;
+		const IndexTriangle& indexTriangle = *iter;
 		
 		Plane plane;
 		indexTriangle.GetPlane( plane, mesh->vertexArray );
@@ -593,9 +593,9 @@ ParticleSystem::ConvexTriangleMeshCollisionObject::ConvexTriangleMeshCollisionOb
 
 	double smallestDistance = -1.0;
 
-	for( TriangleMesh::IndexTriangleList::const_iterator iter = mesh->triangleList->cbegin(); iter != mesh->triangleList->cend(); iter++ )
+	for( IndexTriangleList::const_iterator iter = mesh->triangleList->cbegin(); iter != mesh->triangleList->cend(); iter++ )
 	{
-		const TriangleMesh::IndexTriangle& indexTriangle = *iter;
+		const IndexTriangle& indexTriangle = *iter;
 		
 		Plane plane;
 		indexTriangle.GetPlane( plane, mesh->vertexArray );

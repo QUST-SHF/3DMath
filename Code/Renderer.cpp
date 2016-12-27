@@ -4,6 +4,7 @@
 #include "LineSegment.h"
 #include "Triangle.h"
 #include "TriangleMesh.h"
+#include "IndexTriangle.h"
 #include "LinearTransform.h"
 #include "ParticleSystem.h"
 #include "BoundingBoxTree.h"
@@ -71,6 +72,10 @@ void Renderer::DrawTriangle( const Triangle& triangle )
 {
 }
 
+void Renderer::DrawPolygon( const Polygon& polygon )
+{
+}
+
 void Renderer::CorrectUV( double texCoordAnchor, double& texCoord )
 {
 	double distance = abs( texCoordAnchor - texCoord );
@@ -93,10 +98,10 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 
 			BeginDrawMode( DRAW_MODE_TRIANGLES );
 
-			TriangleMesh::IndexTriangleList::iterator iter = triangleMesh.triangleList->begin();
+			IndexTriangleList::iterator iter = triangleMesh.triangleList->begin();
 			while( iter != triangleMesh.triangleList->end() )
 			{
-				const TriangleMesh::IndexTriangle& triangle = *iter;
+				const IndexTriangle& triangle = *iter;
 				
 				Vertex vertex[3];
 				for( int i = 0; i < 3; i++ )
@@ -169,10 +174,10 @@ void Renderer::DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags
 
 	if( drawFlags & DRAW_NORMALS )
 	{
-		TriangleMesh::IndexTriangleList::iterator iter = triangleMesh.triangleList->begin();
+		IndexTriangleList::iterator iter = triangleMesh.triangleList->begin();
 		while( iter != triangleMesh.triangleList->end() )
 		{
-			const TriangleMesh::IndexTriangle& indexTriangle = *iter;
+			const IndexTriangle& indexTriangle = *iter;
 
 			Triangle triangle;
 			indexTriangle.GetTriangle( triangle, triangleMesh.vertexArray );
@@ -251,46 +256,6 @@ void Renderer::DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlag
 			}
 		}
 	}
-}
-
-Vertex::Vertex( void )
-{
-	position.Set( 0.0, 0.0, 0.0 );
-	normal.Set( 0.0, 0.0, 0.0 );
-	color.Set( 1.0, 1.0, 1.0 );
-	texCoords.Set( 0.0, 0.0, 0.0 );
-	alpha = 1.0;
-}
-
-Vertex::Vertex( const Vector& position )
-{
-	this->position = position;
-	normal.Set( 0.0, 0.0, 0.0 );
-	color.Set( 0.0, 0.0, 0.0 );
-	texCoords.Set( 0.0, 0.0, 0.0 );
-	alpha = 1.0;
-}
-
-Vertex::Vertex( const Vector& position, const Vector& color )
-{
-	this->position = position;
-	this->color = color;
-	normal.Set( 0.0, 1.0, 0.0 );
-	texCoords.Set( 0.0, 0.0, 0.0 );
-	alpha = 1.0;
-}
-
-Vertex::Vertex( const Vector& position, const Vector& normal, double u, double v )
-{
-	this->position = position;
-	this->normal = normal;
-	texCoords.Set( u, v, 0.0 );
-	color.Set( 0.0, 0.0, 0.0 );
-	alpha = 1.0;
-}
-
-Vertex::~Vertex( void )
-{
 }
 
 // Renderer.cpp

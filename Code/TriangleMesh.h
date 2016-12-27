@@ -6,6 +6,7 @@
 #include "Vector.h"
 #include "Renderer.h"
 #include "Triangle.h"
+#include "IndexTriangle.h"
 
 namespace _3DMath
 {
@@ -24,24 +25,6 @@ public:
 	TriangleMesh( void );
 	virtual ~TriangleMesh( void );
 
-	class IndexTriangle
-	{
-	public:
-
-		IndexTriangle( void );
-		IndexTriangle( int vertex0, int vertex1, int vertex2 );
-		~IndexTriangle( void );
-
-		void GetTriangle( Triangle& triangle, const std::vector< Vertex >* vertexArray ) const;
-		void GetPlane( Plane& plane, const std::vector< Vertex >* vertexArray ) const;
-		bool HasVertex( int index ) const;
-		bool CoincidentWith( const IndexTriangle& indexTriangle ) const;
-
-		int vertex[3];
-	};
-
-	typedef std::list< IndexTriangle > IndexTriangleList;
-
 	void Clear( void );
 	void Clone( const TriangleMesh& triangleMesh );
 	bool FindConvexHull( void );
@@ -52,7 +35,7 @@ public:
 	void Transform( const AffineTransform& affineTransform );
 	bool GenerateBoundingBox( AxisAlignedBox& boundingBox ) const;
 	void GenerateTriangleList( TriangleList& triangleList, bool skipDegenerates = true ) const;
-	//void GenerateStringMesh( const std::string& string, double fontSize );
+	//void GenerateStringMesh( const std::string& string, double fontSize, void* font );
 	//void Compress( void );		// TODO: Consolidate identical vertices.
 
 	typedef std::set< uint64_t > EdgeSet;

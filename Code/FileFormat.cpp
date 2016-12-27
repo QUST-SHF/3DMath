@@ -274,7 +274,7 @@ void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineArray::itera
 		int vertex1 = atoi( ( *bodyArray )[ 1 + i + 1 ].c_str() );
 		int vertex2 = atoi( ( *bodyArray )[ 1 + i + 2 ].c_str() );
 
-        triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( vertex0, vertex1, vertex2 ) );
+        triangleMesh.triangleList->push_back( IndexTriangle( vertex0, vertex1, vertex2 ) );
     }
 }
 
@@ -309,9 +309,9 @@ void PlyFormat::AddTriangles( TriangleMesh& triangleMesh, const LineArray::itera
 		stream << vertex.texCoords.x << " " << vertex.texCoords.y << std::endl;
 	}
 
-	for( TriangleMesh::IndexTriangleList::const_iterator iter = triangleMesh.triangleList->cbegin(); iter != triangleMesh.triangleList->cend(); iter++ )
+	for( IndexTriangleList::const_iterator iter = triangleMesh.triangleList->cbegin(); iter != triangleMesh.triangleList->cend(); iter++ )
 	{
-		const TriangleMesh::IndexTriangle& triangle = *iter;
+		const IndexTriangle& triangle = *iter;
 
 		stream << "3 " << triangle.vertex[0] << " " << triangle.vertex[1] << " " << triangle.vertex[2] << std::endl;
 	}
@@ -389,7 +389,7 @@ ObjFormat::ObjFormat( void )
 				// Choose an arbitrary tesselation of the face.
 				int vertexCount = ( signed )faceLine->size() - 1;
 				for( int i = 0; i < vertexCount - 2; i++ )
-					triangleMesh.triangleList->push_back( TriangleMesh::IndexTriangle( j, j + i + 1, j + i + 2 ) );
+					triangleMesh.triangleList->push_back( IndexTriangle( j, j + i + 1, j + i + 2 ) );
 			}
 		}
 	}

@@ -14,6 +14,7 @@ namespace _3DMath
 	class TriangleMesh;
 	class Renderer;
 	class AffineTransform;
+	class IndexTriangle;
 }
 
 class _3DMATH_API _3DMath::BspTree
@@ -45,15 +46,15 @@ public:
 		Plane partitioningPlane;
 		Node* frontNode;
 		Node* backNode;
-		TriangleMesh::IndexTriangleList* triangleList;
+		IndexTriangleList* triangleList;
 
-		void Generate( TriangleMesh::IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray );
+		void Generate( IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray );
 		void Render( Renderer& renderer, RenderMode renderMode, const Vector& eye, const BspTree* bspTree, const AffineTransform& transform, const LinearTransform& normalTransform, int vertexFlags ) const;
 		void Transform( const AffineTransform& transform );
 
-		TriangleMesh::IndexTriangleList::iterator ChooseBestPartitioningTriangle( TriangleMesh::IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray );
+		IndexTriangleList::iterator ChooseBestPartitioningTriangle( IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray );
 
-		void AddSubTriangles( TriangleMesh::IndexTriangleList& triangleList, std::vector< Vertex >& vertexArray, const TriangleMesh::IndexTriangle& indexTriangle, const TriangleList& subTriangleList );
+		void AddSubTriangles( IndexTriangleList& triangleList, std::vector< Vertex >& vertexArray, const IndexTriangle& indexTriangle, const TriangleList& subTriangleList );
 	};
 
 	virtual bool FrontSpaceVisible( const Node* node ) const;

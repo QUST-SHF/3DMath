@@ -74,6 +74,28 @@ bool Triangle::ContainsPoint( const Vector& point, double eps /*= EPSILON*/ ) co
 	return true;
 }
 
+bool Triangle::ProperlyContainsPoint( const Vector& point, double eps /*= EPSILON*/ ) const
+{
+	Plane plane;
+	GetPlane( plane );
+
+	if( plane.GetSide( point, eps ) != Plane::SIDE_NEITHER )
+		return false;
+
+	for( int i = 0; i < 3; i++ )
+	{
+		Plane plane;
+		Vector edge, planeNormal;
+		edge.Subtract( vertex[ ( i + 1 ) % 3 ], vertex[i] );
+		planeNormal.Cross( edge, plane.normal );
+		plane.SetCenterAndNormal( vertex[i], planeNormal );
+		if( Plane::SIDE_BACK != plane.GetSide( point, eps ) )
+			return false;
+	}
+
+	return true;
+}
+
 bool Triangle::IsDegenerate( double eps /*= EPSILON*/ ) const
 {
 	if( Area() < eps )

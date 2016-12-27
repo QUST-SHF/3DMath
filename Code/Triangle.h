@@ -26,6 +26,7 @@ public:
 	void GetEdges( LineSegment* edges ) const;
 	void GetCenter( Vector& center ) const;
 	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
+	bool ProperlyContainsPoint( const Vector& point, double eps = EPSILON ) const;
 	bool IsDegenerate( double eps = EPSILON ) const;
 	bool Intersect( const LineSegment& lineSegment, Vector& intersectionPoint, double eps = EPSILON ) const;
 	double DistanceToPoint( const Vector& point ) const;

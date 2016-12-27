@@ -4,6 +4,7 @@
 #include "LineSegment.h"
 #include "Exception.h"
 #include "AffineTransform.h"
+#include "IndexTriangle.h"
 
 using namespace _3DMath;
 
@@ -39,8 +40,8 @@ bool BspTree::Generate( const TriangleMesh& triangleMesh )
 	for( int i = 0; i < ( signed )triangleMesh.vertexArray->size(); i++ )
 		vertexArray->push_back( ( *triangleMesh.vertexArray )[i] );
 
-	TriangleMesh::IndexTriangleList triangleList;
-	for( TriangleMesh::IndexTriangleList::const_iterator iter = triangleMesh.triangleList->cbegin(); iter != triangleMesh.triangleList->cend(); iter++ )
+	IndexTriangleList triangleList;
+	for( IndexTriangleList::const_iterator iter = triangleMesh.triangleList->cbegin(); iter != triangleMesh.triangleList->cend(); iter++ )
 		triangleList.push_back( *iter );
 
 	try
@@ -104,7 +105,7 @@ BspTree::Node::Node( void )
 {
 	frontNode = nullptr;
 	backNode = nullptr;
-	triangleList = new TriangleMesh::IndexTriangleList;
+	triangleList = new IndexTriangleList;
 }
 
 /*virtual*/ BspTree::Node::~Node( void )
@@ -179,9 +180,9 @@ void BspTree::Node::Render( Renderer& renderer, RenderMode renderMode, const Vec
 	if( firstNode )
 		firstNode->Render( renderer, renderMode, eye, bspTree, transform, normalTransform, vertexFlags );
 
-	for( TriangleMesh::IndexTriangleList::const_iterator iter = triangleList->cbegin(); iter != triangleList->cend(); iter++ )
+	for( IndexTriangleList::const_iterator iter = triangleList->cbegin(); iter != triangleList->cend(); iter++ )
 	{
-		const TriangleMesh::IndexTriangle& indexTriangle = *iter;
+		const IndexTriangle& indexTriangle = *iter;
 
 		for( int i = 0; i < 3; i++ )
 		{
@@ -195,14 +196,14 @@ void BspTree::Node::Render( Renderer& renderer, RenderMode renderMode, const Vec
 		lastNode->Render( renderer, renderMode, eye, bspTree, transform, normalTransform, vertexFlags );
 }
 
-void BspTree::Node::Generate( TriangleMesh::IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray )
+void BspTree::Node::Generate( IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray )
 {
-	TriangleMesh::IndexTriangleList::iterator iter = ChooseBestPartitioningTriangle( givenTriangleList, vertexArray );
-	TriangleMesh::IndexTriangle indexTriangle = *iter;
+	IndexTriangleList::iterator iter = ChooseBestPartitioningTriangle( givenTriangleList, vertexArray );
+	IndexTriangle indexTriangle = *iter;
 	indexTriangle.GetPlane( partitioningPlane, &vertexArray );
 	triangleList->push_back( indexTriangle );
 
-	TriangleMesh::IndexTriangleList frontIndexTriangleList, backIndexTriangleList;
+	IndexTriangleList frontIndexTriangleList, backIndexTriangleList;
 
 	while( givenTriangleList.size() > 0 )
 	{
@@ -257,13 +258,13 @@ void BspTree::Node::Generate( TriangleMesh::IndexTriangleList& givenTriangleList
 	}
 }
 
-void BspTree::Node::AddSubTriangles( TriangleMesh::IndexTriangleList& triangleList, std::vector< Vertex >& vertexArray, const TriangleMesh::IndexTriangle& indexTriangle, const TriangleList& subTriangleList )
+void BspTree::Node::AddSubTriangles( IndexTriangleList& triangleList, std::vector< Vertex >& vertexArray, const IndexTriangle& indexTriangle, const TriangleList& subTriangleList )
 {
 	for( TriangleList::const_iterator iter = subTriangleList.cbegin(); iter != subTriangleList.cend(); iter++ )
 	{
 		const Triangle& subTriangle = *iter;
 
-		TriangleMesh::IndexTriangle newIndexTriangle;
+		IndexTriangle newIndexTriangle;
 
 		for( int i = 0; i < 3; i++ )
 		{
@@ -320,9 +321,9 @@ void BspTree::Node::AddSubTriangles( TriangleMesh::IndexTriangleList& triangleLi
 	}
 }
 
-TriangleMesh::IndexTriangleList::iterator BspTree::Node::ChooseBestPartitioningTriangle( TriangleMesh::IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray )
+IndexTriangleList::iterator BspTree::Node::ChooseBestPartitioningTriangle( IndexTriangleList& givenTriangleList, std::vector< Vertex >& vertexArray )
 {
-	TriangleMesh::IndexTriangleList::iterator iter = givenTriangleList.begin();
+	IndexTriangleList::iterator iter = givenTriangleList.begin();
 	return iter;
 }
 

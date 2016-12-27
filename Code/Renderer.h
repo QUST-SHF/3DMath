@@ -18,6 +18,7 @@ namespace _3DMath
 	class ParticleSystem;
 	class BoundingBoxTree;
 	class AffineTransform;
+	class Polygon;
 }
 
 class _3DMATH_API _3DMath::Renderer
@@ -88,33 +89,12 @@ public:
 	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0, const AffineTransform* transform = nullptr );
 	void DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags = DRAW_PARTICLES );
 	void DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags = DRAW_BOXES );
+	void DrawPolygon( const Polygon& polygon );
 
 	void CorrectUV( double texCoordAnchor, double& texCoord );
 
 	std::set< uint64_t >* cachedEdgeSet;
 	Random random;
 };
-
-class _3DMATH_API _3DMath::Vertex
-{
-public:
-
-	Vertex( void );
-	Vertex( const Vector& position );
-	Vertex( const Vector& position, const Vector& color );
-	Vertex( const Vector& position, const Vector& normal, double u, double v );
-	~Vertex( void );
-
-	Vector position;
-	Vector normal;
-	Vector color;
-	Vector texCoords;
-	double alpha;
-};
-
-namespace _3DMath
-{
-	typedef std::vector< Vertex > VertexArray;
-}
 
 // Renderer.h
