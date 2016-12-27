@@ -16,12 +16,10 @@ Polygon::Polygon( void )
 	delete vertexArray;
 }
 
-void Polygon::SplitAgainstPlane( const Plane& plane, PolygonList& polygonList ) const
+bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList ) const
 {
-}
-
-void Polygon::SplitAgainstSphere( const Sphere& sphere, PolygonList& polygonList ) const
-{
+	// TODO: Write this.  Think of this like the paint-can algorithm.
+	return false;
 }
 
 void Polygon::Tessellate( IndexTriangleList& indexTriangleList ) const

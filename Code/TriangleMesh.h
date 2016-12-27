@@ -37,6 +37,7 @@ public:
 	void GenerateTriangleList( TriangleList& triangleList, bool skipDegenerates = true ) const;
 	//void GenerateStringMesh( const std::string& string, double fontSize, void* font );
 	//void Compress( void );		// TODO: Consolidate identical vertices.
+	//void GenerateFromSurface( const Surface* surface );	// TODO: Use a gift-wrapping-type algorithm?  Utilize tangent spaces.
 
 	typedef std::set< uint64_t > EdgeSet;
 

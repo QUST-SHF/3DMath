@@ -11,6 +11,7 @@ namespace _3DMath
 	class Polygon;
 	class Plane;
 	class Sphere;
+	class Surface;
 
 	typedef std::list< Polygon* > PolygonList;
 }
@@ -22,8 +23,7 @@ public:
 	Polygon( void );
 	virtual ~Polygon( void );
 
-	void SplitAgainstPlane( const Plane& plane, PolygonList& polygonList ) const;
-	void SplitAgainstSphere( const Sphere& sphere, PolygonList& polygonList ) const;
+	bool SplitAgainstSurface( const Surface* surface, PolygonList& polygonList ) const;
 
 	void Tessellate( IndexTriangleList& indexTriangleList ) const;
 
