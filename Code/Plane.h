@@ -20,6 +20,7 @@ class _3DMATH_API _3DMath::Plane
 public:
 
 	Plane( void );
+	Plane( const Vector& center, const Vector& normal );
 	~Plane( void );
 
 	void SetCenterAndNormal( const Vector& center, const Vector& normal );

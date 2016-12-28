@@ -13,6 +13,11 @@ Plane::Plane( void )
 	centerDotNormal = 0.0;
 }
 
+Plane::Plane( const Vector& center, const Vector& normal )
+{
+	SetCenterAndNormal( center, normal );
+}
+
 Plane::~Plane( void )
 {
 }
