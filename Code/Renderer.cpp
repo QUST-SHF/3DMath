@@ -10,6 +10,7 @@
 #include "BoundingBoxTree.h"
 #include "AffineTransform.h"
 #include "ListFunctions.h"
+#include "Polygon.h"
 
 using namespace _3DMath;
 
@@ -72,8 +73,61 @@ void Renderer::DrawTriangle( const Triangle& triangle )
 {
 }
 
-void Renderer::DrawPolygon( const Polygon& polygon )
+void Renderer::DrawPolygon( const Polygon& polygon, const AffineTransform* transform /*= nullptr*/ )
 {
+	switch( drawStyle )
+	{
+		case DRAW_STYLE_SOLID:
+		{
+			BeginDrawMode( DRAW_MODE_TRIANGLES );
+
+			Plane plane;
+			polygon.GetPlane( plane );
+
+			IndexTriangleList::const_iterator iter = polygon.indexTriangleList->cbegin();
+			while( iter != polygon.indexTriangleList->cend() )
+			{
+				const IndexTriangle& indexTriangle = *iter;
+
+				for( int i = 0; i < 3; i++ )
+				{
+					Vector point = ( *polygon.vertexArray )[ indexTriangle.vertex[i] ];
+					if( transform )
+						transform->Transform( point );
+
+					Vertex vertex;
+					vertex.position = point;
+					vertex.normal = plane.normal;
+					IssueVertex( vertex, VTX_FLAG_POSITION | VTX_FLAG_NORMAL );
+				}
+
+				iter++;
+			}
+
+			EndDrawMode();
+
+			break;
+		}
+		case DRAW_STYLE_WIRE_FRAME:
+		{
+			BeginDrawMode( DRAW_MODE_LINE_LOOP );
+
+			for( int i = 0; i < ( signed )polygon.vertexArray->size(); i++ )
+			{
+				Vector point = ( *polygon.vertexArray )[i];
+				if( transform )
+					transform->Transform( point );
+
+				Vertex vertex;
+				vertex.position = point;
+				IssueVertex( vertex, VTX_FLAG_POSITION );
+			}
+
+			EndDrawMode();
+
+			break;
+		}
+	}
 }
 
 void Renderer::CorrectUV( double texCoordAnchor, double& texCoord )

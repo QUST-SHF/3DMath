@@ -12,6 +12,7 @@ namespace _3DMath
 	class Plane;
 	class Sphere;
 	class Surface;
+	class Plane;
 
 	typedef std::list< Polygon* > PolygonList;
 }
@@ -24,8 +25,8 @@ public:
 	virtual ~Polygon( void );
 
 	bool SplitAgainstSurface( const Surface* surface, Polygon& insidePolygon, Polygon& outsidePolygon, double maxDistanceFromSurface ) const;
-
-	void Tessellate( void ) const;
+	bool Tessellate( void ) const;
+	bool GetPlane( Plane& plane ) const;
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It

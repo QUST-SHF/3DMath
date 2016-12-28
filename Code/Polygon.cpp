@@ -20,6 +20,33 @@ Polygon::Polygon( void )
 	delete indexTriangleList;
 }
 
+bool Polygon::GetPlane( Plane& plane ) const
+{
+	if( vertexArray->size() < 3 )
+		return false;
+
+	Vector normal, center;
+	normal.Set( 0.0, 0.0, 0.0 );
+	center.Set( 0.0, 0.0, 0.0 );
+
+	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+	{
+		// This is the Newel method.
+		int j = ( i + 1 ) % vertexArray->size();
+		const Vector& pointA = ( *vertexArray )[i];
+		const Vector& pointB = ( *vertexArray )[j];
+		normal.x += ( pointA.y - pointB.y ) * ( pointA.z + pointB.z );
+		normal.y += ( pointA.z - pointB.z ) * ( pointA.x + pointB.x );
+		normal.z += ( pointA.x - pointB.x ) * ( pointA.y + pointB.y );
+		center.Add( pointA );
+	}
+
+	center.Scale( 1.0 / double( vertexArray->size() ) );
+	plane.SetCenterAndNormal( center, normal );
+
+	return true;
+}
+
 bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon& insidePolygon, Polygon& outsidePolygon, double maxDistanceFromSurface ) const
 {
 	struct Node
@@ -117,7 +144,7 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon& insidePolygo
 	return true;
 }
 
-void Polygon::Tessellate( void ) const
+bool Polygon::Tessellate( void ) const
 {
 	indexTriangleList->clear();
 
@@ -152,6 +179,8 @@ void Polygon::Tessellate( void ) const
 			break;
 		}
 	}
+
+	return true;
 }
 
 // Polygon.cpp

@@ -89,7 +89,7 @@ public:
 	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0, const AffineTransform* transform = nullptr );
 	void DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags = DRAW_PARTICLES );
 	void DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags = DRAW_BOXES );
-	void DrawPolygon( const Polygon& polygon );
+	void DrawPolygon( const Polygon& polygon, const AffineTransform* transform = nullptr );
 
 	void CorrectUV( double texCoordAnchor, double& texCoord );
 
