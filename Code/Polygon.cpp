@@ -47,8 +47,11 @@ bool Polygon::GetPlane( Plane& plane ) const
 	return true;
 }
 
-bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon& insidePolygon, Polygon& outsidePolygon, double maxDistanceFromSurface ) const
+bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const
 {
+	return false;
+
+	/*
 	struct Node
 	{
 		Vector point;
@@ -142,42 +145,53 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon& insidePolygo
 	}
 
 	return true;
+	*/
 }
 
 bool Polygon::Tessellate( void ) const
 {
+	Plane plane;
+	if( !GetPlane( plane ) )
+		return false;
+
 	indexTriangleList->clear();
 
-	VectorArray pointArray;
+	std::vector< int > indexArray;
 	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
-		pointArray.push_back( ( *vertexArray )[i] );
+		indexArray.push_back(i);
 
-	while( pointArray.size() > 2 )
+	while( indexArray.size() > 2 )
 	{
-		for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+		for( int i = 0; i < ( signed )indexArray.size(); i++ )
 		{
-			IndexTriangle indexTriangle( i, ( i + 1 ) % vertexArray->size(), ( i + 2 ) % vertexArray->size() );
+			IndexTriangle indexTriangle(
+					indexArray[i],
+					indexArray[ ( i + 1 ) % indexArray.size() ],
+					indexArray[ ( i + 2 ) % indexArray.size() ] );
 
 			Triangle triangle;
-			indexTriangle.GetTriangle( triangle, &pointArray );
+			indexTriangle.GetTriangle( triangle, vertexArray );
 
-			// TODO: I need to rethink this.  There are some obvious things wrong with this.
+			Vector edge[2];
+			edge[0].Subtract( triangle.vertex[1], triangle.vertex[0] );
+			edge[1].Subtract( triangle.vertex[2], triangle.vertex[1] );
+
+			Vector cross;
+			cross.Cross( edge[0], edge[1] );
+			double dot = cross.Dot( plane.normal );
+			if( dot < 0.0 )
+				continue;
 
 			int j;
-			for( j = 0; j < ( signed )vertexArray->size(); j++ )
-			{
-				if( j == i )
-					continue;
-
-				if( triangle.ProperlyContainsPoint( ( *vertexArray )[j] ) )
+			for( j = 0; j < ( signed )indexArray.size(); j++ )
+				if( triangle.ProperlyContainsPoint( ( *vertexArray )[ indexArray[j] ] ) )
 					break;
-			}
 
-			if( j < ( signed )vertexArray->size() )
+			if( j < ( signed )indexArray.size() )
 				continue;
 
 			indexTriangleList->push_back( indexTriangle );
-			pointArray.erase( pointArray.begin() + ( i + 1 ) % vertexArray->size() );
+			indexArray.erase( indexArray.begin() + ( i + 1 ) % indexArray.size() );
 			break;
 		}
 	}

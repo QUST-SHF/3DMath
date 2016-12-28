@@ -24,7 +24,7 @@ public:
 	Polygon( void );
 	virtual ~Polygon( void );
 
-	bool SplitAgainstSurface( const Surface* surface, Polygon& insidePolygon, Polygon& outsidePolygon, double maxDistanceFromSurface ) const;
+	bool SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const;
 	bool Tessellate( void ) const;
 	bool GetPlane( Plane& plane ) const;
 
