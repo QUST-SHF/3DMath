@@ -161,6 +161,8 @@ bool Polygon::Tessellate( void ) const
 			Triangle triangle;
 			indexTriangle.GetTriangle( triangle, &pointArray );
 
+			// TODO: I need to rethink this.  There are some obvious things wrong with this.
+
 			int j;
 			for( j = 0; j < ( signed )vertexArray->size(); j++ )
 			{
