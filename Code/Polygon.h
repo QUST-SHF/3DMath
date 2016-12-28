@@ -12,6 +12,8 @@ namespace _3DMath
 	class Plane;
 	class Sphere;
 	class Surface;
+
+	typedef std::list< Polygon* > PolygonList;
 }
 
 class _3DMATH_API _3DMath::Polygon
@@ -23,12 +25,13 @@ public:
 
 	bool SplitAgainstSurface( const Surface* surface, Polygon& insidePolygon, Polygon& outsidePolygon, double maxDistanceFromSurface ) const;
 
-	void Tessellate( IndexTriangleList& indexTriangleList ) const;
+	void Tessellate( void ) const;
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It
-	// need not be convex; that is, it may be concave.
+	// may be convex or concave.
 	VectorArray* vertexArray;
+	IndexTriangleList* indexTriangleList;
 };
 
 // Polygon.h

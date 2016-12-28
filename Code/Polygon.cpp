@@ -11,11 +11,13 @@ using namespace _3DMath;
 Polygon::Polygon( void )
 {
 	vertexArray = new VectorArray();
+	indexTriangleList = new IndexTriangleList();
 }
 
 /*virtual*/ Polygon::~Polygon( void )
 {
 	delete vertexArray;
+	delete indexTriangleList;
 }
 
 bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon& insidePolygon, Polygon& outsidePolygon, double maxDistanceFromSurface ) const
@@ -115,9 +117,9 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon& insidePolygo
 	return true;
 }
 
-void Polygon::Tessellate( IndexTriangleList& indexTriangleList ) const
+void Polygon::Tessellate( void ) const
 {
-	indexTriangleList.clear();
+	indexTriangleList->clear();
 
 	VectorArray pointArray;
 	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
@@ -145,7 +147,7 @@ void Polygon::Tessellate( IndexTriangleList& indexTriangleList ) const
 			if( j < ( signed )vertexArray->size() )
 				continue;
 
-			indexTriangleList.push_back( indexTriangle );
+			indexTriangleList->push_back( indexTriangle );
 			pointArray.erase( pointArray.begin() + ( i + 1 ) % vertexArray->size() );
 			break;
 		}

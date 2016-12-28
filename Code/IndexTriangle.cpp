@@ -24,25 +24,37 @@ IndexTriangle::~IndexTriangle( void )
 {
 }
 
-void IndexTriangle::GetTriangle( Triangle& triangle, const std::vector< Vector >* vertexArray ) const
+bool IndexTriangle::GetTriangle( Triangle& triangle, const std::vector< Vector >* vertexArray ) const
 {
-	// TODO: Bounds check for safety?
 	for( int i = 0; i < 3; i++ )
-		triangle.vertex[i] = ( *vertexArray )[ vertex[i] ];
+	{
+		int j = vertex[i];
+		if( !BoundsCheck< Vector >( j, vertexArray ) )
+			return false;
+		triangle.vertex[i] = ( *vertexArray )[j];
+	}
+	return true;
 }
 
-void IndexTriangle::GetTriangle( Triangle& triangle, const std::vector< Vertex >* vertexArray ) const
+bool IndexTriangle::GetTriangle( Triangle& triangle, const std::vector< Vertex >* vertexArray ) const
 {
-	// TODO: Bounds check for safety?
 	for( int i = 0; i < 3; i++ )
-		triangle.vertex[i] = ( *vertexArray )[ vertex[i] ].position;
+	{
+		int j = vertex[i];
+		if( !BoundsCheck< Vertex >( j, vertexArray ) )
+			return false;
+		triangle.vertex[i] = ( *vertexArray )[j].position;
+	}
+	return true;
 }
 
-void IndexTriangle::GetPlane( Plane& plane, const std::vector< Vertex >* vertexArray ) const
+bool IndexTriangle::GetPlane( Plane& plane, const std::vector< Vertex >* vertexArray ) const
 {
 	Triangle triangle;
-	GetTriangle( triangle, vertexArray );
+	if( !GetTriangle( triangle, vertexArray ) )
+		return false;
 	triangle.GetPlane( plane );
+	return true;
 }
 
 bool IndexTriangle::CoincidentWith( const IndexTriangle& indexTriangle ) const
