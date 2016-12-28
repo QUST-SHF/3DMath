@@ -67,11 +67,12 @@ public:
 		INSIDE,
 		OUTSIDE,
 		NEITHER_SIDE,
+		BOTH_SIDES,		// Some surfaces, like the Klein bottle, have no inside or outside.
 	};
 
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const = 0;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const = 0;
-	virtual SurfacePoint* FindIntersection( const LineSegment& lineSegment ) const = 0;
+	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const = 0;
 	virtual bool FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistanceFromSurface ) const;
 };
 
@@ -97,7 +98,7 @@ public:
 
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const override;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const override;
-	virtual SurfacePoint* FindIntersection( const LineSegment& lineSegment ) const override;
+	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const override;
 	virtual bool FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistanceFromSurface ) const override;
 
 	Plane plane;
@@ -125,7 +126,7 @@ public:
 
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const override;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const override;
-	virtual SurfacePoint* FindIntersection( const LineSegment& lineSegment ) const override;
+	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const override;
 
 	Sphere sphere;
 };
@@ -138,6 +139,12 @@ public:
 
 // TODO: Might we ever want to think of a triangle mesh as a surface?
 //class _3DMATH_API _3DMath::TriangleMeshSurface : public _3DMath::Surface
+//{
+//public:
+//};
+
+// TODO: We might support polynomial surfaces too.  These are zero sets of polynomials.
+//class _3DMATH_API _3DMath::PolynomialSurface : public _3DMath::Surface
 //{
 //public:
 //};

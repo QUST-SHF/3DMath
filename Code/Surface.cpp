@@ -61,6 +61,9 @@ Surface::Surface( void )
 
 	do
 	{
+		if( surfacePointA->surfaceHandle != GetHandle() || surfacePointB->surfaceHandle != GetHandle() )
+			break;
+
 		LineSegment lineSegment;
 
 		surfacePointA->GetLocation( lineSegment.vertex[0] );
@@ -175,10 +178,11 @@ PlaneSurface::PlaneSurface( const Plane& plane )
 	return surfacePoint;
 }
 
-/*virtual*/ SurfacePoint* PlaneSurface::FindIntersection( const LineSegment& lineSegment ) const
+/*virtual*/ SurfacePoint* PlaneSurface::FindSingleIntersection( const LineSegment& lineSegment ) const
 {
 	Vector intersectionPoint;
-	plane.Intersect( lineSegment, intersectionPoint );
+	if( !plane.Intersect( lineSegment, intersectionPoint ) )
+		return nullptr;
 
 	Point* surfacePoint = new Point( GetHandle() );
 	surfacePoint->location = intersectionPoint;
@@ -189,8 +193,6 @@ PlaneSurface::PlaneSurface( const Plane& plane )
 {
 	if( surfacePointA->surfaceHandle != GetHandle() || surfacePointB->surfaceHandle != GetHandle() )
 		return false;
-
-	pointArray.clear();
 
 	Vector point;
 
@@ -269,11 +271,11 @@ SphereSurface::SphereSurface( void )
 	return surfacePoint;
 }
 
-/*virtual*/ SurfacePoint* SphereSurface::FindIntersection( const LineSegment& lineSegment ) const
+/*virtual*/ SurfacePoint* SphereSurface::FindSingleIntersection( const LineSegment& lineSegment ) const
 {
 	Vector intersectionPoints[2];
 	int count = sphere.Intersect( lineSegment, intersectionPoints );
-	if( count == 0 || count == 2 )
+	if( count != 1 )
 		return nullptr;
 
 	Point* surfacePoint = new Point( GetHandle() );
