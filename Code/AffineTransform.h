@@ -10,6 +10,7 @@ namespace _3DMath
 {
 	class AffineTransform;
 	class Vertex;
+	class Line;
 }
 
 class _3DMATH_API _3DMath::AffineTransform
@@ -45,6 +46,9 @@ public:
 
 	void SetRigidBodyMotion( const Vector& unitAxis, double angle, const Vector& translation );
 	bool GetRigidBodyMotion( Vector& unitAxis, double& angle, Vector& translation ) const;
+
+	void SetRotation( const Line& line, double angle );
+	bool GetRotation( Line& line, double& angle ) const;
 
 	LinearTransform linearTransform;
 	Vector translation;

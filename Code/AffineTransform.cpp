@@ -1,6 +1,7 @@
 // AffineTransform.cpp
 
 #include "AffineTransform.h"
+#include "Line.h"
 
 using namespace _3DMath;
 
@@ -149,6 +150,29 @@ bool AffineTransform::GetRigidBodyMotion( Vector& unitAxis, double& angle, Vecto
 
 	translation = this->translation;
 	return true;
+}
+
+// CGA has a very elegant solution to this problem, but this is good enough.
+void AffineTransform::SetRotation( const Line& line, double angle )
+{
+	Vector center;
+	line.GetIdealCenter( center );
+	linearTransform.SetRotation( line.normal, angle );
+	linearTransform.Transform( center, translation );
+	translation.Subtract( center );
+	translation.Negate();
+}
+
+bool AffineTransform::GetRotation( Line& line, double& angle ) const
+{
+	if( !linearTransform.GetRotation( line.normal, angle ) )
+		return false;
+
+	// TODO: Now we need the center.  My math is probably wrong, but I get...
+	//       line.center = -translation * ( R + I )^{-1}.
+	//       I'll revisit this routine if I ever need it.  Until then...
+
+	return false;
 }
 
 // AffineTransform.cpp
