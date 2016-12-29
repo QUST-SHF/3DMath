@@ -23,6 +23,7 @@ public:
 
 	double ShortestDistance( const Vector& point ) const;
 	void Reflect( Vector& vector ) const;
+	void GetIdealCenter( Vector& point ) const;
 
 	Vector center, normal;
 };

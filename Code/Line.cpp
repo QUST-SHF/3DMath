@@ -37,6 +37,13 @@ double Line::ShortestDistance( const Vector& point ) const
 
 void Line::Reflect( Vector& vector ) const
 {
+	normal.Reflect( vector );
+}
+
+void Line::GetIdealCenter( Vector& point ) const
+{
+	double lambda = -center.Dot( normal );
+	point.AddScale( center, normal, lambda );
 }
 
 // Line.cpp
