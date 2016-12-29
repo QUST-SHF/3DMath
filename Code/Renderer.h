@@ -83,7 +83,7 @@ public:
 		DRAW_TRIANGLES					= 0x00000002,
 	};
 
-	void DrawVector( const Vector& vector, const Vector& position, const Vector& color, double arrowRadius, int arrowSegments = 8 );
+	void DrawVector( const Vector& vector, const Vector& position, const Vector& color, double alpha = 1.0, double arrowRadius = 1.0, int arrowSegments = 8 );
 	void DrawLineSegment( const LineSegment& lineSegment );
 	void DrawTriangle( const Triangle& triangle );
 	void DrawTriangleMesh( const TriangleMesh& triangleMesh, int drawFlags = 0, const AffineTransform* transform = nullptr );

@@ -25,43 +25,55 @@ Renderer::Renderer( void )
 	delete cachedEdgeSet;
 }
 
-void Renderer::DrawVector( const Vector& vector, const Vector& position, const Vector& color, double arrowRadius, int arrowSegments /*= 8*/ )
+void Renderer::DrawVector( const Vector& vector, const Vector& position, const Vector& color, double alpha /*= 1.0*/, double arrowRadius /*= 1.0*/, int arrowSegments /*= 8*/ )
 {
 	Vector unitVector;
 	if( !vector.GetNormalized( unitVector ) )
 		return;
 
+	Vertex vertex;
+	vertex.color = color;
+	vertex.alpha = alpha;
+
 	Vector arrowPoint;
 	arrowPoint.Add( position, vector );
 
 	BeginDrawMode( DRAW_MODE_LINES );
-	IssueVertex( Vertex( position, color ) );
-	IssueVertex( Vertex( arrowPoint, color ) );
+	vertex.position = position;
+	IssueVertex( vertex );
+	vertex.position = arrowPoint;
+	IssueVertex( vertex );
 	EndDrawMode();
 
 	if( arrowSegments > 2 )
 	{
-		LinearTransform rotation;
-		rotation.SetRotation( unitVector, 2.0 * M_PI / double( arrowSegments ) );
+		double angleDelta = 2.0 * M_PI / double( arrowSegments );
 
-		Vector arrowHeadBasePos;
-		arrowHeadBasePos.AddScale( position, unitVector, vector.Length() - arrowRadius );
+		_3DMath::AffineTransform transform;
+		transform.linearTransform.zAxis = unitVector;
+		unitVector.Orthogonal( transform.linearTransform.xAxis );
+		transform.linearTransform.xAxis.Normalize();
+		transform.linearTransform.yAxis.Cross( transform.linearTransform.zAxis, transform.linearTransform.xAxis );
+		transform.translation.AddScale( position, unitVector, vector.Length() - arrowRadius );
 
-		Vector orthoVector;
-		unitVector.Orthogonal( orthoVector );
-		orthoVector.Scale( arrowRadius / orthoVector.Length() );
-
-		Vertex vertex;
-		vertex.position.Add( arrowHeadBasePos, orthoVector );
-
-		BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
-		IssueVertex( Vertex( arrowPoint ) );
-		for( int i = 0; i <= arrowSegments; i++ )
+		for( int i = 0; i < 2; i++ )
 		{
+			BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
+			if( i == 0 )
+				vertex.position = arrowPoint;
+			else
+				vertex.position = transform.translation;
 			IssueVertex( vertex );
-			rotation.Transform( vertex.position );
+			for( int j = 0; j <= arrowSegments; j++ )
+			{
+				int k = ( i == 0 ) ? j : ( arrowSegments - j );
+				double angle = double(k) * angleDelta;
+				vertex.position.Set( arrowRadius * cos( angle ), arrowRadius * sin( angle ), 0.0 );
+				transform.Transform( vertex.position );
+				IssueVertex( vertex );
+			}
+			EndDrawMode();
 		}
-		EndDrawMode();
 	}
 }
 
