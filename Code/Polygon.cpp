@@ -49,9 +49,6 @@ bool Polygon::GetPlane( Plane& plane ) const
 
 bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const
 {
-	return false;
-
-	/*
 	struct Node
 	{
 		Vector point;
@@ -68,12 +65,14 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 		nodeArray.push_back( node );
 	}
 
+	std::vector< int > intersectionArray;
+
 	for( int i = 0; i < ( signed )nodeArray.size(); i++ )
 	{
 		int j = ( i + 1 ) % nodeArray.size();
 
 		if( ( nodeArray[i].side == Surface::INSIDE && nodeArray[j].side == Surface::OUTSIDE ) ||
-			( nodeArray[i].side == Surface::OUTSIDE && nodeArray[j].side == Surface::INSIDE ) )
+			( nodeArray[j].side == Surface::INSIDE && nodeArray[i].side == Surface::OUTSIDE ) )
 		{
 			LineSegment lineSegment;
 			lineSegment.vertex[0] = nodeArray[i].point;
@@ -87,65 +86,44 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 			node.side = Surface::NEITHER_SIDE;
 			std::vector< Node >::iterator iter( nodeArray.begin() + j );
 			nodeArray.insert( iter, node );
+
+			intersectionArray.push_back(j);
 		}
 	}
 
-	for( int i = 0; i < 2; i++ )
+	if( intersectionArray.size() < 2 )
+		return false;
+
+	for( int i = 0; i < ( signed )intersectionArray.size(); i++ )
 	{
-		Polygon* polygon = nullptr;
-		Surface::Side currentSide, otherSide;
+		int j0 = intersectionArray[i];
+		int j1 = intersectionArray[ ( i + 1 ) % intersectionArray.size() ];
 
-		if( i == 0 )
+		Polygon* polygon = new Polygon();
+		polygonList.push_back( polygon );
+
+		int k = ( j0 + 1 ) % nodeArray.size();
+		while( k != j1 )
 		{
-			currentSide = Surface::INSIDE;
-			otherSide = Surface::OUTSIDE;
-			polygon = &insidePolygon;
-		}
-		else
-		{
-			currentSide = Surface::OUTSIDE;
-			otherSide = Surface::INSIDE;
-			polygon = &outsidePolygon;
+			polygon->vertexArray->push_back( nodeArray[k].point );
+			k = ( k + 1 ) % nodeArray.size();
 		}
 
-		int j;
-		for( j = 0; j < ( signed )nodeArray.size(); j++ )
-			if( nodeArray[j].side == currentSide )
-				break;
+		SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( nodeArray[ j1 ].point );
+		SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( nodeArray[ j0 ].point );
 
-		if( j == ( signed )nodeArray.size() )
+		bool pathFound = false;
+		if( surfacePointA && surfacePointB )
+			pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface );
+
+		delete surfacePointA;
+		delete surfacePointB;
+
+		if( !pathFound )
 			return false;
-
-		int k = j;
-
-		do
-		{
-			int l = ( k + 1 ) % nodeArray.size();
-
-			if( nodeArray[k].side == Surface::NEITHER_SIDE && nodeArray[l].side == otherSide )
-			{
-				while( nodeArray[l].side != Surface::NEITHER_SIDE )
-					l = ( l + 1 ) % nodeArray.size();
-				
-				SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( nodeArray[k].point );
-				SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( nodeArray[l].point );
-
-				surface->FindDirectPath( surfacePointA, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface );
-
-				l = ( l + 1 ) % nodeArray.size();
-			}
-			else
-			{
-				polygon->vertexArray->push_back( nodeArray[k].point );
-			}
-
-			k = l;
-		}
-		while( k != j );
 	}
 
 	return true;
-	*/
 }
 
 bool Polygon::Tessellate( void ) const
