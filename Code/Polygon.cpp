@@ -5,6 +5,7 @@
 #include "IndexTriangle.h"
 #include "LineSegment.h"
 #include "Surface.h"
+#include "AffineTransform.h"
 
 using namespace _3DMath;
 
@@ -18,6 +19,11 @@ Polygon::Polygon( void )
 {
 	delete vertexArray;
 	delete indexTriangleList;
+}
+
+void Polygon::Transform( const AffineTransform& transform )
+{
+	transform.Transform( *vertexArray );
 }
 
 bool Polygon::GetPlane( Plane& plane ) const

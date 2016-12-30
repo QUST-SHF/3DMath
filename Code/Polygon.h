@@ -13,6 +13,7 @@ namespace _3DMath
 	class Sphere;
 	class Surface;
 	class Plane;
+	class AffineTransform;
 
 	typedef std::list< Polygon* > PolygonList;
 }
@@ -27,6 +28,7 @@ public:
 	bool SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const;
 	bool Tessellate( void ) const;
 	bool GetPlane( Plane& plane ) const;
+	void Transform( const AffineTransform& transform );
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It

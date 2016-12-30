@@ -32,6 +32,7 @@ public:
 	void Transform( Vector* vectorArray, int arraySize ) const;
 	void Transform( Vertex& vertex, const LinearTransform* normalTransform = nullptr ) const;
 	bool Transform( VertexArray& vertexArray ) const;
+	bool Transform( VectorArray& vectorArray ) const;
 
 	bool Invert( void );
 	bool GetInverse( AffineTransform& affineTransform ) const;

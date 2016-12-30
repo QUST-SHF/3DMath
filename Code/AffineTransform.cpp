@@ -87,6 +87,14 @@ bool AffineTransform::Transform( VertexArray& vertexArray ) const
 	return true;
 }
 
+bool AffineTransform::Transform( VectorArray& vectorArray ) const
+{
+	for( int i = 0; i < ( signed )vectorArray.size(); i++ )
+		Transform( vectorArray[i] );
+
+	return true;
+}
+
 bool AffineTransform::Invert( void )
 {
 	return GetInverse( *this );
