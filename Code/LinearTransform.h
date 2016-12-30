@@ -54,6 +54,8 @@ public:
 
 	bool GetNormalTransform( LinearTransform& normalTransform ) const;
 
+	bool BuildFrameUsingVector( const Vector& vector );
+
 	Vector xAxis, yAxis, zAxis;
 };
 

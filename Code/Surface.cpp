@@ -2,6 +2,7 @@
 
 #include "Surface.h"
 #include "LineSegment.h"
+#include "Renderer.h"
 
 using namespace _3DMath;
 
@@ -52,6 +53,11 @@ Surface::Surface( void )
 
 /*virtual*/ Surface::~Surface( void )
 {
+}
+
+/*virtual*/ bool Surface::Render( Renderer& renderer, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ ) const
+{
+	return false;
 }
 
 /*virtual*/ bool Surface::FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistanceFromSurface ) const
@@ -158,6 +164,13 @@ PlaneSurface::PlaneSurface( const Plane& plane )
 {
 }
 
+/*virtual*/ bool PlaneSurface::Render( Renderer& renderer, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ ) const
+{
+	double radius = 10.0;
+	renderer.DrawPlane( plane, radius, color, alpha, transform );
+	return true;
+}
+
 /*virtual*/ Surface::Side PlaneSurface::GetSide( const Vector& point, double eps /*= EPSILON*/ ) const
 {
 	Plane::Side planeSide = plane.GetSide( point, eps );
@@ -239,6 +252,12 @@ SphereSurface::SphereSurface( void )
 
 /*virtual*/ SphereSurface::~SphereSurface( void )
 {
+}
+
+/*virtual*/ bool SphereSurface::Render( Renderer& renderer, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ ) const
+{
+	renderer.DrawSphere( sphere, color, alpha, transform );
+	return true;
 }
 
 /*virtual*/ Surface::Side SphereSurface::GetSide( const Vector& point, double eps /*= EPSILON*/ ) const

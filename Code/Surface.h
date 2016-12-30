@@ -19,6 +19,7 @@ namespace _3DMath
 	class LinearTransform;
 	class LineSegment;
 	class AffineTransform;
+	class Renderer;
 }
 
 class _3DMATH_API _3DMath::SurfacePoint
@@ -70,6 +71,7 @@ public:
 		BOTH_SIDES,		// Some surfaces, like the Klein bottle, have no inside or outside.
 	};
 
+	virtual bool Render( Renderer& renderer, const Vector& color, double alpha, const AffineTransform* transform = nullptr ) const;
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const = 0;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const = 0;
 	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const = 0;
@@ -96,6 +98,7 @@ public:
 		Vector location;
 	};
 
+	virtual bool Render( Renderer& renderer, const Vector& color, double alpha, const AffineTransform* transform = nullptr ) const override;
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const override;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const override;
 	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const override;
@@ -124,6 +127,7 @@ public:
 		Vector location;
 	};
 
+	virtual bool Render( Renderer& renderer, const Vector& color, double alpha, const AffineTransform* transform = nullptr ) const override;
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const override;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const override;
 	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const override;

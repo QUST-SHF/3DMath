@@ -11,6 +11,9 @@
 #include "AffineTransform.h"
 #include "ListFunctions.h"
 #include "Polygon.h"
+#include "Surface.h"
+#include "Plane.h"
+#include "Sphere.h"
 
 using namespace _3DMath;
 
@@ -47,34 +50,82 @@ void Renderer::DrawVector( const Vector& vector, const Vector& position, const V
 
 	if( arrowSegments > 2 )
 	{
-		double angleDelta = 2.0 * M_PI / double( arrowSegments );
-
 		_3DMath::AffineTransform transform;
-		transform.linearTransform.zAxis = unitVector;
-		unitVector.Orthogonal( transform.linearTransform.xAxis );
-		transform.linearTransform.xAxis.Normalize();
-		transform.linearTransform.yAxis.Cross( transform.linearTransform.zAxis, transform.linearTransform.xAxis );
+		transform.linearTransform.BuildFrameUsingVector( unitVector );
 		transform.translation.AddScale( position, unitVector, vector.Length() - arrowRadius );
 
-		for( int i = 0; i < 2; i++ )
-		{
-			BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
-			if( i == 0 )
-				vertex.position = arrowPoint;
-			else
-				vertex.position = transform.translation;
-			IssueVertex( vertex );
-			for( int j = 0; j <= arrowSegments; j++ )
-			{
-				int k = ( i == 0 ) ? j : ( arrowSegments - j );
-				double angle = double(k) * angleDelta;
-				vertex.position.Set( arrowRadius * cos( angle ), arrowRadius * sin( angle ), 0.0 );
-				transform.Transform( vertex.position );
-				IssueVertex( vertex );
-			}
-			EndDrawMode();
-		}
+		Vector centers[2];
+		centers[0].Set( 0.0, 0.0, arrowRadius );
+		centers[1].Set( 0.0, 0.0, 0.0 );
+
+		DrawDoubleFan( transform, arrowRadius, centers, arrowSegments, color, alpha );
 	}
+}
+
+void Renderer::DrawDoubleFan( const _3DMath::AffineTransform& transform, double radius, const Vector* centers, int segments, const Vector& color, double alpha )
+{
+	Vertex vertex;
+	vertex.color = color;
+	vertex.alpha = alpha;
+
+	double angleDelta = 2.0 * M_PI / double( segments );
+
+	for( int i = 0; i < 2; i++ )
+	{
+		BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
+	
+		vertex.normal = transform.linearTransform.zAxis;
+		if( i == 1 )
+			vertex.normal.Negate();
+
+		vertex.position = centers[i];
+		transform.Transform( vertex.position );
+		IssueVertex( vertex );
+
+		for( int j = 0; j <= segments; j++ )
+		{
+			int k = ( i == 0 ) ? j : ( segments - j );
+			double angle = double(k) * angleDelta;
+
+			vertex.position.Set( radius * cos( angle ), radius * sin( angle ), 0.0 );
+			transform.Transform( vertex.position );
+			IssueVertex( vertex );
+		}
+
+		EndDrawMode();
+	}
+}
+
+void Renderer::DrawSurface( const Surface& surface, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ )
+{
+	surface.Render( *this, color, alpha, transform );
+}
+
+void Renderer::DrawSphere( const Sphere& sphere, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ )
+{
+	//...
+}
+
+void Renderer::DrawPlane( const Plane& plane, double radius, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ )
+{
+	Vector planeCenter;
+	plane.GetCenter( planeCenter );
+	transform->Transform( planeCenter );
+
+	LinearTransform normalTransform;
+	transform->linearTransform.GetNormalTransform( normalTransform );
+	Vector planeNormal = plane.normal;
+	normalTransform.Transform( planeNormal );
+
+	AffineTransform fanTransform;
+	fanTransform.linearTransform.BuildFrameUsingVector( planeNormal );
+	fanTransform.translation = planeCenter;
+
+	Vector centers[2];
+	centers[0].Set( 0.0, 0.0, 0.0 );
+	centers[1].Set( 0.0, 0.0, 0.0 );
+
+	DrawDoubleFan( fanTransform, radius, centers, 20, color, alpha );
 }
 
 void Renderer::DrawLineSegment( const LineSegment& lineSegment )

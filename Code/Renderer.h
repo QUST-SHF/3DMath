@@ -19,6 +19,9 @@ namespace _3DMath
 	class BoundingBoxTree;
 	class AffineTransform;
 	class Polygon;
+	class Surface;
+	class Sphere;
+	class Plane;
 }
 
 class _3DMATH_API _3DMath::Renderer
@@ -90,6 +93,10 @@ public:
 	void DrawParticleSystem( const ParticleSystem& particleSystem, int drawFlags = DRAW_PARTICLES );
 	void DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlags = DRAW_BOXES );
 	void DrawPolygon( const Polygon& polygon, const AffineTransform* transform = nullptr );
+	void DrawSurface( const Surface& surface, const Vector& color, double alpha, const AffineTransform* transform = nullptr );
+	void DrawSphere( const Sphere& sphere, const Vector& color, double alpha, const AffineTransform* transform = nullptr );
+	void DrawPlane( const Plane& plane, double radius, const Vector& color, double alpha, const AffineTransform* transform = nullptr );
+	void DrawDoubleFan( const _3DMath::AffineTransform& transform, double radius, const Vector* centers, int segments, const Vector& color, double alpha );
 
 	void CorrectUV( double texCoordAnchor, double& texCoord );
 

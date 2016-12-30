@@ -197,6 +197,9 @@ bool LinearTransform::Orthogonalize( void )
 
 bool LinearTransform::Decompose( LinearTransform& scale, LinearTransform& shear, LinearTransform& rotation )
 {
+	// This exists if and only if we have a linearly independent set.
+	// As I recall, we can get the shear matrix using the Grahm-Schmidt process.
+	// Still other decompositions may be more useful.
 	return false;
 }
 
@@ -206,6 +209,17 @@ bool LinearTransform::GetNormalTransform( LinearTransform& normalTransform ) con
 		return false;
 
 	normalTransform.Tranpose();
+	return true;
+}
+
+bool LinearTransform::BuildFrameUsingVector( const Vector& vector )
+{
+	if( !vector.GetNormalized( zAxis ) )
+		return false;
+
+	zAxis.Orthogonal( xAxis );
+	xAxis.Normalize();
+	yAxis.Cross( zAxis, xAxis );
 	return true;
 }
 
