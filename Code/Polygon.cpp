@@ -73,7 +73,8 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 
 	std::vector< int > intersectionArray;
 
-	for( int i = 0; i < ( signed )nodeArray.size(); i++ )
+	int i = 0;
+	while( i < ( signed )nodeArray.size() )
 	{
 		int j = ( i + 1 ) % nodeArray.size();
 
@@ -90,11 +91,22 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 			Node node;
 			surfacePoint->GetLocation( node.point );
 			node.side = Surface::NEITHER_SIDE;
-			std::vector< Node >::iterator iter( nodeArray.begin() + j );
-			nodeArray.insert( iter, node );
+			if( j == 0 )
+			{
+				nodeArray.push_back( node );
+				intersectionArray.push_back( nodeArray.size() - 1 );
+			}
+			else
+			{
+				std::vector< Node >::iterator iter( nodeArray.begin() + j );
+				nodeArray.insert( iter, node );
+				intersectionArray.push_back(j);
+			}
 
-			intersectionArray.push_back(j);
+			i += 2;
 		}
+		else
+			i++;
 	}
 
 	if( intersectionArray.size() < 2 )
