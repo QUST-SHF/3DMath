@@ -111,7 +111,7 @@ class _3DMATH_API _3DMath::SphereSurface : public _3DMath::Surface
 {
 public:
 
-	SphereSurface( void );
+	SphereSurface( const Sphere& sphere );
 	virtual ~SphereSurface( void );
 
 	class _3DMATH_API Point : public SurfacePoint

@@ -246,8 +246,9 @@ SphereSurface::Point::Point( int surfaceHandle ) : SurfacePoint( surfaceHandle )
 //                                SphereSurface
 //-------------------------------------------------------------------------------
 
-SphereSurface::SphereSurface( void )
+SphereSurface::SphereSurface( const Sphere& sphere )
 {
+	this->sphere = sphere;
 }
 
 /*virtual*/ SphereSurface::~SphereSurface( void )

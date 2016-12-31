@@ -103,7 +103,92 @@ void Renderer::DrawSurface( const Surface& surface, const Vector& color, double 
 
 void Renderer::DrawSphere( const Sphere& sphere, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ )
 {
-	//...
+	LinearTransform normalTransform;
+	if( transform )
+		transform->linearTransform.GetNormalTransform( normalTransform );
+
+	Vertex vertex;
+	vertex.color = color;
+	vertex.alpha = alpha;
+
+	class VertexCalculator
+	{
+	public:
+		void Calculate( int lat, int lon, Vertex& vertex )
+		{
+			double phi = double( lat ) / double( lattitudes ) * M_PI;
+			double cosPhi = cos( phi );
+			double sinPhi = sin( phi );
+			double theta = double( lon ) / double( longitudes ) * 2.0 * M_PI;
+			double cosTheta = cos( theta );
+			double sinTheta = sin( theta );
+
+			vertex.position.Set( sinPhi * cosTheta, cosPhi, sinPhi * sinTheta );
+			vertex.normal = vertex.position;
+			vertex.position.Scale( sphere->radius );
+			vertex.position.Add( sphere->center );
+
+			if( transform )
+			{
+				transform->Transform( vertex.position );
+				normalTransform->Transform( vertex.normal );
+			}
+		}
+
+		const Sphere* sphere;
+		const AffineTransform* transform;
+		const LinearTransform* normalTransform;
+		int lattitudes;
+		int longitudes;
+	};
+
+	VertexCalculator calculator;
+	calculator.sphere = &sphere;
+	calculator.transform = transform;
+	calculator.normalTransform = &normalTransform;
+	calculator.lattitudes = 20;
+	calculator.longitudes = 40;
+
+	BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
+
+	calculator.Calculate( 0, 0, vertex );
+	IssueVertex( vertex );
+
+	for( int lon = calculator.longitudes; lon >= 0; lon-- )
+	{
+		calculator.Calculate( 1, lon, vertex );
+		IssueVertex( vertex );
+	}
+
+	EndDrawMode();
+	BeginDrawMode( DRAW_MODE_TRIANGLE_FAN );
+
+	calculator.Calculate( calculator.lattitudes, 0, vertex );
+	IssueVertex( vertex );
+
+	for( int lon = 0; lon <= calculator.longitudes; lon++ )
+	{
+		calculator.Calculate( calculator.lattitudes - 1, lon, vertex );
+		IssueVertex( vertex );
+	}
+
+	EndDrawMode();
+
+	for( int lat = 1; lat <= calculator.lattitudes - 2; lat++ )
+	{
+		BeginDrawMode( DRAW_MODE_QUAD_STRIP );
+
+		for( int lon = 0; lon <= calculator.longitudes; lon++ )
+		{
+			calculator.Calculate( lat + 1, lon, vertex );
+			IssueVertex( vertex );
+
+			calculator.Calculate( lat, lon, vertex );
+			IssueVertex( vertex );
+		}
+
+		EndDrawMode();
+	}
 }
 
 void Renderer::DrawPlane( const Plane& plane, double radius, const Vector& color, double alpha, const AffineTransform* transform /*= nullptr*/ )
