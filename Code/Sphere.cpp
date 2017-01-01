@@ -3,6 +3,7 @@
 #include "Sphere.h"
 #include "LineSegment.h"
 #include "AxisAlignedBox.h"
+#include "Function.h"
 
 using namespace _3DMath;
 
@@ -34,54 +35,50 @@ bool Sphere::ContainsPoint( const Vector& point ) const
 	return false;
 }
 
-int Sphere::RayCast( const Vector& point, const Vector& unitVector, Vector* intersectionPoints ) const
+void Sphere::RayCast( const Vector& point, const Vector& unitVector, VectorArray& intersectionPoints ) const
 {
 	Vector diff;
 	diff.Subtract( point, center );
 
-	double B = 2.0 * diff.Dot( unitVector );
-	double C = diff.Dot( diff ) - radius * radius;
-	double descriminant = B * B - 4.0 * C;
-	if( descriminant < 0.0 )
-		return 0;
+	Quadratic quadratic;
+	quadratic.A = 1.0;
+	quadratic.B = 2.0 * unitVector.Dot( diff );
+	quadratic.C = diff.Dot( diff ) - radius * radius;
 
-	if( descriminant == 0.0 )
+	Quadratic::RealArray realArray;
+	quadratic.FindZeros( realArray );
+
+	intersectionPoints.clear();
+	for( int i = 0; i < ( signed )realArray.size(); i++ )
 	{
-		double lambda = -B / 2.0;
-		intersectionPoints[0].AddScale( center, 1.0, unitVector, lambda );
-		return 1;
+		double lambda = realArray[i];
+
+		Vector pointOfIntersection;
+		pointOfIntersection.AddScale( point, unitVector, lambda );
+
+		intersectionPoints.push_back( pointOfIntersection );
 	}
-
-	double lambda = ( -B + sqrt( descriminant ) ) / 2.0;
-	intersectionPoints[0].AddScale( center, 1.0, unitVector, lambda );
-
-	lambda = ( -B - sqrt( descriminant ) ) / 2.0;
-	intersectionPoints[1].AddScale( center, 1.0, unitVector, lambda );
-
-	return 2;
 }
 
-int Sphere::Intersect( const LineSegment& lineSegment, Vector* intersectionPoints ) const
+void Sphere::Intersect( const LineSegment& lineSegment, VectorArray& intersectionPoints ) const
 {
 	Vector unitVector;
 	unitVector.Subtract( lineSegment.vertex[1], lineSegment.vertex[0] );
 	unitVector.Normalize();
 
-	Vector rayIntersectionPoints[2];
-	int rayCount = RayCast( lineSegment.vertex[0], unitVector, rayIntersectionPoints );
+	VectorArray rayIntersectionPoints;
+	RayCast( lineSegment.vertex[0], unitVector, rayIntersectionPoints );
 
-	int count = 0;
+	intersectionPoints.clear();
 
-	for( int i = 0; i < rayCount; i++ )
+	for( int i = 0; i < ( signed )rayIntersectionPoints.size(); i++ )
 	{
 		double lambda;
 		lineSegment.LerpInverse( lambda, rayIntersectionPoints[i] );
 
 		if( AxisAlignedBox::InInterval( 0.0, 1.0, lambda, 0.0 ) )
-			intersectionPoints[ count++ ] = rayIntersectionPoints[i];
+			intersectionPoints.push_back( rayIntersectionPoints[i] );
 	}
-
-	return count;
 }
 
 // Sphere.cpp

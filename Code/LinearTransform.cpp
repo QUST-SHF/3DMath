@@ -21,8 +21,21 @@ LinearTransform::LinearTransform( const Vector& xAxis, const Vector& yAxis, cons
 	Set( xAxis, yAxis, zAxis );
 }
 
-LinearTransform::~LinearTransform( void )
+/*virtual*/ LinearTransform::~LinearTransform( void )
 {
+}
+
+/*virtual*/ bool LinearTransform::Evaluate( const Vector& input, Vector& output ) const
+{
+	Transform( input, output );
+	return true;
+}
+
+/*virtual*/ bool LinearTransform::EvaluateDirectionalDerivative( const Vector& input, const Vector& direction, Vector& output, double approxDelta /*= 1e-4*/ ) const
+{
+	// Interestingly, if I've done my math right, because we're a linear function, we get...
+	Transform( direction, output );
+	return true;
 }
 
 void LinearTransform::Set( const Vector& xAxis, const Vector& yAxis, const Vector& zAxis )

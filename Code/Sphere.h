@@ -21,8 +21,8 @@ public:
 
 	double Distance( const Vector& point ) const;
 	bool ContainsPoint( const Vector& point ) const;
-	int RayCast( const Vector& point, const Vector& unitVector, Vector* intersectionPoints ) const;
-	int Intersect( const LineSegment& lineSegment, Vector* intersectionPoints ) const;
+	void RayCast( const Vector& point, const Vector& unitVector, VectorArray& intersectionPoints ) const;
+	void Intersect( const LineSegment& lineSegment, VectorArray& intersectionPoints ) const;
 
 	Vector center;
 	double radius;

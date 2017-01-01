@@ -277,13 +277,13 @@ SphereSurface::SphereSurface( const Sphere& sphere )
 	unitVector.Subtract( sphere.center, point );
 	unitVector.Normalize();
 
-	Vector intersectionPoints[2];
-	int count = sphere.RayCast( point, unitVector, intersectionPoints );
-	if( count == 0 )
+	VectorArray intersectionPoints;
+	sphere.RayCast( point, unitVector, intersectionPoints );
+	if( intersectionPoints.size() == 0 )
 		return nullptr;
 
 	int i = 0;
-	if( count > 1 && point.Distance( intersectionPoints[1] ) < point.Distance( intersectionPoints[0] ) )
+	if( intersectionPoints.size() > 1 && point.Distance( intersectionPoints[1] ) < point.Distance( intersectionPoints[0] ) )
 		i = 1;
 
 	Point* surfacePoint = new Point( GetHandle() );
@@ -293,9 +293,9 @@ SphereSurface::SphereSurface( const Sphere& sphere )
 
 /*virtual*/ SurfacePoint* SphereSurface::FindSingleIntersection( const LineSegment& lineSegment ) const
 {
-	Vector intersectionPoints[2];
-	int count = sphere.Intersect( lineSegment, intersectionPoints );
-	if( count != 1 )
+	VectorArray intersectionPoints;
+	sphere.Intersect( lineSegment, intersectionPoints );
+	if( intersectionPoints.size() != 1 )
 		return nullptr;
 
 	Point* surfacePoint = new Point( GetHandle() );

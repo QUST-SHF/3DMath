@@ -149,6 +149,7 @@
     <ClInclude Include="Code\Defines.h" />
     <ClInclude Include="Code\Exception.h" />
     <ClInclude Include="Code\FileFormat.h" />
+    <ClInclude Include="Code\Function.h" />
     <ClInclude Include="Code\HandleObject.h" />
     <ClInclude Include="Code\IndexTriangle.h" />
     <ClInclude Include="Code\Line.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Code\BspTree.cpp" />
     <ClCompile Include="Code\Exception.cpp" />
     <ClCompile Include="Code\FileFormat.cpp" />
+    <ClCompile Include="Code\Function.cpp" />
     <ClCompile Include="Code\HandleObject.cpp" />
     <ClCompile Include="Code\IndexTriangle.cpp" />
     <ClCompile Include="Code\Line.cpp" />

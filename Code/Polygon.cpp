@@ -104,6 +104,8 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 			}
 
 			i += 2;
+
+			delete surfacePoint;
 		}
 		else
 			i++;

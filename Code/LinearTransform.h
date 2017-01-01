@@ -4,6 +4,7 @@
 
 #include "Defines.h"
 #include "Vector.h"
+#include "Function.h"
 
 namespace _3DMath
 {
@@ -11,14 +12,17 @@ namespace _3DMath
 	class Vector;
 }
 
-class _3DMATH_API _3DMath::LinearTransform
+class _3DMATH_API _3DMath::LinearTransform : public _3DMath::VectorField
 {
 public:
 
 	LinearTransform( void );
 	LinearTransform( const LinearTransform& linearTransform );
 	LinearTransform( const Vector& xAxis, const Vector& yAxis, const Vector& zAxis );
-	~LinearTransform( void );
+	virtual ~LinearTransform( void );
+
+	virtual bool Evaluate( const Vector& input, Vector& output ) const override;
+	virtual bool EvaluateDirectionalDerivative( const Vector& input, const Vector& direction, Vector& output, double approxDelta = 1e-4 ) const override;
 
 	void Identity( void );
 
