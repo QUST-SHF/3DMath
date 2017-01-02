@@ -266,7 +266,7 @@ SphereSurface::SphereSurface( const Sphere& sphere )
 	double distance = sphere.Distance( point );
 	if( distance > eps )
 		return OUTSIDE;
-	if( distance < eps )
+	if( distance < -eps )
 		return INSIDE;
 	return NEITHER_SIDE;
 }

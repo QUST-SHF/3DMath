@@ -182,8 +182,12 @@ bool Polygon::Tessellate( void ) const
 
 			int j;
 			for( j = 0; j < ( signed )indexArray.size(); j++ )
-				if( triangle.ProperlyContainsPoint( ( *vertexArray )[ indexArray[j] ] ) )
+			{
+				if( j == i || j == ( i + 1 ) % indexArray.size() || j == ( i + 2 ) % indexArray.size() )
+					continue;
+				if( triangle.ContainsPoint( ( *vertexArray )[ indexArray[j] ] ) )
 					break;
+			}
 
 			if( j < ( signed )indexArray.size() )
 				continue;

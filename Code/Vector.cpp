@@ -214,14 +214,17 @@ void Vector::Rotate( const Vector& unitAxis, double angle, Vector& vector ) cons
 	unitAxis.GetScaled( projVector, Dot( unitAxis ) );
 	rejVector.Subtract( *this, projVector );
 
-	if( rejVector.GetNormalized( xAxis ) )
+	double rejVectorLength = rejVector.Length();
+	if( rejVectorLength != 0.0 )
 	{
+		xAxis.SetScaled( rejVector, 1.0 / rejVectorLength );
 		yAxis.Cross( unitAxis, xAxis );
 
 		double cosAngle = cos( angle );
 		double sinAngle = sin( angle );
 
 		rejVector.AddScale( xAxis, cosAngle, yAxis, sinAngle );
+		rejVector.Scale( rejVectorLength );
 	}
 
 	vector.Add( projVector, rejVector );
