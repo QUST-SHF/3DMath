@@ -60,6 +60,30 @@ void Polygon::GetCenter( Vector& center ) const
 	center.Scale( 1.0 / double( vertexArray->size() ) );
 }
 
+bool Polygon::GetTriangleAverageCenter( Vector& center ) const
+{
+	if( indexTriangleList->size() == 0 )
+		return false;
+
+	center.Set( 0.0, 0.0, 0.0 );
+
+	for( IndexTriangleList::const_iterator iter = indexTriangleList->cbegin(); iter != indexTriangleList->cend(); iter++ )
+	{
+		const IndexTriangle& indexTriangle = *iter;
+
+		Triangle triangle;
+		indexTriangle.GetTriangle( triangle, vertexArray );
+
+		Vector triangleCenter;
+		triangle.GetCenter( triangleCenter );
+
+		center.Add( triangleCenter );
+	}
+
+	center.Scale( 1.0 / double( indexTriangleList->size() ) );
+	return true;
+}
+
 void Polygon::GetIntegratedCenter( Vector& center, double delta ) const
 {
 	center.Set( 0.0, 0.0, 0.0 );

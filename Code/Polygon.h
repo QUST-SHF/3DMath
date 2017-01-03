@@ -30,6 +30,7 @@ public:
 	bool GetPlane( Plane& plane ) const;
 	void GetCenter( Vector& center ) const;
 	void GetIntegratedCenter( Vector& center, double delta ) const;
+	bool GetTriangleAverageCenter( Vector& center ) const;
 	void Transform( const AffineTransform& transform );
 
 	// This is a list of points in 3D space presumed to be coplanar,
