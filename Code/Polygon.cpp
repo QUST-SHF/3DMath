@@ -160,7 +160,8 @@ bool Polygon::Tessellate( void ) const
 
 	while( indexArray.size() > 2 )
 	{
-		for( int i = 0; i < ( signed )indexArray.size(); i++ )
+		int i;
+		for( i = 0; i < ( signed )indexArray.size(); i++ )
 		{
 			IndexTriangle indexTriangle(
 					indexArray[i],
@@ -196,6 +197,9 @@ bool Polygon::Tessellate( void ) const
 			indexArray.erase( indexArray.begin() + ( i + 1 ) % indexArray.size() );
 			break;
 		}
+
+		if( i == ( signed )indexArray.size() )
+			return false;		// Avoid an infinite loop.
 	}
 
 	return true;
