@@ -84,6 +84,29 @@ public:
 	double x, y, z;
 };
 
-// TODO: Provide operator overloads.
+namespace _3DMath
+{
+	inline Vector operator+( const Vector& vectorA, const Vector& vectorB )
+	{
+		Vector sum;
+		sum.Add( vectorA, vectorB );
+		return sum;
+	}
+
+	inline Vector operator-( const Vector& vectorA, const Vector& vectorB )
+	{
+		Vector diff;
+		diff.Subtract( vectorA, vectorB );
+		return diff;
+	}
+
+	// No, this is not the geometric product, but it is an important product.
+	inline Vector operator*( const Vector& vectorA, const Vector& vectorB )
+	{
+		Vector prod;
+		prod.Multiply( vectorA, vectorB );
+		return prod;
+	}
+}
 
 // Vector.h

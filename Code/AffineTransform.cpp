@@ -28,8 +28,14 @@ AffineTransform::AffineTransform( const Vector& xAxis, const Vector& yAxis, cons
 	this->translation = translation;
 }
 
-AffineTransform::~AffineTransform( void )
+/*virtual*/ AffineTransform::~AffineTransform( void )
 {
+}
+
+/*virtual*/ bool AffineTransform::Evaluate( const Vector& input, Vector& output ) const
+{
+	Transform( input, output );
+	return true;
 }
 
 void AffineTransform::Identity( void )

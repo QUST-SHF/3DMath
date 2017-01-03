@@ -5,6 +5,7 @@
 #include "Defines.h"
 #include "LinearTransform.h"
 #include "Renderer.h"
+#include "Function.h"
 
 namespace _3DMath
 {
@@ -13,7 +14,7 @@ namespace _3DMath
 	class Line;
 }
 
-class _3DMATH_API _3DMath::AffineTransform
+class _3DMATH_API _3DMath::AffineTransform : public _3DMath::VectorField
 {
 public:
 
@@ -21,7 +22,9 @@ public:
 	AffineTransform( const AffineTransform& affineTransform );
 	AffineTransform( const LinearTransform& linearTransform, const Vector& translation );
 	AffineTransform( const Vector& xAxis, const Vector& yAxis, const Vector& zAxis, const Vector& translation );
-	~AffineTransform( void );
+	virtual ~AffineTransform( void );
+
+	virtual bool Evaluate( const Vector& input, Vector& output ) const override;
 
 	void Identity( void );
 
@@ -54,5 +57,15 @@ public:
 	LinearTransform linearTransform;
 	Vector translation;
 };
+
+namespace _3DMath
+{
+	inline Vector operator*( const Vector& vector, const AffineTransform& transform )
+	{
+		Vector result;
+		transform.Transform( vector, result );
+		return result;
+	}
+}
 
 // AffineTransform.h

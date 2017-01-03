@@ -63,4 +63,14 @@ public:
 	Vector xAxis, yAxis, zAxis;
 };
 
+namespace _3DMath
+{
+	inline Vector operator*( const Vector& vector, const LinearTransform& transform )
+	{
+		Vector result;
+		transform.Transform( vector, result );
+		return result;
+	}
+}
+
 // LinearTransform.h
