@@ -2,6 +2,8 @@
 
 #include "Surface.h"
 #include "LineSegment.h"
+#include "Line.h"
+#include "AffineTransform.h"
 #include "Renderer.h"
 #include "Circle.h"
 
@@ -340,11 +342,13 @@ SphereSurface::SphereSurface( const Sphere& sphere )
 
 	double angle = linearTransform.xAxis.AngleBetween( linearTransform.yAxis );
 	double arcLength = angle * circle.radius;
-	double rotationCount = floor( arcLength / maxDistance );
+	double rotationCount = ceil( arcLength / maxDistance );
 	double angleDelta = angle / rotationCount;
 
-	LinearTransform rotationTransform;
-	rotationTransform.SetRotation( circle.normal, angleDelta );
+	Line line( circle.center, circle.normal );
+
+	AffineTransform rotationTransform;
+	rotationTransform.SetRotation( line, angleDelta );
 
 	pointArray.push_back( pointA );
 
