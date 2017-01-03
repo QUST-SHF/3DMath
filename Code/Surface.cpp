@@ -3,6 +3,7 @@
 #include "Surface.h"
 #include "LineSegment.h"
 #include "Renderer.h"
+#include "Circle.h"
 
 using namespace _3DMath;
 
@@ -60,7 +61,7 @@ Surface::Surface( void )
 	return false;
 }
 
-/*virtual*/ bool Surface::FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistanceFromSurface ) const
+/*virtual*/ bool Surface::FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistance, const Plane* plane /*= nullptr*/ ) const
 {
 	bool success = false;
 	SurfacePoint* surfacePoint = nullptr;
@@ -78,14 +79,18 @@ Surface::Surface( void )
 		Vector midPoint;
 		lineSegment.Lerp( 0.5, midPoint );
 
-		SurfacePoint* surfacePoint = GetNearestSurfacePoint( midPoint );
+		SurfacePoint* surfacePoint = nullptr;
+		if( plane )
+			surfacePoint = GetNearestSurfacePointInPlane( midPoint, *plane );
+		else
+			surfacePoint = GetNearestSurfacePoint( midPoint );
 		if( !surfacePoint )
 			break;
 
 		Vector location;
 		surfacePoint->GetLocation( location );
 
-		if( location.Distance( midPoint ) <= maxDistanceFromSurface )
+		if( location.Distance( midPoint ) <= maxDistance )
 		{
 			pointArray.push_back( lineSegment.vertex[0] );
 			pointArray.push_back( lineSegment.vertex[1] );
@@ -93,11 +98,11 @@ Surface::Surface( void )
 		else
 		{
 			VectorArray pointArrayA;
-			if( !FindDirectPath( surfacePointA, surfacePoint, pointArrayA, maxDistanceFromSurface ) )
+			if( !FindDirectPath( surfacePointA, surfacePoint, pointArrayA, maxDistance ) )
 				break;
 
 			VectorArray pointArrayB;
-			if( !FindDirectPath( surfacePoint, surfacePointB, pointArrayB, maxDistanceFromSurface ) )
+			if( !FindDirectPath( surfacePoint, surfacePointB, pointArrayB, maxDistance ) )
 				break;
 
 			for( int i = 0; i < ( signed )pointArrayA.size() - 1; i++ )
@@ -114,6 +119,11 @@ Surface::Surface( void )
 	delete surfacePoint;
 
 	return success;
+}
+
+/*virtual*/ SurfacePoint* Surface::GetNearestSurfacePointInPlane( const Vector& point, const Plane& plane ) const
+{
+	return nullptr;
 }
 
 //-------------------------------------------------------------------------------
@@ -202,7 +212,7 @@ PlaneSurface::PlaneSurface( const Plane& plane )
 	return surfacePoint;
 }
 
-/*virtual*/ bool PlaneSurface::FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistanceFromSurface ) const
+/*virtual*/ bool PlaneSurface::FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistance, const Plane* plane /*= nullptr*/ ) const
 {
 	if( surfacePointA->surfaceHandle != GetHandle() || surfacePointB->surfaceHandle != GetHandle() )
 		return false;
@@ -301,6 +311,52 @@ SphereSurface::SphereSurface( const Sphere& sphere )
 	Point* surfacePoint = new Point( GetHandle() );
 	surfacePoint->location = intersectionPoints[0];
 	return surfacePoint;
+}
+
+/*virtual*/ bool SphereSurface::FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistance, const Plane* plane /*= nullptr*/ ) const
+{
+	Vector pointA, pointB;
+	surfacePointA->GetLocation( pointA );
+	surfacePointB->GetLocation( pointB );
+
+	Plane defaultPlane;
+	if( !plane )
+	{
+		plane = &defaultPlane;
+		defaultPlane.SetUsingTriangle( Triangle( pointA, sphere.center, pointB ) );
+	}
+
+	Circle circle;
+	if( !circle.SetAsIntersectionOf( *plane, sphere ) )
+		return false;
+
+	LinearTransform linearTransform;
+	linearTransform.xAxis = pointA - sphere.center;
+	linearTransform.yAxis = pointB - sphere.center;
+	linearTransform.zAxis = circle.normal;
+
+	if( linearTransform.Determinant() < 0.0 )
+		circle.normal.Negate();
+
+	double angle = linearTransform.xAxis.AngleBetween( linearTransform.yAxis );
+	double arcLength = angle * circle.radius;
+	double rotationCount = floor( arcLength / maxDistance );
+	double angleDelta = angle / rotationCount;
+
+	LinearTransform rotationTransform;
+	rotationTransform.SetRotation( circle.normal, angleDelta );
+
+	pointArray.push_back( pointA );
+
+	for( int i = 0; i < ( int )rotationCount - 1; i++ )
+	{
+		rotationTransform.Transform( pointA );
+		pointArray.push_back( pointA );
+	}
+
+	pointArray.push_back( pointB );
+
+	return true;
 }
 
 // Surface.cpp

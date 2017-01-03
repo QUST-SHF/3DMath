@@ -74,8 +74,9 @@ public:
 	virtual bool Render( Renderer& renderer, const Vector& color, double alpha, const AffineTransform* transform = nullptr ) const;
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const = 0;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const = 0;
+	virtual SurfacePoint* GetNearestSurfacePointInPlane( const Vector& point, const Plane& plane ) const;
 	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const = 0;
-	virtual bool FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistanceFromSurface ) const;
+	virtual bool FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistance, const Plane* plane = nullptr ) const;
 };
 
 class _3DMATH_API _3DMath::PlaneSurface : public _3DMath::Surface
@@ -102,7 +103,7 @@ public:
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const override;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const override;
 	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const override;
-	virtual bool FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistanceFromSurface ) const override;
+	virtual bool FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistance, const Plane* plane = nullptr ) const override;
 
 	Plane plane;
 };
@@ -131,6 +132,7 @@ public:
 	virtual Side GetSide( const Vector& point, double eps = EPSILON ) const override;
 	virtual SurfacePoint* GetNearestSurfacePoint( const Vector& point ) const override;
 	virtual SurfacePoint* FindSingleIntersection( const LineSegment& lineSegment ) const override;
+	virtual bool FindDirectPath( const SurfacePoint* surfacePointA, const SurfacePoint* surfacePointB, VectorArray& pointArray, double maxDistance, const Plane* plane = nullptr ) const override;
 
 	Sphere sphere;
 };

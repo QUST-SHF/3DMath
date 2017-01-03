@@ -146,6 +146,7 @@
     <ClInclude Include="Code\AxisAlignedBox.h" />
     <ClInclude Include="Code\BoundingBoxTree.h" />
     <ClInclude Include="Code\BspTree.h" />
+    <ClInclude Include="Code\Circle.h" />
     <ClInclude Include="Code\Defines.h" />
     <ClInclude Include="Code\Exception.h" />
     <ClInclude Include="Code\FileFormat.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="Code\AxisAlignedBox.cpp" />
     <ClCompile Include="Code\BoundingBoxTree.cpp" />
     <ClCompile Include="Code\BspTree.cpp" />
+    <ClCompile Include="Code\Circle.cpp" />
     <ClCompile Include="Code\Exception.cpp" />
     <ClCompile Include="Code\FileFormat.cpp" />
     <ClCompile Include="Code\Function.cpp" />

@@ -22,6 +22,11 @@ Plane::~Plane( void )
 {
 }
 
+void Plane::SetUsingTriangle( const Triangle& triangle )
+{
+	triangle.GetPlane( *this );
+}
+
 void Plane::SetCenterAndNormal( const Vector& center, const Vector& normal )
 {
 	normal.GetNormalized( this->normal );

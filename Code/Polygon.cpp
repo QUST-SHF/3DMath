@@ -182,6 +182,10 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 	if( intersectionArray.size() < 2 )
 		return false;
 
+	Plane plane;
+	if( !GetPlane( plane ) )
+		return false;
+
 	for( int i = 0; i < ( signed )intersectionArray.size(); i++ )
 	{
 		int j0 = intersectionArray[i];
@@ -202,7 +206,7 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 
 		bool pathFound = false;
 		if( surfacePointA && surfacePointB )
-			pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface );
+			pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface, &plane );
 
 		delete surfacePointA;
 		delete surfacePointB;

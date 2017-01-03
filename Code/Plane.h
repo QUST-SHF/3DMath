@@ -23,6 +23,7 @@ public:
 	Plane( const Vector& center, const Vector& normal );
 	~Plane( void );
 
+	void SetUsingTriangle( const Triangle& triangle );
 	void SetCenterAndNormal( const Vector& center, const Vector& normal );
 	void GetCenter( Vector& center ) const;
 

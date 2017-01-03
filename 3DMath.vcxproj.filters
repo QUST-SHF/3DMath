@@ -88,6 +88,9 @@
     <ClInclude Include="Code\Function.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Circle.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Vector.cpp">
@@ -160,6 +163,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\Function.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Circle.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>
