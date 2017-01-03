@@ -31,10 +31,12 @@ bool Polygon::GetPlane( Plane& plane ) const
 	if( vertexArray->size() < 3 )
 		return false;
 
-	Vector normal, center;
-	normal.Set( 0.0, 0.0, 0.0 );
-	center.Set( 0.0, 0.0, 0.0 );
+	Vector center;
+	GetCenter( center );
 
+	Vector normal;
+	normal.Set( 0.0, 0.0, 0.0 );
+	
 	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
 	{
 		// This is the Newel method.
@@ -44,13 +46,45 @@ bool Polygon::GetPlane( Plane& plane ) const
 		normal.x += ( pointA.y - pointB.y ) * ( pointA.z + pointB.z );
 		normal.y += ( pointA.z - pointB.z ) * ( pointA.x + pointB.x );
 		normal.z += ( pointA.x - pointB.x ) * ( pointA.y + pointB.y );
-		center.Add( pointA );
 	}
 
-	center.Scale( 1.0 / double( vertexArray->size() ) );
 	plane.SetCenterAndNormal( center, normal );
-
 	return true;
+}
+
+void Polygon::GetCenter( Vector& center ) const
+{
+	center.Set( 0.0, 0.0, 0.0 );
+	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+		center.Add( ( *vertexArray )[i] );
+	center.Scale( 1.0 / double( vertexArray->size() ) );
+}
+
+void Polygon::GetIntegratedCenter( Vector& center, double delta ) const
+{
+	center.Set( 0.0, 0.0, 0.0 );
+	int count = 0;
+
+	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+	{
+		int j = ( i + 1 ) % vertexArray->size();
+		LineSegment lineSegment( ( *vertexArray )[i], ( *vertexArray )[j] );
+
+		int stepCount = ( int )floor( lineSegment.Length() / delta );
+
+		for( int k = 0; k < stepCount; k++ )
+		{
+			double lambda = double(k) / double( stepCount );
+
+			Vector point;
+			lineSegment.Lerp( lambda, point );
+
+			center.Add( point );
+			count++;
+		}
+	}
+
+	center.Scale( 1.0 / double( count ) );
 }
 
 bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const
@@ -108,7 +142,17 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 			delete surfacePoint;
 		}
 		else
+		{
+			int k = ( i > 0 ) ? ( i - 1 ) : ( nodeArray.size() - 1 );
+
+			if( ( nodeArray[k].side == Surface::INSIDE && nodeArray[i].side == Surface::NEITHER_SIDE && nodeArray[j].side == Surface::OUTSIDE ) ||
+				( nodeArray[j].side == Surface::INSIDE && nodeArray[i].side == Surface::NEITHER_SIDE && nodeArray[k].side == Surface::OUTSIDE ) )
+			{
+				intersectionArray.push_back(i);
+			}
+
 			i++;
+		}
 	}
 
 	if( intersectionArray.size() < 2 )

@@ -28,6 +28,8 @@ public:
 	bool SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const;
 	bool Tessellate( void ) const;
 	bool GetPlane( Plane& plane ) const;
+	void GetCenter( Vector& center ) const;
+	void GetIntegratedCenter( Vector& center, double delta ) const;
 	void Transform( const AffineTransform& transform );
 
 	// This is a list of points in 3D space presumed to be coplanar,
