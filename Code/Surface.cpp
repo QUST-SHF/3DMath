@@ -333,8 +333,8 @@ SphereSurface::SphereSurface( const Sphere& sphere )
 		return false;
 
 	LinearTransform linearTransform;
-	linearTransform.xAxis = pointA - sphere.center;
-	linearTransform.yAxis = pointB - sphere.center;
+	linearTransform.xAxis = pointA - circle.center;
+	linearTransform.yAxis = pointB - circle.center;
 	linearTransform.zAxis = circle.normal;
 
 	if( linearTransform.Determinant() < 0.0 )
