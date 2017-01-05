@@ -129,9 +129,30 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 		nodeArray.push_back( node );
 	}
 
+	int i = 0;
+	while( i < ( signed )nodeArray.size() )
+	{
+		int j = ( i + 1 ) % nodeArray.size();
+
+		if( nodeArray[i].side == Surface::NEITHER_SIDE && nodeArray[j].side == Surface::NEITHER_SIDE )
+		{
+			double distance = nodeArray[i].point.Distance( nodeArray[j].point );
+			if( distance > 2.0 )		// This is a bit of a hack.
+			{
+				Node node;
+				node.point.Lerp( nodeArray[i].point, nodeArray[j].point, 0.5 );
+				node.side = surface->GetSide( node.point );
+				std::vector< Node >::iterator iter( nodeArray.begin() + i + 1 );
+				nodeArray.insert( iter, node );
+			}
+		}
+
+		i++;
+	}
+
 	std::vector< int > intersectionArray;
 
-	int i = 0;
+	i = 0;
 	while( i < ( signed )nodeArray.size() )
 	{
 		int j = ( i + 1 ) % nodeArray.size();
@@ -203,13 +224,31 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 
 		SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( nodeArray[ j1 ].point );
 		SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( nodeArray[ j0 ].point );
+		SurfacePoint* surfacePointC = nullptr;
 
 		bool pathFound = false;
 		if( surfacePointA && surfacePointB )
+		{
 			pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface, &plane );
+			if( !pathFound )
+			{
+				// This is a bit of a hack.
+				Vector center;
+				GetCenter( center );
+
+				surfacePointC = surface->GetNearestSurfacePoint( center );
+				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, *polygon->vertexArray, maxDistanceFromSurface, &plane );
+				if( pathFound )
+				{
+					polygon->vertexArray->pop_back();
+					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface, &plane );
+				}
+			}
+		}
 
 		delete surfacePointA;
 		delete surfacePointB;
+		delete surfacePointC;
 
 		if( !pathFound )
 			return false;

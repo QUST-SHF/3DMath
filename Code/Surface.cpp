@@ -337,7 +337,11 @@ SphereSurface::SphereSurface( const Sphere& sphere )
 	linearTransform.yAxis = pointB - circle.center;
 	linearTransform.zAxis = circle.normal;
 
-	if( linearTransform.Determinant() < 0.0 )
+	double det = linearTransform.Determinant();
+	if( fabs( det ) < EPSILON )
+		return false;
+
+	if( det < 0.0 )
 		circle.normal.Negate();
 
 	double angle = linearTransform.xAxis.AngleBetween( linearTransform.yAxis );
