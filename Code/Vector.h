@@ -107,6 +107,20 @@ namespace _3DMath
 		prod.Multiply( vectorA, vectorB );
 		return prod;
 	}
+
+	inline Vector operator*( const Vector& vector, double scalar )
+	{
+		Vector prod;
+		prod.SetScaled( vector, scalar );
+		return prod;
+	}
+
+	inline Vector operator*( double scalar, const Vector& vector )
+	{
+		Vector prod;
+		prod.SetScaled( vector, scalar );
+		return prod;
+	}
 }
 
 // Vector.h
