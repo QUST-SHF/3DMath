@@ -47,4 +47,9 @@ public:
 	double centerDotNormal;
 };
 
+namespace _3DMath
+{
+	typedef std::list< Plane > PlaneList;
+}
+
 // Plane.h

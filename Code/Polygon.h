@@ -37,6 +37,8 @@ public:
 	// and forming a polyline loop without any self-intersection.  It
 	// may be convex or concave.
 	VectorArray* vertexArray;
+
+	// This is a possible tessellation of the polygon.
 	IndexTriangleList* indexTriangleList;
 };
 

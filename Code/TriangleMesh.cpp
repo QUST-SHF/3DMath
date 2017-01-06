@@ -368,4 +368,174 @@ void TriangleMesh::GenerateEdgeSet( EdgeSet& edgeSet ) const
 	}
 }
 
+void TriangleMesh::AddSymmetricVertices( const Vector& vector )
+{
+	for( int i = 0; i < 8; i++ )
+	{
+		if( ( ( i & 1 ) && vector.x == 0.0 ) ||
+			( ( i & 2 ) && vector.y == 0.0 ) ||
+			( ( i & 4 ) && vector.z == 0.0 ) )
+		{
+			continue;
+		}
+
+		Vertex vertex;
+		vertex.position = vector;
+
+		vertex.position.x = ( i & 1 ) ? -vector.x : vector.x;
+		vertex.position.y = ( i & 2 ) ? -vector.y : vector.y;
+		vertex.position.z = ( i & 4 ) ? -vector.z : vector.z;
+
+		vertexArray->push_back( vertex );
+	}
+}
+
+bool TriangleMesh::GeneratePolygonFaceList( PolygonList& polygonFaceList ) const
+{
+	IndexTriangleList triangleQueue;
+	for( IndexTriangleList::const_iterator iter = triangleList->cbegin(); iter != triangleList->cend(); iter++ )
+		triangleQueue.push_back( *iter );
+
+	while( triangleQueue.size() > 0 )
+	{
+		IndexTriangleList::iterator iter = triangleQueue.begin();
+		IndexTriangle indexTriangle = *iter;
+		triangleQueue.erase( iter );
+
+		Plane plane;
+		if( !indexTriangle.GetPlane( plane, vertexArray ) )
+			return false;
+
+		IndexTriangleList coplanarList, breadthFirstSearchQueue;
+		breadthFirstSearchQueue.push_back( indexTriangle );
+
+		while( breadthFirstSearchQueue.size() > 0 )
+		{
+			iter = breadthFirstSearchQueue.begin();
+			IndexTriangle coplanarTriangle = *iter;
+			breadthFirstSearchQueue.erase( iter );
+
+			coplanarList.push_back( coplanarTriangle );
+
+			iter = triangleQueue.begin();
+			while( iter != triangleQueue.end() )
+			{
+				IndexTriangleList::iterator nextIter = iter;
+				nextIter++;
+
+				IndexTriangle adjacentTriangle = *iter;
+				if( adjacentTriangle.AdjacentTo( indexTriangle ) )
+				{
+					Plane otherPlane;
+					if( !adjacentTriangle.GetPlane( otherPlane, vertexArray ) )
+						return false;
+
+					double dot = otherPlane.normal.Dot( plane.normal );
+					if( fabs( dot - 1.0 ) >= EPSILON )
+					{
+						triangleQueue.erase( iter );
+						breadthFirstSearchQueue.push_back( adjacentTriangle );
+					}
+				}
+
+				iter = nextIter;			
+			}
+		}
+
+		iter = coplanarList.begin();
+		indexTriangle = *iter;
+		coplanarList.erase( iter );
+
+		std::vector< int > loopArray;
+		for( int i = 0; i < 3; i++ )
+			loopArray.push_back( indexTriangle.vertex[i] );
+
+		while( coplanarList.size() > 0 )
+		{
+			unsigned int listSize = coplanarList.size();
+
+			for( iter = coplanarList.begin(); iter != coplanarList.end(); iter++ )
+			{
+				indexTriangle = *iter;
+
+				struct EdgeShare
+				{
+					int i, j;
+					int s, t;
+				};
+
+				std::list< EdgeShare > edgeShareList;
+				int vertexShareCount = 0;
+
+				int i, j, s, t;
+
+				for( i = 0; i < ( signed )loopArray.size(); i++ )
+				{
+					j = ( i + 1 ) % loopArray.size();
+					
+					for( s = 0; s < 3; s++ )
+					{
+						t = ( s + 1 ) % 3;
+
+						if( loopArray[i] == indexTriangle.vertex[t] &&
+							loopArray[j] == indexTriangle.vertex[s] )
+						{
+							EdgeShare edgeShare;
+							edgeShare.i = i;
+							edgeShare.j = j;
+							edgeShare.s = s;
+							edgeShare.t = t;
+							edgeShareList.push_back( edgeShare );
+						}
+
+						if( loopArray[i] == indexTriangle.vertex[s] )
+							vertexShareCount++;
+					}
+				}
+
+				if( edgeShareList.size() == 1 && vertexShareCount < 3 )
+				{
+					EdgeShare edgeShare = edgeShareList.front();
+					std::vector< int >::iterator loopIter( loopArray.begin() + edgeShare.j );
+					loopArray.insert( loopIter, indexTriangle.vertex[ ( edgeShare.s + 2 ) % 3 ] );
+					coplanarList.erase( iter );
+					break;
+				}
+				else if( edgeShareList.size() == 2 )
+				{
+					EdgeShare edgeShareA = edgeShareList.front();
+					EdgeShare edgeShareB = edgeShareList.back();
+					if( edgeShareA.j == edgeShareB.i )
+					{
+						std::vector< int >::iterator loopIter( loopArray.begin() + edgeShareA.j );
+						loopArray.erase( loopIter );
+						coplanarList.erase( iter );
+						break;
+					}
+					else if( edgeShareB.j == edgeShareA.i )
+					{
+						std::vector< int >::iterator loopIter( loopArray.begin() + edgeShareB.j );
+						loopArray.erase( loopIter );
+						coplanarList.erase( iter );
+						break;
+					}
+				}
+
+				iter++;
+			}
+
+			if( listSize == coplanarList.size() )
+				return false;
+		}
+
+		Polygon* polygon = new Polygon();
+		polygonFaceList.push_back( polygon );
+
+		for( int i = 0; i < ( signed )loopArray.size(); i++ )
+			polygon->vertexArray->push_back( ( *vertexArray )[ loopArray[i] ].position );
+	}
+
+	return true;
+}
+
 // TriangleMesh.cpp

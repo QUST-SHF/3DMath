@@ -7,6 +7,7 @@
 #include "Renderer.h"
 #include "Triangle.h"
 #include "IndexTriangle.h"
+#include "Polygon.h"
 
 namespace _3DMath
 {
@@ -38,6 +39,8 @@ public:
 	//void GenerateStringMesh( const std::string& string, double fontSize, void* font );
 	//void Compress( void );		// TODO: Consolidate identical vertices.
 	//void GenerateFromSurface( const Surface* surface, const AxisAlignedBox& boundingBox );	// TODO: Use a gift-wrapping-type algorithm?  Utilize tangent spaces.
+	void AddSymmetricVertices( const Vector& vector );
+	bool GeneratePolygonFaceList( PolygonList& polygonFaceList ) const;
 
 	typedef std::set< uint64_t > EdgeSet;
 

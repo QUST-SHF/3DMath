@@ -59,10 +59,21 @@ bool IndexTriangle::GetPlane( Plane& plane, const std::vector< Vertex >* vertexA
 
 bool IndexTriangle::CoincidentWith( const IndexTriangle& indexTriangle ) const
 {
+	return( SharedVertexCount( indexTriangle ) == 3 ? true : false );
+}
+
+bool IndexTriangle::AdjacentTo( const IndexTriangle& indexTriangle ) const
+{
+	return( SharedVertexCount( indexTriangle ) == 2 ? true : false );
+}
+
+int IndexTriangle::SharedVertexCount( const IndexTriangle& indexTriangle ) const
+{
+	int sharedVertexCount = 0;
 	for( int i = 0; i < 3; i++ )
-		if( !indexTriangle.HasVertex( vertex[i] ) )
-			return false;
-	return true;
+		if( indexTriangle.HasVertex( vertex[i] ) )
+			sharedVertexCount++;
+	return sharedVertexCount;
 }
 
 bool IndexTriangle::HasVertex( int index ) const
