@@ -37,7 +37,7 @@ public:
 	bool GenerateBoundingBox( AxisAlignedBox& boundingBox ) const;
 	void GenerateTriangleList( TriangleList& triangleList, bool skipDegenerates = true ) const;
 	//void GenerateStringMesh( const std::string& string, double fontSize, void* font );
-	//void Compress( void );		// TODO: Consolidate identical vertices.
+	void Compress( void );
 	//void GenerateFromSurface( const Surface* surface, const AxisAlignedBox& boundingBox );	// TODO: Use a gift-wrapping-type algorithm?  Utilize tangent spaces.
 	void AddSymmetricVertices( const Vector& vector );
 	bool GeneratePolygonFaceList( PolygonList& polygonFaceList ) const;

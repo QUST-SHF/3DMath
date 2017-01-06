@@ -390,8 +390,45 @@ void TriangleMesh::AddSymmetricVertices( const Vector& vector )
 	}
 }
 
+void TriangleMesh::Compress( void )
+{
+	VertexArray* compressedVertexArray = new VertexArray();
+
+	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+	{
+		const Vertex& vertex = ( *vertexArray )[i];
+
+		int j;
+		for( j = 0; j < ( signed )compressedVertexArray->size(); j++ )
+		{
+			const Vertex& compressedVertex = ( *compressedVertexArray )[j];
+			if( compressedVertex.position.IsEqualTo( vertex.position ) )
+				break;
+		}
+
+		if( j < ( signed )compressedVertexArray->size() )
+			continue;
+
+		compressedVertexArray->push_back( vertex );
+
+		for( IndexTriangleList::iterator iter = triangleList->begin(); iter != triangleList->end(); iter++ )
+		{
+			IndexTriangle& indexTriangle = *iter;
+			for( int j = 0; j < 3; j++ )
+				if( ( *vertexArray )[ indexTriangle.vertex[j] ].position.IsEqualTo( vertex.position ) )
+					indexTriangle.vertex[j] = compressedVertexArray->size() - 1;
+		}
+	}
+
+	delete vertexArray;
+	vertexArray = compressedVertexArray;
+}
+
 bool TriangleMesh::GeneratePolygonFaceList( PolygonList& polygonFaceList ) const
 {
+	// Our algorithm's correctness depends upon the mesh being fully compressed.
+	const_cast< TriangleMesh* >( this )->Compress();
+
 	IndexTriangleList triangleQueue;
 	for( IndexTriangleList::const_iterator iter = triangleList->cbegin(); iter != triangleList->cend(); iter++ )
 		triangleQueue.push_back( *iter );
@@ -424,14 +461,14 @@ bool TriangleMesh::GeneratePolygonFaceList( PolygonList& polygonFaceList ) const
 				nextIter++;
 
 				IndexTriangle adjacentTriangle = *iter;
-				if( adjacentTriangle.AdjacentTo( indexTriangle ) )
+				if( adjacentTriangle.AdjacentTo( coplanarTriangle ) )
 				{
 					Plane otherPlane;
 					if( !adjacentTriangle.GetPlane( otherPlane, vertexArray ) )
 						return false;
 
 					double dot = otherPlane.normal.Dot( plane.normal );
-					if( fabs( dot - 1.0 ) >= EPSILON )
+					if( fabs( dot - 1.0 ) < EPSILON )
 					{
 						triangleQueue.erase( iter );
 						breadthFirstSearchQueue.push_back( adjacentTriangle );
