@@ -35,7 +35,12 @@ public:
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It
-	// may be convex or concave.
+	// may be convex or concave.  It's worth pointing out that if we
+	// were more suffisticated here, we would use multiple arrays (sides)
+	// so that we could represent polygons from different topologies.
+	// For example, we can't represent a polygon with a hole in it.  Doing
+	// so, however, would complicate the algorithms beyond how far I'm willing
+	// to go at the time of this writing.
 	VectorArray* vertexArray;
 
 	// This is a possible tessellation of the polygon.

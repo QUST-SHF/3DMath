@@ -200,6 +200,8 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 		}
 	}
 
+	// It's possible that the surface intersects the polygon in the middle, but not at the sides.
+	// In that case, one of the returned polygons would have to have a hole in it, which we don't support.
 	if( intersectionArray.size() < 2 )
 		return false;
 
