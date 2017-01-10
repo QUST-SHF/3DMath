@@ -10,19 +10,75 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\AffineTransform.cpp" />
+    <ClCompile Include="Code\AxisAlignedBox.cpp" />
+    <ClCompile Include="Code\BoundingBoxTree.cpp" />
+    <ClCompile Include="Code\BspTree.cpp" />
+    <ClCompile Include="Code\Circle.cpp" />
+    <ClCompile Include="Code\Exception.cpp" />
+    <ClCompile Include="Code\FileFormat.cpp" />
+    <ClCompile Include="Code\Function.cpp" />
+    <ClCompile Include="Code\HandleObject.cpp" />
+    <ClCompile Include="Code\IndexTriangle.cpp" />
+    <ClCompile Include="Code\Line.cpp" />
+    <ClCompile Include="Code\LinearTransform.cpp" />
+    <ClCompile Include="Code\LineSegment.cpp" />
+    <ClCompile Include="Code\ParticleSystem.cpp" />
+    <ClCompile Include="Code\Plane.cpp" />
+    <ClCompile Include="Code\Polygon.cpp" />
+    <ClCompile Include="Code\Random.cpp" />
+    <ClCompile Include="Code\Renderer.cpp" />
+    <ClCompile Include="Code\Sphere.cpp" />
+    <ClCompile Include="Code\Surface.cpp" />
+    <ClCompile Include="Code\TimeKeeper.cpp" />
+    <ClCompile Include="Code\Triangle.cpp" />
+    <ClCompile Include="Code\TriangleMesh.cpp" />
+    <ClCompile Include="Code\Vector.cpp" />
+    <ClCompile Include="Code\Vertex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\AffineTransform.h" />
+    <ClInclude Include="Code\AxisAlignedBox.h" />
+    <ClInclude Include="Code\BoundingBoxTree.h" />
+    <ClInclude Include="Code\BspTree.h" />
+    <ClInclude Include="Code\Circle.h" />
+    <ClInclude Include="Code\Defines.h" />
+    <ClInclude Include="Code\Exception.h" />
+    <ClInclude Include="Code\FileFormat.h" />
+    <ClInclude Include="Code\Function.h" />
+    <ClInclude Include="Code\HandleObject.h" />
+    <ClInclude Include="Code\IndexTriangle.h" />
+    <ClInclude Include="Code\Line.h" />
+    <ClInclude Include="Code\LinearTransform.h" />
+    <ClInclude Include="Code\LineSegment.h" />
+    <ClInclude Include="Code\ListFunctions.h" />
+    <ClInclude Include="Code\ParticleSystem.h" />
+    <ClInclude Include="Code\Plane.h" />
+    <ClInclude Include="Code\Polygon.h" />
+    <ClInclude Include="Code\Random.h" />
+    <ClInclude Include="Code\Renderer.h" />
+    <ClInclude Include="Code\Sphere.h" />
+    <ClInclude Include="Code\Surface.h" />
+    <ClInclude Include="Code\TimeKeeper.h" />
+    <ClInclude Include="Code\Triangle.h" />
+    <ClInclude Include="Code\TriangleMesh.h" />
+    <ClInclude Include="Code\Vector.h" />
+    <ClInclude Include="Code\Vertex.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1FB62285-B975-4890-A02B-6102A0EC85C9}</ProjectGuid>
+    <ProjectGuid>{31C38FA4-A11D-4AAC-A383-7063D33D6D80}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My3DMath2010</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -37,19 +93,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_3DMATH_API_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -64,7 +115,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MY3DMATH2010_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -73,47 +124,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Code\AffineTransform.cpp" />
-    <ClCompile Include="Code\AxisAlignedBox.cpp" />
-    <ClCompile Include="Code\BoundingBoxTree.cpp" />
-    <ClCompile Include="Code\BspTree.cpp" />
-    <ClCompile Include="Code\Exception.cpp" />
-    <ClCompile Include="Code\FileFormat.cpp" />
-    <ClCompile Include="Code\HandleObject.cpp" />
-    <ClCompile Include="Code\Line.cpp" />
-    <ClCompile Include="Code\LinearTransform.cpp" />
-    <ClCompile Include="Code\LineSegment.cpp" />
-    <ClCompile Include="Code\ParticleSystem.cpp" />
-    <ClCompile Include="Code\Plane.cpp" />
-    <ClCompile Include="Code\Random.cpp" />
-    <ClCompile Include="Code\Renderer.cpp" />
-    <ClCompile Include="Code\TimeKeeper.cpp" />
-    <ClCompile Include="Code\Triangle.cpp" />
-    <ClCompile Include="Code\TriangleMesh.cpp" />
-    <ClCompile Include="Code\Vector.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Code\AffineTransform.h" />
-    <ClInclude Include="Code\AxisAlignedBox.h" />
-    <ClInclude Include="Code\BoundingBoxTree.h" />
-    <ClInclude Include="Code\BspTree.h" />
-    <ClInclude Include="Code\Defines.h" />
-    <ClInclude Include="Code\Exception.h" />
-    <ClInclude Include="Code\FileFormat.h" />
-    <ClInclude Include="Code\HandleObject.h" />
-    <ClInclude Include="Code\Line.h" />
-    <ClInclude Include="Code\LinearTransform.h" />
-    <ClInclude Include="Code\LineSegment.h" />
-    <ClInclude Include="Code\ParticleSystem.h" />
-    <ClInclude Include="Code\Plane.h" />
-    <ClInclude Include="Code\Random.h" />
-    <ClInclude Include="Code\Renderer.h" />
-    <ClInclude Include="Code\TimeKeeper.h" />
-    <ClInclude Include="Code\Triangle.h" />
-    <ClInclude Include="Code\TriangleMesh.h" />
-    <ClInclude Include="Code\Vector.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

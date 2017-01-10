@@ -10,6 +10,36 @@
     <ClCompile Include="Code\AffineTransform.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\AxisAlignedBox.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\BoundingBoxTree.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\BspTree.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Circle.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Exception.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\FileFormat.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Function.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\HandleObject.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\IndexTriangle.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Line.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
     <ClCompile Include="Code\LinearTransform.cpp">
       <Filter>Code</Filter>
     </ClCompile>
@@ -22,10 +52,22 @@
     <ClCompile Include="Code\Plane.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Polygon.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
     <ClCompile Include="Code\Random.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\Renderer.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sphere.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Surface.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\TimeKeeper.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\Triangle.cpp">
@@ -37,28 +79,7 @@
     <ClCompile Include="Code\Vector.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\AxisAlignedBox.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\BoundingBoxTree.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Exception.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\FileFormat.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Line.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\TimeKeeper.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\BspTree.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\HandleObject.cpp">
+    <ClCompile Include="Code\Vertex.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -66,7 +87,34 @@
     <ClInclude Include="Code\AffineTransform.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\AxisAlignedBox.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\BoundingBoxTree.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\BspTree.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Circle.h">
+      <Filter>Code</Filter>
+    </ClInclude>
     <ClInclude Include="Code\Defines.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Exception.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\FileFormat.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Function.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HandleObject.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\IndexTriangle.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\Line.h">
@@ -78,16 +126,31 @@
     <ClInclude Include="Code\LineSegment.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\ListFunctions.h">
+      <Filter>Code</Filter>
+    </ClInclude>
     <ClInclude Include="Code\ParticleSystem.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\Plane.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Polygon.h">
+      <Filter>Code</Filter>
+    </ClInclude>
     <ClInclude Include="Code\Random.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\Renderer.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sphere.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Surface.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\TimeKeeper.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\Triangle.h">
@@ -99,25 +162,7 @@
     <ClInclude Include="Code\Vector.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\AxisAlignedBox.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\BoundingBoxTree.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Exception.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\FileFormat.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\TimeKeeper.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\BspTree.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\HandleObject.h">
+    <ClInclude Include="Code\Vertex.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
