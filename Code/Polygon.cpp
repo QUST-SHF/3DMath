@@ -259,6 +259,21 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 	return true;
 }
 
+double Polygon::GetArea( void ) const
+{
+	double totalArea = 0.0;
+
+	for( IndexTriangleList::const_iterator iter = indexTriangleList->cbegin(); iter != indexTriangleList->end(); iter++ )
+	{
+		const IndexTriangle& indexTriangle = *iter;
+		Triangle triangle;
+		indexTriangle.GetTriangle( triangle, vertexArray );
+		totalArea += triangle.Area();
+	}
+
+	return totalArea;
+}
+
 bool Polygon::Tessellate( void ) const
 {
 	Plane plane;

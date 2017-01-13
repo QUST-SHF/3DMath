@@ -32,6 +32,7 @@ public:
 	void GetIntegratedCenter( Vector& center, double delta ) const;
 	bool GetTriangleAverageCenter( Vector& center ) const;
 	void Transform( const AffineTransform& transform );
+	double GetArea( void ) const;
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It
