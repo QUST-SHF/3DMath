@@ -12,7 +12,7 @@ Line::Line( void )
 Line::Line( const Vector& center, const Vector& normal )
 {
 	this->center = center;
-	this->normal = normal;
+	normal.GetNormalized( this->normal );
 }
 
 Line::Line( const LineSegment& lineSegment )
