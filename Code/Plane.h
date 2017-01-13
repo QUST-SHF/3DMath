@@ -42,6 +42,7 @@ public:
 	bool SplitTriangle( const Triangle& triangle, TriangleList& frontList, TriangleList& backList ) const;
 	void Reflect( Vector& point ) const;
 	void Transform( const AffineTransform& affineTransform, const LinearTransform* normalTransform = nullptr );
+	bool IsEqualTo( const Plane& plane, double eps = EPSILON ) const;
 
 	Vector normal;
 	double centerDotNormal;

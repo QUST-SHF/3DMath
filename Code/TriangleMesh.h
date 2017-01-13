@@ -40,7 +40,7 @@ public:
 	void Compress( void );
 	//void GenerateFromSurface( const Surface* surface, const AxisAlignedBox& boundingBox );	// TODO: Use a gift-wrapping-type algorithm?  Utilize tangent spaces.
 	void AddSymmetricVertices( const Vector& vector );
-	bool GeneratePolygonFaceList( PolygonList& polygonFaceList ) const;
+	bool GeneratePolygonFaceList( PolygonList& polygonFaceList, double eps = EPSILON ) const;
 
 	typedef std::set< uint64_t > EdgeSet;
 

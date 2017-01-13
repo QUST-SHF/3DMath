@@ -169,4 +169,15 @@ void Plane::Transform( const AffineTransform& affineTransform, const LinearTrans
 	SetCenterAndNormal( center, normal );
 }
 
+bool Plane::IsEqualTo( const Plane& plane, double eps /*= EPSILION*/ ) const
+{
+	if( fabs( centerDotNormal - plane.centerDotNormal ) >= eps )
+		return false;
+
+	if( !normal.IsEqualTo( plane.normal, eps ) )
+		return false;
+
+	return true;
+}
+
 // Plane.cpp

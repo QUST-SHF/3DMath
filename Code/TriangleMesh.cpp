@@ -73,44 +73,93 @@ bool TriangleMesh::FindConvexHull( void )
 
 	triangleList->clear();
 
-	VectorArray pointCloud;
-	while( vertexArray->size() > 4 )
+	VertexArray* newVertexArray = nullptr;
+
+	bool tetrahedronFound = false;
+
+	int i0, i1, i2, i3;
+
+	for( i0 = 0; i0 < ( signed )vertexArray->size(); i0++ )
 	{
-		pointCloud.push_back( vertexArray->back().position );
-		vertexArray->pop_back();
+		for( i1 = 0; i1 < ( signed )vertexArray->size(); i1++ )
+		{
+			if( i1 == i0 )
+				continue;
+
+			for( i2 = 0; i2 < ( signed )vertexArray->size(); i2++ )
+			{
+				if( i2 == i0 || i2 == i1 )
+					continue;
+
+				for( i3 = 0; i3 < ( signed )vertexArray->size(); i3++ )
+				{
+					if( i3 == i0 || i3 == i1 || i3 == i2 )
+						continue;
+
+					LinearTransform linearTransform;
+
+					linearTransform.xAxis.Subtract( ( *vertexArray )[i1].position, ( *vertexArray )[i0].position );
+					linearTransform.yAxis.Subtract( ( *vertexArray )[i2].position, ( *vertexArray )[i0].position );
+					linearTransform.zAxis.Subtract( ( *vertexArray )[i3].position, ( *vertexArray )[i0].position );
+
+					// In the strictest sense, it need only be greater than zero,
+					// but I want a tetrahedron that is no where near degenerate.
+					double det = linearTransform.Determinant();
+					if( det > EPSILON )
+					{
+						newVertexArray = new VertexArray();
+
+						newVertexArray->push_back( ( *vertexArray )[i0] );
+						newVertexArray->push_back( ( *vertexArray )[i1] );
+						newVertexArray->push_back( ( *vertexArray )[i2] );
+						newVertexArray->push_back( ( *vertexArray )[i3] );
+
+						AddOrRemoveTriangle( IndexTriangle( 0, 1, 3 ) );
+						AddOrRemoveTriangle( IndexTriangle( 0, 3, 2 ) );
+						AddOrRemoveTriangle( IndexTriangle( 0, 2, 1 ) );
+						AddOrRemoveTriangle( IndexTriangle( 1, 2, 3 ) );
+
+						tetrahedronFound = true;
+						break;
+					}
+				}
+
+				if( tetrahedronFound )
+					break;
+			}
+
+			if( tetrahedronFound )
+				break;
+		}
+
+		if( tetrahedronFound )
+			break;
 	}
 
-	LinearTransform linearTransform;
+	if( !tetrahedronFound )
+		return false;
 
-	linearTransform.xAxis.Subtract( ( *vertexArray )[1].position, ( *vertexArray )[0].position );
-	linearTransform.yAxis.Subtract( ( *vertexArray )[2].position, ( *vertexArray )[0].position );
-	linearTransform.zAxis.Subtract( ( *vertexArray )[3].position, ( *vertexArray )[0].position );
+	VertexArray pointCloud;
 
-	if( linearTransform.Determinant() > 0.0 )
+	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
 	{
-		AddOrRemoveTriangle( IndexTriangle( 0, 1, 3 ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 3, 2 ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 2, 1 ) );
-		AddOrRemoveTriangle( IndexTriangle( 1, 2, 3 ) );
+		if( i == i0 || i == i1 || i == i2 || i == i3 )
+			continue;
+
+		pointCloud.push_back( ( *vertexArray )[i] );
 	}
-	else
-	{
-		AddOrRemoveTriangle( IndexTriangle( 0, 3, 1 ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 2, 3 ) );
-		AddOrRemoveTriangle( IndexTriangle( 0, 1, 2 ) );
-		AddOrRemoveTriangle( IndexTriangle( 3, 2, 1 ) );
-	}
+
+	delete vertexArray;
+	vertexArray = nullptr;
 
 	while( pointCloud.size() > 0 )
 	{
-		Vector point = pointCloud.back();
+		Vertex point = pointCloud.back();
 		pointCloud.pop_back();
 
-		Vertex vertex;
-		vertex.position = point;
-		vertexArray->push_back( vertex );
+		newVertexArray->push_back( point );
 
-		int index = ( int )vertexArray->size() - 1;
+		int index = ( int )newVertexArray->size() - 1;
 
 		bool keepGoing = true;
 		while( keepGoing )
@@ -124,9 +173,9 @@ bool TriangleMesh::FindConvexHull( void )
 				if( !indexTriangle.HasVertex( index ) )
 				{
 					Plane plane;
-					indexTriangle.GetPlane( plane, vertexArray );
+					indexTriangle.GetPlane( plane, newVertexArray );
 
-					if( plane.GetSide( point ) == Plane::SIDE_FRONT )
+					if( plane.GetSide( point.position ) == Plane::SIDE_FRONT )
 					{
 						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[0], indexTriangle.vertex[1] ) );
 						AddOrRemoveTriangle( IndexTriangle( index, indexTriangle.vertex[1], indexTriangle.vertex[2] ) );
@@ -140,6 +189,8 @@ bool TriangleMesh::FindConvexHull( void )
 			}
 		}
 	}
+
+	vertexArray = newVertexArray;
 
 	return true;
 }
@@ -424,7 +475,7 @@ void TriangleMesh::Compress( void )
 	vertexArray = compressedVertexArray;
 }
 
-bool TriangleMesh::GeneratePolygonFaceList( PolygonList& polygonFaceList ) const
+bool TriangleMesh::GeneratePolygonFaceList( PolygonList& polygonFaceList, double eps /*= EPSILON*/ ) const
 {
 	// Our algorithm's correctness depends upon the mesh being fully compressed.
 	const_cast< TriangleMesh* >( this )->Compress();
@@ -468,7 +519,7 @@ bool TriangleMesh::GeneratePolygonFaceList( PolygonList& polygonFaceList ) const
 						return false;
 
 					double dot = otherPlane.normal.Dot( plane.normal );
-					if( fabs( dot - 1.0 ) < EPSILON )
+					if( fabs( dot - 1.0 ) < eps )
 					{
 						triangleQueue.erase( iter );
 						breadthFirstSearchQueue.push_back( adjacentTriangle );
