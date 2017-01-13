@@ -221,25 +221,48 @@ void Renderer::DrawTriangle( const Triangle& triangle )
 {
 }
 
-void Renderer::DrawPolygon( const Polygon& polygon, const AffineTransform* transform /*= nullptr*/ )
+void Renderer::DrawPolygon( const Polygon& polygon, const AffineTransform* transform /*= nullptr*/, bool drawTessellation /*= true*/ )
 {
 	switch( drawStyle )
 	{
 		case DRAW_STYLE_SOLID:
 		{
-			BeginDrawMode( DRAW_MODE_TRIANGLES );
-
 			Plane plane;
 			polygon.GetPlane( plane );
 
-			IndexTriangleList::const_iterator iter = polygon.indexTriangleList->cbegin();
-			while( iter != polygon.indexTriangleList->cend() )
+			if( drawTessellation )
 			{
-				const IndexTriangle& indexTriangle = *iter;
+				BeginDrawMode( DRAW_MODE_TRIANGLES );	
 
-				for( int i = 0; i < 3; i++ )
+				IndexTriangleList::const_iterator iter = polygon.indexTriangleList->cbegin();
+				while( iter != polygon.indexTriangleList->cend() )
 				{
-					Vector point = ( *polygon.vertexArray )[ indexTriangle.vertex[i] ];
+					const IndexTriangle& indexTriangle = *iter;
+
+					for( int i = 0; i < 3; i++ )
+					{
+						Vector point = ( *polygon.vertexArray )[ indexTriangle.vertex[i] ];
+						if( transform )
+							transform->Transform( point );
+
+						Vertex vertex;
+						vertex.position = point;
+						vertex.normal = plane.normal;
+						IssueVertex( vertex, VTX_FLAG_POSITION | VTX_FLAG_NORMAL );
+					}
+
+					iter++;
+				}
+
+				EndDrawMode();
+			}
+			else
+			{
+				BeginDrawMode( DRAW_MODE_POLYGON );
+
+				for( int i = 0; i < ( signed )polygon.vertexArray->size(); i++ )
+				{
+					Vector point = ( *polygon.vertexArray )[i];
 					if( transform )
 						transform->Transform( point );
 
@@ -249,10 +272,8 @@ void Renderer::DrawPolygon( const Polygon& polygon, const AffineTransform* trans
 					IssueVertex( vertex, VTX_FLAG_POSITION | VTX_FLAG_NORMAL );
 				}
 
-				iter++;
+				EndDrawMode();
 			}
-
-			EndDrawMode();
 
 			break;
 		}
