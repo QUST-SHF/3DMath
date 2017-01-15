@@ -29,7 +29,7 @@ public:
 	void Clear( void );
 	void Clone( const TriangleMesh& triangleMesh );
 	bool FindConvexHull( void );
-	void AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle );
+	void AddOrRemoveTriangle( const IndexTriangle& givenIndexTriangle );
 	void CalculateNormals( void );
 	void CalculateSphericalUVs( void );
 	void SubdivideAllTriangles( double radius );	// TODO: A better version of this could smooth any ridged mesh.  This one only knows convex meshes at origin.

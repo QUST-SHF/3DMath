@@ -37,3 +37,7 @@ Debug/
 *.suo
 *.user
 ipch/
+
+# Linux stuff...
+.*.dblite
+.*.swp

@@ -195,7 +195,7 @@ bool TriangleMesh::FindConvexHull( void )
 	return true;
 }
 
-void TriangleMesh::AddOrRemoveTriangle( IndexTriangle& givenIndexTriangle )
+void TriangleMesh::AddOrRemoveTriangle( const IndexTriangle& givenIndexTriangle )
 {
 	for( IndexTriangleList::iterator iter = triangleList->begin(); iter != triangleList->end(); iter++ )
 	{

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <list>
+
 namespace _3DMath
 {
 	template< typename Type >
@@ -9,7 +11,7 @@ namespace _3DMath
 	{
 		while( list.size() > 0 )
 		{
-			std::list< Type* >::iterator iter = list.begin();
+			typename std::list< Type* >::iterator iter = list.begin();
 			Type* type = *iter;
 			delete type;
 			list.erase( iter );
@@ -21,7 +23,7 @@ namespace _3DMath
 	template< typename Type >
 	void RenderList( std::list< Type* >& list, Renderer& renderer )
 	{
-		for( std::list< Type* >::iterator iter = list.begin(); iter != list.end(); iter++ )
+		for( typename std::list< Type* >::iterator iter = list.begin(); iter != list.end(); iter++ )
 		{
 			Type* type = *iter;
 			type->Render( renderer );
