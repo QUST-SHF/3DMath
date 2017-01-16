@@ -1,8 +1,11 @@
 # SConstruct for 3DMath library
 
+import os
+
 obj_env = Environment()
 obj_env.Append( CCFLAGS = '--std=c++11' )
 obj_env.Append( CCFLAGS = '-DLINUX' )
+obj_env.Append( CCFLAGS = '-ggdb' )
 
 cpp_source_list = Glob( 'Code/*.cpp' )
 h_source_list = Glob( 'Code/*.h' )
@@ -14,4 +17,18 @@ for source_file in cpp_source_list:
   object_list.append( object_file )
 
 lib_env = Environment()
-lib_env.StaticLibrary( '3DMath', object_list )
+lib = lib_env.StaticLibrary( '3DMath', object_list )
+
+dest_dir = '/usr'
+if 'DESTDIR' in os.environ:
+  dest_dir = os.environ[ 'DESTDIR' ]
+
+install_env = Environment(
+  LIB = dest_dir + '/lib',
+  BIN = dest_dir + '/bin',
+  SHARE = dest_dir + '/share' )
+
+# Also move header files?
+install_env.Install( '$LIB', lib )
+install_env.Alias( 'install', [ '$LIB' ] )
+
