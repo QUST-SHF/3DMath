@@ -29,7 +29,7 @@ install_env = Environment(
   BIN = dest_dir + '/bin',
   SHARE = dest_dir + '/share' )
 
-install_env.Install( '$INCL', h_sourceE_list )
+install_env.Install( '$INCL', h_source_list )
 install_env.Install( '$LIB', lib )
 install_env.Alias( 'install', [ '$LIB', '$INCL' ] )
 
