@@ -2,6 +2,7 @@
 
 #include "Line.h"
 #include "LineSegment.h"
+#include "Function.h"
 
 using namespace _3DMath;
 
@@ -43,6 +44,11 @@ void Line::Reflect( Vector& vector ) const
 void Line::GetIdealCenter( Vector& point ) const
 {
 	double lambda = -center.Dot( normal );
+	point.AddScale( center, normal, lambda );
+}
+
+void Line::Lerp( double lambda, Vector& point ) const
+{
 	point.AddScale( center, normal, lambda );
 }
 

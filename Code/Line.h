@@ -24,6 +24,7 @@ public:
 	double ShortestDistance( const Vector& point ) const;
 	void Reflect( Vector& vector ) const;
 	void GetIdealCenter( Vector& point ) const;
+	void Lerp( double lambda, Vector& point ) const;
 
 	Vector center, normal;
 };

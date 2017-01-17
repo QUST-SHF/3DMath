@@ -2,6 +2,7 @@
 
 #include "Sphere.h"
 #include "LineSegment.h"
+#include "Line.h"
 #include "AxisAlignedBox.h"
 #include "Function.h"
 
@@ -33,6 +34,11 @@ bool Sphere::ContainsPoint( const Vector& point ) const
 	if( diff.Dot( diff ) <= radius * radius )
 		return true;
 	return false;
+}
+
+void Sphere::RayCast( const Line& line, VectorArray& intersectionPoints ) const
+{
+	RayCast( line.center, line.normal, intersectionPoints );
 }
 
 void Sphere::RayCast( const Vector& point, const Vector& unitVector, VectorArray& intersectionPoints ) const
