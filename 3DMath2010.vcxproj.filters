@@ -82,6 +82,9 @@
     <ClCompile Include="Code\Vertex.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Graph.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\AffineTransform.h">
@@ -163,6 +166,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\Vertex.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graph.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

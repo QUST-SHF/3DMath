@@ -10,6 +10,7 @@ namespace _3DMath
 	class Renderer;
 
 	typedef std::map< int, HandleObject* > HandleObjectMap;
+	typedef std::list< int > ObjectHandleList;
 }
 
 class _3DMATH_API _3DMath::HandleObject
