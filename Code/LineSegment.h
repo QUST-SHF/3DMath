@@ -27,4 +27,9 @@ public:
 	Vector vertex[2];
 };
 
+namespace _3DMath
+{
+	typedef std::list< LineSegment > LineSegmentList;
+}
+
 // LineSegment.h
