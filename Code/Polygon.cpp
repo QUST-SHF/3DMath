@@ -111,15 +111,8 @@ void Polygon::GetIntegratedCenter( Vector& center, double delta ) const
 	center.Scale( 1.0 / double( count ) );
 }
 
-// TODO: After some thought, I believe that this algorithm, while it works in most cases,
-//       is not correct.  What we really need to do is generate the looped node list at
-//       a high enough density, make sure that all contact nodes are inserted, and then
-//       trace all portions of it until we've generated all polygons.  I can think of a case
-//       where the following algorithm will fail to generate 3 polygons.  I may want to
-//       create a looped-list data-structure for a revision of this algorithm.  In the looped
-//       list, there must exist a node on a definitive side of the surface in between every
-//       pair of nodes that cross the surface threshold.  No two adjacent nodes should ever
-//       cross from inside to outside, or vice-versa, without a contact node in between them.
+// TODO: This algorithm is wrong.  What we have to do is generate a graph,
+//       and then process the graph correctly to generate the polygons.
 bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const
 {
 	struct Node
