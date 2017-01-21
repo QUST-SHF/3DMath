@@ -6,6 +6,8 @@
 #include "LineSegment.h"
 #include "Surface.h"
 #include "AffineTransform.h"
+#include "Graph.h"
+#include "Exception.h"
 
 using namespace _3DMath;
 
@@ -111,154 +113,301 @@ void Polygon::GetIntegratedCenter( Vector& center, double delta ) const
 	center.Scale( 1.0 / double( count ) );
 }
 
-// TODO: This algorithm is wrong.  What we have to do is generate a graph,
-//       and then process the graph correctly to generate the polygons.
-bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const
+// This assumes that we're properly tessellated.
+bool Polygon::ContainsPoint( const Vector& point, double eps /*= EPSILON*/ ) const
 {
-	struct Node
+	for( IndexTriangleList::const_iterator iter = indexTriangleList->cbegin(); iter != indexTriangleList->cend(); iter++ )
+	{
+		const IndexTriangle& indexTriangle = *iter;
+
+		Triangle triangle;
+		indexTriangle.GetTriangle( triangle, vertexArray );
+
+		if( triangle.ContainsPoint( point, eps ) )
+			return true;
+	}
+
+	return false;
+}
+
+// The set of returned polygons should be pair-wise disjoint and its union should equal this polygon.
+// Note that we require this polygon to be tessellated for our algorithm here to be correct.
+bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& insidePolygonList, PolygonList& outsidePolygonList, double maxDistance ) const
+{
+	bool success = true;
+
+	Plane plane;
+	GetPlane( plane );
+
+	struct PointData
 	{
 		Vector point;
 		Surface::Side side;
+		bool processed;
 	};
 
-	std::vector< Node > nodeArray;
+	typedef TemplateGraphNode< PointData > Node;
 
-	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+	Node* anchorNode = nullptr;
+
+	try
 	{
-		Node node;
-		node.point = ( *vertexArray )[i];
-		node.side = surface->GetSide( node.point );
-		nodeArray.push_back( node );
-	}
+		Node* node = nullptr;
 
-	int i = 0;
-	while( i < ( signed )nodeArray.size() )
-	{
-		int j = ( i + 1 ) % nodeArray.size();
-
-		if( nodeArray[i].side == Surface::NEITHER_SIDE && nodeArray[j].side == Surface::NEITHER_SIDE )
+		for( int i = 0; i < ( signed )vertexArray->size(); i++ )
 		{
-			double distance = nodeArray[i].point.Distance( nodeArray[j].point );
-			if( distance > 2.0 )		// This is a bit of a hack.
-			{
-				Node node;
-				node.point.Lerp( nodeArray[i].point, nodeArray[j].point, 0.5 );
-				node.side = surface->GetSide( node.point );
-				std::vector< Node >::iterator iter( nodeArray.begin() + i + 1 );
-				nodeArray.insert( iter, node );
-			}
-		}
+			Node* newNode = new Node();
+			newNode->data.processed = false;
+			newNode->data.point = ( *vertexArray )[i];
+			newNode->data.side = surface->GetSide( newNode->data.point );
 
-		i++;
-	}
-
-	std::vector< int > intersectionArray;
-
-	i = 0;
-	while( i < ( signed )nodeArray.size() )
-	{
-		int j = ( i + 1 ) % nodeArray.size();
-
-		if( ( nodeArray[i].side == Surface::INSIDE && nodeArray[j].side == Surface::OUTSIDE ) ||
-			( nodeArray[j].side == Surface::INSIDE && nodeArray[i].side == Surface::OUTSIDE ) )
-		{
-			LineSegment lineSegment;
-			lineSegment.vertex[0] = nodeArray[i].point;
-			lineSegment.vertex[1] = nodeArray[j].point;
-			SurfacePoint* surfacePoint = surface->FindSingleIntersection( lineSegment );
-			if( !surfacePoint )
-				return false;
-
-			Node node;
-			surfacePoint->GetLocation( node.point );
-			node.side = Surface::NEITHER_SIDE;
-			if( j == 0 )
-			{
-				nodeArray.push_back( node );
-				intersectionArray.push_back( nodeArray.size() - 1 );
-			}
+			if( !node )
+				anchorNode = newNode;
 			else
 			{
-				std::vector< Node >::iterator iter( nodeArray.begin() + j );
-				nodeArray.insert( iter, node );
-				intersectionArray.push_back(j);
+				node->SetAdjacency( "ccw", newNode );
+				newNode->SetAdjacency( "cw", node );
 			}
 
-			i += 2;
-
-			delete surfacePoint;
+			node = newNode;
 		}
+
+		if( !node )
+			throw new Exception( "The polygon is empty." );
 		else
 		{
-			int k = ( i > 0 ) ? ( i - 1 ) : ( nodeArray.size() - 1 );
+			node->SetAdjacency( "ccw", anchorNode );
+			anchorNode->SetAdjacency( "cw", node );
+		}
 
-			if( ( nodeArray[k].side == Surface::INSIDE && nodeArray[i].side == Surface::NEITHER_SIDE && nodeArray[j].side == Surface::OUTSIDE ) ||
-				( nodeArray[j].side == Surface::INSIDE && nodeArray[i].side == Surface::NEITHER_SIDE && nodeArray[k].side == Surface::OUTSIDE ) )
+		node = nullptr;
+
+		GraphNodeList graphNodeList;
+		GraphNode* graphNode = nullptr;
+
+		GraphTraversor traversor( anchorNode );
+		while( traversor.Traverse( graphNode ) )
+		{
+			Node* cwNode = ( Node* )graphNode;
+			Node* ccwNode = ( Node* )cwNode->GetAdjacency( "ccw" );
+
+			if( ( cwNode->data.side == Surface::INSIDE && ccwNode->data.side == Surface::OUTSIDE ) ||
+				( cwNode->data.side == Surface::OUTSIDE && ccwNode->data.side == Surface::INSIDE ) )
 			{
-				intersectionArray.push_back(i);
+				graphNodeList.push_back( cwNode );
 			}
-
-			i++;
-		}
-	}
-
-	// It's possible that the surface intersects the polygon in the middle, but not at the sides.
-	// In that case, one of the returned polygons would have to have a hole in it, which we don't support.
-	if( intersectionArray.size() < 2 )
-		return false;
-
-	Plane plane;
-	if( !GetPlane( plane ) )
-		return false;
-
-	for( int i = 0; i < ( signed )intersectionArray.size(); i++ )
-	{
-		int j0 = intersectionArray[i];
-		int j1 = intersectionArray[ ( i + 1 ) % intersectionArray.size() ];
-
-		Polygon* polygon = new Polygon();
-		polygonList.push_back( polygon );
-
-		int k = ( j0 + 1 ) % nodeArray.size();
-		while( k != j1 )
-		{
-			polygon->vertexArray->push_back( nodeArray[k].point );
-			k = ( k + 1 ) % nodeArray.size();
 		}
 
-		SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( nodeArray[ j1 ].point );
-		SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( nodeArray[ j0 ].point );
-		SurfacePoint* surfacePointC = nullptr;
-
-		bool pathFound = false;
-		if( surfacePointA && surfacePointB )
+		for( GraphNodeList::iterator iter = graphNodeList.begin(); iter != graphNodeList.end(); iter++ )
 		{
-			pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface, &plane );
-			if( !pathFound )
+			Node* cwNode = ( Node* )*iter;
+			Node* ccwNode = ( Node* )cwNode->GetAdjacency( "ccw" );
+
+			LineSegment lineSegment;
+			lineSegment.vertex[0] = cwNode->data.point;
+			lineSegment.vertex[1] = ccwNode->data.point;
+
+			SurfacePoint* surfacePoint = surface->FindSingleIntersection( lineSegment );
+			if( !surfacePoint )
+				throw new Exception( "Failed to intersect polygon edge with surface." );
+			else
 			{
-				// This is a bit of a hack.
-				Vector center;
-				GetCenter( center );
+				Node* newNode = new Node();
+				newNode->data.processed = false;
+				newNode->data.side = Surface::NEITHER_SIDE;
+				surfacePoint->GetLocation( newNode->data.point );
+				delete surfacePoint;
+				cwNode->SetAdjacency( "ccw", newNode );
+				ccwNode->SetAdjacency( "cw", newNode );
+				newNode->SetAdjacency( "cw", cwNode );
+				newNode->SetAdjacency( "ccw", ccwNode );
+			}
+		}
 
-				surfacePointC = surface->GetNearestSurfacePoint( center );
-				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, *polygon->vertexArray, maxDistanceFromSurface, &plane );
-				if( pathFound )
+		GraphNodeArray graphNodeArray;
+
+		NamedAdjacencyGraphTraversor namedTraversor( "ccw", anchorNode );
+		while( namedTraversor.Traverse( graphNode ) )
+		{
+			node = ( Node* )graphNode;
+
+			Node* cwNode = ( Node* )node->GetAdjacency( "cw" );
+			Node* ccwNode = ( Node* )node->GetAdjacency( "ccw" );
+
+			if( node->data.side == Surface::NEITHER_SIDE )
+			{
+				if( ( cwNode->data.side == Surface::INSIDE && ccwNode->data.side == Surface::OUTSIDE ) ||
+					( cwNode->data.side == Surface::OUTSIDE && ccwNode->data.side == Surface::INSIDE ) )
 				{
-					polygon->vertexArray->pop_back();
-					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, *polygon->vertexArray, maxDistanceFromSurface, &plane );
+					graphNodeArray.push_back( node );
 				}
 			}
 		}
 
-		delete surfacePointA;
-		delete surfacePointB;
-		delete surfacePointC;
+		int count = ( signed )graphNodeArray.size();
+		if( count == 2 )
+			count--;
 
-		if( !pathFound )
-			return false;
+		for( int i = 0; i < count; i++ )
+		{
+			int j = ( i + 1 ) % graphNodeArray.size();
+
+			Node* nodeA = ( Node* )graphNodeArray[i];
+			Node* nodeB = ( Node* )graphNodeArray[j];
+
+			bool pathFound = false;
+
+			SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( nodeA->data.point );
+			SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( nodeB->data.point );
+			SurfacePoint* surfacePointC = nullptr;
+
+			VectorArray pointArray;
+			
+			if( surfacePointA && surfacePointB )
+			{
+				pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, pointArray, maxDistance, &plane );
+				if( !pathFound )
+				{
+					// This is a bit of a hack.
+					Vector center;
+					GetCenter( center );
+
+					surfacePointC = surface->GetNearestSurfacePoint( center );
+					pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, pointArray, maxDistance, &plane );
+					if( pathFound )
+					{
+						pointArray.pop_back();
+						pathFound = surface->FindDirectPath( surfacePointC, surfacePointA, pointArray, maxDistance, &plane );
+					}
+				}
+			}
+
+			delete surfacePointA;
+			delete surfacePointB;
+			delete surfacePointC;
+
+			if( !pathFound )
+				throw new Exception( "Failed to find path along surface in plane." );
+
+			for( j = 0; j < ( signed )pointArray.size(); j++ )
+				if( !ContainsPoint( pointArray[j], 1e-3 ) )
+					break;
+
+			if( j == ( signed )pointArray.size() )
+			{
+				for( j = 1; j < ( signed )pointArray.size() - 1; j++ )
+				{
+					Node* newNode = new Node();
+					newNode->data.processed = false;
+					newNode->data.side = Surface::NEITHER_SIDE;
+					newNode->data.point = pointArray[j];
+
+					nodeA->SetAdjacency( "s_d0", newNode );
+					newNode->SetAdjacency( "s_d1", nodeA );
+
+					nodeA = newNode;
+				}
+
+				nodeA->SetAdjacency( "s_d0", nodeB );
+				nodeB->SetAdjacency( "s_d1", nodeA );
+			}
+		}
+
+		while( true )
+		{
+			Node* foundNode = nullptr;
+
+			traversor.Reset( anchorNode );
+			while( traversor.Traverse( graphNode ) )
+			{
+				node = ( Node* )graphNode;
+				if( node->data.side != Surface::NEITHER_SIDE && !node->data.processed )
+				{
+					foundNode = node;
+					break;
+				}
+			}
+
+			if( !foundNode )
+				break;
+
+			Surface::Side side = foundNode->data.side;
+
+			Polygon* polygon = new Polygon;
+			if( side == Surface::INSIDE )
+				insidePolygonList.push_back( polygon );
+			else if( side == Surface::OUTSIDE )
+				outsidePolygonList.push_back( polygon );
+			else
+			{
+				delete polygon;
+				throw new Exception( "Encountered unexpected surface side." );
+			}
+
+			node = foundNode;
+
+			std::string surfaceDir;
+
+			do
+			{
+				if( node->data.side != side && node->data.side != Surface::NEITHER_SIDE )
+					throw new Exception( "Encountered node on wrong side." );
+
+				polygon->vertexArray->push_back( node->data.point );
+				node->data.processed = true;
+
+				Node* adjacentNode = nullptr;
+
+				if( node->data.side == Surface::NEITHER_SIDE )
+				{
+					if( !surfaceDir.empty() )
+						adjacentNode = ( Node* )node->GetAdjacency( surfaceDir );
+					else
+					{
+						Node* nodeDir0 = ( Node* )node->GetAdjacency( "s_d0" );
+						Node* nodeDir1 = ( Node* )node->GetAdjacency( "s_d1" );
+
+						if( nodeDir0 && nodeDir1 )
+							throw new Exception( "Ambiguous case encountered." );
+						else if( nodeDir0 )
+						{
+							adjacentNode = nodeDir0;
+							surfaceDir = "s_d0";
+						}
+						else if( nodeDir1 )
+						{
+							adjacentNode = nodeDir1;
+							surfaceDir = "s_d1";
+						}
+						else
+							throw new Exception( "No where to go." );
+					}
+				}
+
+				if( !adjacentNode )
+				{
+					adjacentNode = ( Node* )node->GetAdjacency( "ccw" );
+					surfaceDir = "";
+				}
+				
+				if( !adjacentNode )
+					throw new Exception( "Encountered unexpected boundary." );
+
+				node = adjacentNode;
+			}
+			while( node != foundNode );
+		}
+	}
+	catch( Exception* exception )
+	{
+		exception->Handle();
+		delete exception;
+		success = false;
 	}
 
-	return true;
+	DeleteGraph( anchorNode );
+
+	return success;
 }
 
 double Polygon::GetArea( void ) const

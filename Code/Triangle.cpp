@@ -67,7 +67,7 @@ bool Triangle::ContainsPoint( const Vector& point, double eps /*= EPSILON*/ ) co
 		vec.Subtract( point, vertex[i] );
 		cross.Cross( edge, vec );
 		double dot = cross.Dot( plane.normal );
-		if( dot < 0.0 )
+		if( dot <= -eps )
 			return false;
 	}
 

@@ -2,14 +2,18 @@
 
 #include "Graph.h"
 
-using namespace _3DMath;
-
-void DeleteGraph( GraphNode* graphNode )
+namespace _3DMath
 {
-	GraphTraversor traversor( graphNode );
-	while( traversor.Traverse( &graphNode ) )
-		delete graphNode;
+	// Of course, this will only delete one connected component of the graph.
+	void DeleteGraph( GraphNode* graphNode )
+	{
+		GraphTraversor traversor( graphNode );
+		while( traversor.Traverse( graphNode ) )
+			delete graphNode;
+	}
 }
+
+using namespace _3DMath;
 
 //------------------------------------------------------------------------------------
 //                                       GraphNode
@@ -37,24 +41,47 @@ GraphNode* GraphNode::GetAdjacency( const std::string& name )
 	return adjacentNode;
 }
 
+void GraphNode::SetAdjacency( const std::string& name, GraphNode* graphNode )
+{
+	if( graphNode )
+		adjacencyMap.insert_or_assign( name, graphNode->GetHandle() );
+	else
+	{
+		AdjacencyMap::iterator iter = adjacencyMap.find( name );
+		if( iter != adjacencyMap.end() )
+			adjacencyMap.erase( iter );
+	}
+}
+
 //------------------------------------------------------------------------------------
 //                                    GraphTraversor
 //------------------------------------------------------------------------------------
 
 GraphTraversor::GraphTraversor( GraphNode* graphNode, Mode mode /*= BREADTH_FIRST*/ )
 {
-	this->mode = mode;
-
-	handleQueue.push_back( graphNode->GetHandle() );
+	Reset( graphNode, mode );
 }
 
 /*virtual*/ GraphTraversor::~GraphTraversor( void )
 {
 }
 
-/*virtual*/ bool GraphTraversor::Traverse( GraphNode** graphNode )
+void GraphTraversor::Reset( GraphNode* graphNode, Mode mode /*= BREADTH_FIRST*/ )
 {
-	*graphNode = nullptr;
+	this->mode = mode;
+
+	handleQueue.clear();
+
+	if( graphNode )
+		handleQueue.push_back( graphNode->GetHandle() );
+
+	visitationSet.clear();
+	enqueuedSet.clear();
+}
+
+/*virtual*/ bool GraphTraversor::Traverse( GraphNode*& graphNode )
+{
+	graphNode = nullptr;
 	if( handleQueue.size() == 0 )
 		return false;
 
@@ -64,36 +91,65 @@ GraphTraversor::GraphTraversor( GraphNode* graphNode, Mode mode /*= BREADTH_FIRS
 
 	visitationSet.insert( graphNodeHandle );
 
-	*graphNode = ( GraphNode* )HandleObject::Dereference( graphNodeHandle );
+	graphNode = ( GraphNode* )HandleObject::Dereference( graphNodeHandle );
 
-	EnqueueUnvisitedAdjacencies( *graphNode );
+	EnqueueUnvisitedAdjacencies( graphNode );
 
 	return true;
 }
 
 /*virtual*/ void GraphTraversor::EnqueueUnvisitedAdjacencies( GraphNode* graphNode )
 {
-	for( GraphNode::AdjacencyMap::iterator iter = graphNode->adjacencyMap.begin(); iter != graphNode->adjacencyMap.end(); iter++ )
+	if( graphNode )
+		for( GraphNode::AdjacencyMap::iterator iter = graphNode->adjacencyMap.begin(); iter != graphNode->adjacencyMap.end(); iter++ )
+			EnqueueIfNotVisitedOrEnqueued( iter->second );
+}
+
+void GraphTraversor::EnqueueIfNotVisitedOrEnqueued( int graphNodeHandle )
+{
+	HandleSet::iterator iter = visitationSet.find( graphNodeHandle );
+	if( iter != visitationSet.end() )
+		return;
+
+	iter = enqueuedSet.find( graphNodeHandle );
+	if( iter != enqueuedSet.end() )
+		return;
+	
+	switch( mode )
 	{
-		int graphNodeHandle = iter->second;
-		VisitationSet::iterator visitIter = visitationSet.find( graphNodeHandle );
-		if( visitIter == visitationSet.end() )
+		case BREADTH_FIRST:
 		{
-			switch( mode )
-			{
-				case BREADTH_FIRST:
-				{
-					handleQueue.push_back( graphNodeHandle );
-					break;
-				}
-				case DEPTH_FIRST:
-				{
-					handleQueue.push_front( graphNodeHandle );
-					break;
-				}
-			}
+			handleQueue.push_back( graphNodeHandle );
+			break;
+		}
+		case DEPTH_FIRST:
+		{
+			handleQueue.push_front( graphNodeHandle );
+			break;
 		}
 	}
+
+	enqueuedSet.insert( graphNodeHandle );
+}
+
+//------------------------------------------------------------------------------------
+//                            NamedAdjacencyGraphTraversor
+//------------------------------------------------------------------------------------
+
+NamedAdjacencyGraphTraversor::NamedAdjacencyGraphTraversor( const std::string& name, GraphNode* graphNode, Mode mode /*= BREADTH_FIRST*/ ) : GraphTraversor( graphNode, mode )
+{
+	this->name = name;
+}
+
+/*virtual*/ NamedAdjacencyGraphTraversor::~NamedAdjacencyGraphTraversor( void )
+{
+}
+
+/*virtual*/ void NamedAdjacencyGraphTraversor::EnqueueUnvisitedAdjacencies( GraphNode* graphNode )
+{
+	GraphNode::AdjacencyMap::iterator iter = graphNode->adjacencyMap.find( name );
+	if( iter != graphNode->adjacencyMap.end() )
+		EnqueueIfNotVisitedOrEnqueued( iter->second );
 }
 
 // Graph.cpp

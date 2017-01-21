@@ -25,7 +25,7 @@ public:
 	Polygon( void );
 	virtual ~Polygon( void );
 
-	bool SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double maxDistanceFromSurface ) const;
+	bool SplitAgainstSurface( const Surface* surface, PolygonList& insidePolygonList, PolygonList& outsidePolytonList, double maxDistance ) const;
 	bool Tessellate( void ) const;
 	bool GetPlane( Plane& plane ) const;
 	void GetCenter( Vector& center ) const;
@@ -33,6 +33,7 @@ public:
 	bool GetTriangleAverageCenter( Vector& center ) const;
 	void Transform( const AffineTransform& transform );
 	double GetArea( void ) const;
+	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It
