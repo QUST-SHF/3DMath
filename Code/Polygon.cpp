@@ -226,6 +226,9 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& insidePo
 
 		GraphNodeArray graphNodeArray;
 
+		// Note that if the polygon didn't have a high-enough density of vertices,
+		// (we can, without changing the polygon, add vertices on edges), then we
+		// can miss nodes here that need to be processed.
 		NamedAdjacencyGraphTraversor namedTraversor( "ccw", anchorNode );
 		while( namedTraversor.Traverse( graphNode ) )
 		{
