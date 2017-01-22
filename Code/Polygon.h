@@ -25,15 +25,17 @@ public:
 	Polygon( void );
 	virtual ~Polygon( void );
 
-	bool SplitAgainstSurface( const Surface* surface, Polygon*& insidePolygon, Polygon*& outsidePolygon, double minDistance, double maxDistance ) const;
+	bool SplitAgainstSurface( const Surface* surface, Polygon* polygonArray, double minDistance, double maxDistance ) const;
 	bool Tessellate( void ) const;
 	bool GetPlane( Plane& plane ) const;
 	void GetCenter( Vector& center ) const;
-	void GetIntegratedCenter( Vector& center, double delta ) const;
 	bool GetTriangleAverageCenter( Vector& center ) const;
 	void Transform( const AffineTransform& transform );
 	double GetArea( void ) const;
 	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
+	void IncreaseDensity( double minDistance );
+	void MinimizeDensity( void );
+	void GetCopy( Polygon& polygon ) const;
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It

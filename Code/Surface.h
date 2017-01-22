@@ -22,6 +22,13 @@ namespace _3DMath
 	class Renderer;
 }
 
+// Surfaces abstract away the idea of a point upon them, because, depending
+// on the needs of the surface, more or less information than a single point in
+// space may need to be stored with point representation.  For example, a
+// parametrically represented surface may represent a point as nothing more than
+// the parameters that generate the surface point.  This has other advantages as well since
+// it becomes easier to get other information about the surface at the surface-
+// point, such as the tangent space and maybe some calculus stuff, like curviture or curl.
 class _3DMATH_API _3DMath::SurfacePoint
 {
 public:
