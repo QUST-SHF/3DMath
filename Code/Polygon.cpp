@@ -222,10 +222,18 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 		{
 			case Surface::NEITHER_SIDE:
 			{
-				if( intersectionCount >= 2 )
-					return false;
-				else
-					intersectionPoints[ intersectionCount++ ] = i;
+				int j = ( i > 0 ) ? ( i - 1 ) : ( ( signed )polygon.vertexArray->size() - 1 );
+				int k = ( i + 1 ) % polygon.vertexArray->size();
+
+				if( ( surface->GetSide( ( *polygon.vertexArray )[j] ) == Surface::INSIDE && surface->GetSide( ( *polygon.vertexArray )[k] ) == Surface::OUTSIDE ) ||
+					( surface->GetSide( ( *polygon.vertexArray )[k] ) == Surface::INSIDE && surface->GetSide( ( *polygon.vertexArray )[j] ) == Surface::OUTSIDE ) )
+				{
+					if( intersectionCount >= 2 )
+						return false;
+					else
+						intersectionPoints[ intersectionCount++ ] = i;
+				}
+
 				break;
 			}
 			case Surface::INSIDE:
