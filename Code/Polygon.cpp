@@ -270,32 +270,38 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 		Vector pointA = ( *polygon.vertexArray )[j];
 		Vector pointB = ( *polygon.vertexArray )[k];
 
-		SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( pointA );
-		SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( pointB );
-		SurfacePoint* surfacePointC = nullptr;
-
-		bool pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygonArray[i].vertexArray, maxDistance, &plane );
-		if( !pathFound )
+		double distance = pointA.Distance( pointB );
+		if( distance < eps )
+			polygonArray[i].vertexArray->push_back( pointA );
+		else
 		{
-			// This is a bit of a hack.
-			Vector center;
-			GetCenter( center );
+			SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( pointA );
+			SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( pointB );
+			SurfacePoint* surfacePointC = nullptr;
 
-			surfacePointC = surface->GetNearestSurfacePoint( center );
-			pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, *polygonArray[i].vertexArray, maxDistance, &plane );
-			if( pathFound )
+			bool pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygonArray[i].vertexArray, maxDistance, &plane );
+			if( !pathFound )
 			{
-				polygonArray[i].vertexArray->pop_back();
-				pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, *polygonArray[i].vertexArray, maxDistance, &plane );
+				// This is a bit of a hack.
+				Vector center;
+				GetCenter( center );
+
+				surfacePointC = surface->GetNearestSurfacePoint( center );
+				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, *polygonArray[i].vertexArray, maxDistance, &plane );
+				if( pathFound )
+				{
+					polygonArray[i].vertexArray->pop_back();
+					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, *polygonArray[i].vertexArray, maxDistance, &plane );
+				}
 			}
+
+			delete surfacePointA;
+			delete surfacePointB;
+			delete surfacePointC;
+
+			if( !pathFound )
+				return false;
 		}
-
-		delete surfacePointA;
-		delete surfacePointB;
-		delete surfacePointC;
-
-		if( !pathFound )
-			return false;
 
 		if( polygonArray[i].vertexArray->size() <= 2 )
 			return false;
