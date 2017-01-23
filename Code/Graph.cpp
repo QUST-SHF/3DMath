@@ -43,14 +43,12 @@ GraphNode* GraphNode::GetAdjacency( const std::string& name )
 
 void GraphNode::SetAdjacency( const std::string& name, GraphNode* graphNode )
 {
+	AdjacencyMap::iterator iter = adjacencyMap.find( name );
+	if( iter != adjacencyMap.end() )
+		adjacencyMap.erase( iter );
+
 	if( graphNode )
-		adjacencyMap.insert_or_assign( name, graphNode->GetHandle() );
-	else
-	{
-		AdjacencyMap::iterator iter = adjacencyMap.find( name );
-		if( iter != adjacencyMap.end() )
-			adjacencyMap.erase( iter );
-	}
+		adjacencyMap.insert( std::pair< std::string, int >( name, graphNode->GetHandle() ) );
 }
 
 //------------------------------------------------------------------------------------
