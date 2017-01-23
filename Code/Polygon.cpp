@@ -175,7 +175,7 @@ void Polygon::GetCopy( Polygon& polygon ) const
 // special-case of the problem that arrises when the split would result in exactly two polygons.
 // If no split would occur, or more than one split would occur, the routine returns failure.
 // All this said, the given polygon array must contain storage for exactly two polygons.
-bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray, double minDistance, double maxDistance ) const
+bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray, double minDistance, double maxDistance, double eps /*= EPSILON*/ ) const
 {
 	Polygon polygon;
 	GetCopy( polygon );
@@ -191,8 +191,8 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 		lineSegment.vertex[1] = ( *polygon.vertexArray )[j];
 
 		Surface::Side side[2];
-		side[0] = surface->GetSide( lineSegment.vertex[0] );
-		side[1] = surface->GetSide( lineSegment.vertex[1] );
+		side[0] = surface->GetSide( lineSegment.vertex[0], eps );
+		side[1] = surface->GetSide( lineSegment.vertex[1], eps );
 
 		if( ( side[0] == Surface::INSIDE && side[1] == Surface::OUTSIDE ) ||
 			( side[1] == Surface::INSIDE && side[0] == Surface::OUTSIDE ) )
