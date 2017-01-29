@@ -3,6 +3,7 @@
 #include "Line.h"
 #include "LineSegment.h"
 #include "Function.h"
+#include "AffineTransform.h"
 
 using namespace _3DMath;
 
@@ -50,6 +51,20 @@ void Line::GetIdealCenter( Vector& point ) const
 void Line::Lerp( double lambda, Vector& point ) const
 {
 	point.AddScale( center, normal, lambda );
+}
+
+void Line::Transform( const AffineTransform& affineTransform, const LinearTransform* normalTransform /*= nullptr*/ )
+{
+	affineTransform.Transform( center );
+
+	static LinearTransform normalTransformStorage;
+	if( !normalTransform )
+	{
+		affineTransform.linearTransform.GetNormalTransform( normalTransformStorage );
+		normalTransform = &normalTransformStorage;
+	}
+
+	normalTransform->Transform( normal );
 }
 
 // Line.cpp

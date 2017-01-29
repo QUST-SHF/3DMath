@@ -10,6 +10,8 @@ namespace _3DMath
 	class Line;
 	class LineSegment;
 	class Vector;
+	class AffineTransform;
+	class LinearTransform;
 }
 
 class _3DMATH_API _3DMath::Line
@@ -25,6 +27,7 @@ public:
 	void Reflect( Vector& vector ) const;
 	void GetIdealCenter( Vector& point ) const;
 	void Lerp( double lambda, Vector& point ) const;
+	void Transform( const AffineTransform& affineTransform, const LinearTransform* normalTransform = nullptr );
 
 	Vector center, normal;
 };
