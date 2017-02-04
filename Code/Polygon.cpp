@@ -164,18 +164,19 @@ void Polygon::GetCopy( Polygon& polygon ) const
 	polygon.indexTriangleList->clear();
 }
 
-// Finding a solution to the general case of splitting a polygon against a surface is
-// a large and complex problem.  I have wracked my brain about it for quite some time.
-// What I would do is convert the polygon into a planar graph, then generate another
-// planar graph from the polygon's plane intersecting the surface.  I would then combine
-// the two planar graphs into one by creating intersections where necessary, then generate
-// polygons from the appropriate holes in the composite graph.  Each sub-problem here
-// is no small task.  Given enough time, and with enough effort, I'm sure I could pull it off.
-// Here, however, in the interest of time and simplicity, I'm going to solve only a very common
-// special-, yet somewhat general-case of the problem that arrises when the surfaces weaves
-// in and out of the polygon zero or more times.
 bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double minDistance, double maxDistance, double eps /*= EPSILON*/ ) const
 {
+	// TODO: Rewrite this...AGAIN!  Here's the new idea....
+	//       Make a copy of the polygon and place it on a queue.  We go until the queue is empty.
+	//       Pull the next polygon off the queue.  If it is found entirely on one side of the surface,
+	//       even tangentially, then we place it on the caller's list.  If not, we try to find a path
+	//       along the surface in the polygon's plane that is contained entirely in the polygon.
+	//       If this path can be found, then we can split the polygon in two, place those two on the queue,
+	//       and delete the polygon we split.  If in the end, our list is a list of one, delete it and return false.
+	//       Otherwise, leave it be and return true.  I'm not sure that this logic really solves every possible
+	//       case, but it seems quite reasonable.
+
+/*
 	Polygon polygon;
 	GetCopy( polygon );
 
@@ -253,7 +254,7 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 	for( int i = 0; i < ( signed )intersectionArray.size(); i++ )
 	{
 		Polygon* newPolygon = new Polygon();
-		polygonList.push_back( newPolygon );
+		bool keepPolygon = true;
 
 		int j = ( intersectionArray[i] + 1 ) % polygon.vertexArray->size();
 
@@ -268,16 +269,18 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 		Vector pointA = ( *polygon.vertexArray )[j];
 		Vector pointB = ( *polygon.vertexArray )[k];
 
+		VectorArray surfacePointArray;
+
 		double distance = pointA.Distance( pointB );
 		if( distance < eps )
-			newPolygon->vertexArray->push_back( pointA );
+			surfacePointArray.push_back( pointA );
 		else
 		{
 			SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( pointA );
 			SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( pointB );
 			SurfacePoint* surfacePointC = nullptr;
 
-			bool pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *newPolygon->vertexArray, maxDistance, &plane );
+			bool pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, surfacePointArray, maxDistance, &plane );
 			if( !pathFound )
 			{
 				// This is a bit of a hack.
@@ -285,11 +288,11 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 				GetCenter( center );
 
 				surfacePointC = surface->GetNearestSurfacePoint( center );
-				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, *newPolygon->vertexArray, maxDistance, &plane );
+				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, surfacePointArray, maxDistance, &plane );
 				if( pathFound )
 				{
 					newPolygon->vertexArray->pop_back();
-					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, *newPolygon->vertexArray, maxDistance, &plane );
+					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, surfacePointArray, maxDistance, &plane );
 				}
 			}
 
@@ -297,13 +300,53 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 			delete surfacePointB;
 			delete surfacePointC;
 
-			if( !pathFound )
-				return false;
+			if( !pathFound || surfacePointArray.size() == 0 )
+				keepPolygon = false;
 		}
 
-		if( newPolygon->vertexArray->size() <= 2 )
-			return false;
+		if( keepPolygon )
+		{
+			polygon.Tessellate();
+
+			int q;
+			for( q = 0; q < ( signed )surfacePointArray.size(); q++ )
+				if( !polygon.ContainsPoint( surfacePointArray[q] ) )
+					break;
+			
+			if( q < ( signed )surfacePointArray.size() )
+				keepPolygon = false;
+		}
+
+		if( !keepPolygon )
+			delete newPolygon;
+		else
+		{
+			for( int q = 0; q < ( signed )surfacePointArray.size(); q++ )
+				newPolygon->vertexArray->push_back( surfacePointArray[q] );
+
+			polygonList.push_back( newPolygon );
+
+			VectorArray* newVertexArray = new VectorArray();
+
+			for( int q = ( signed )surfacePointArray.size() - 1; q >= 0; q-- )
+				newVertexArray->push_back( surfacePointArray[q] );
+
+			int q = ( j + 1 ) % polygon.vertexArray->size();
+			while( q != k )
+			{
+				newVertexArray->push_back( ( *polygon.vertexArray )[q] );
+				q = ( q + 1 ) % polygon.vertexArray->size();
+			}
+
+			delete polygon.vertexArray;
+			polygon.vertexArray = newVertexArray;
+		}
 	}
+
+	Polygon* newPolygon = new Polygon();
+	polygon.GetCopy( *newPolygon );
+	polygonList.push_back( newPolygon );
+	*/
 
 	return true;
 }
