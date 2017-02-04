@@ -172,10 +172,9 @@ void Polygon::GetCopy( Polygon& polygon ) const
 // polygons from the appropriate holes in the composite graph.  Each sub-problem here
 // is no small task.  Given enough time, and with enough effort, I'm sure I could pull it off.
 // Here, however, in the interest of time and simplicity, I'm going to solve only a very common
-// special-case of the problem that arrises when the split would result in exactly two polygons.
-// If no split would occur, or more than one split would occur, the routine returns failure.
-// All this said, the given polygon array must contain storage for exactly two polygons.
-bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray, double minDistance, double maxDistance, double eps /*= EPSILON*/ ) const
+// special-, yet somewhat general-case of the problem that arrises when the surfaces weaves
+// in and out of the polygon zero or more times.
+bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonList, double minDistance, double maxDistance, double eps /*= EPSILON*/ ) const
 {
 	Polygon polygon;
 	GetCopy( polygon );
@@ -210,8 +209,7 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 		}
 	}
 
-	int intersectionPoints[2];
-	int intersectionCount = 0;
+	std::vector< int > intersectionArray;
 	int insideCount = 0;
 	int outsideCount = 0;
 
@@ -228,10 +226,7 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 				if( ( surface->GetSide( ( *polygon.vertexArray )[j] ) == Surface::INSIDE && surface->GetSide( ( *polygon.vertexArray )[k] ) == Surface::OUTSIDE ) ||
 					( surface->GetSide( ( *polygon.vertexArray )[k] ) == Surface::INSIDE && surface->GetSide( ( *polygon.vertexArray )[j] ) == Surface::OUTSIDE ) )
 				{
-					if( intersectionCount >= 2 )
-						return false;
-					else
-						intersectionPoints[ intersectionCount++ ] = i;
+					intersectionArray.push_back(i);
 				}
 
 				break;
@@ -249,37 +244,40 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 		}
 	}
 
-	if( intersectionCount < 2 || insideCount == 0 || outsideCount == 0 )
+	if( insideCount == 0 || outsideCount == 0 || intersectionArray.size() < 2 )
 		return false;
 
 	Plane plane;
 	polygon.GetPlane( plane );
 
-	for( int i = 0; i < 2; i++ )
+	for( int i = 0; i < ( signed )intersectionArray.size(); i++ )
 	{
-		int j = ( intersectionPoints[i] + 1 ) % polygon.vertexArray->size();
+		Polygon* newPolygon = new Polygon();
+		polygonList.push_back( newPolygon );
 
-		while( j != intersectionPoints[ ( i + 1 ) % 2 ] )
+		int j = ( intersectionArray[i] + 1 ) % polygon.vertexArray->size();
+
+		while( j != intersectionArray[ ( i + 1 ) % intersectionArray.size() ] )
 		{
-			polygonArray[i].vertexArray->push_back( ( *polygon.vertexArray )[j] );
+			newPolygon->vertexArray->push_back( ( *polygon.vertexArray )[j] );
 			j = ( j + 1 ) % polygon.vertexArray->size();
 		}
 
-		int k = intersectionPoints[i];
+		int k = intersectionArray[i];
 
 		Vector pointA = ( *polygon.vertexArray )[j];
 		Vector pointB = ( *polygon.vertexArray )[k];
 
 		double distance = pointA.Distance( pointB );
 		if( distance < eps )
-			polygonArray[i].vertexArray->push_back( pointA );
+			newPolygon->vertexArray->push_back( pointA );
 		else
 		{
 			SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( pointA );
 			SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( pointB );
 			SurfacePoint* surfacePointC = nullptr;
 
-			bool pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *polygonArray[i].vertexArray, maxDistance, &plane );
+			bool pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, *newPolygon->vertexArray, maxDistance, &plane );
 			if( !pathFound )
 			{
 				// This is a bit of a hack.
@@ -287,11 +285,11 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 				GetCenter( center );
 
 				surfacePointC = surface->GetNearestSurfacePoint( center );
-				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, *polygonArray[i].vertexArray, maxDistance, &plane );
+				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, *newPolygon->vertexArray, maxDistance, &plane );
 				if( pathFound )
 				{
-					polygonArray[i].vertexArray->pop_back();
-					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, *polygonArray[i].vertexArray, maxDistance, &plane );
+					newPolygon->vertexArray->pop_back();
+					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, *newPolygon->vertexArray, maxDistance, &plane );
 				}
 			}
 
@@ -303,7 +301,7 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, Polygon* polygonArray
 				return false;
 		}
 
-		if( polygonArray[i].vertexArray->size() <= 2 )
+		if( newPolygon->vertexArray->size() <= 2 )
 			return false;
 	}
 
