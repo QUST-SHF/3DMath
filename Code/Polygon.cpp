@@ -192,7 +192,7 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 		}
 	}
 
-	if( polygonQueue.size() > 1 )
+	if( polygonList.size() > 1 )
 		return true;
 
 	FreeList< Polygon >( polygonList );
@@ -234,9 +234,6 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 		}
 	}
 
-	if( !Tessellate() )
-		return false;
-
 	std::vector< int > intersectionArray;
 	int insideCount = 0;
 	int outsideCount = 0;
@@ -272,7 +269,10 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 		}
 	}
 
-	if( insideCount == 0 || outsideCount == 0 )
+	if( insideCount == 0 || outsideCount == 0 || intersectionArray.size() < 2 )
+		return false;
+
+	if( !Tessellate() )	// TODO: Tessellation sometimes fails when it shouldn't.  Fix it.
 		return false;
 
 	_3DMath::Plane plane;
@@ -329,7 +329,7 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 		// stay within the polygon's area through the whole path?
 		if( pathFound )
 		{
-			for( int k = 0; k < ( signed )surfacePointArray.size(); i++ )
+			for( int k = 0; k < ( signed )surfacePointArray.size(); k++ )
 			{
 				if( !ContainsPoint( surfacePointArray[k] ) )
 				{
@@ -338,14 +338,15 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 				}
 			}
 
+#if 0	// Disable this for now, but this is a more accurate test.  The intersection routine has bugs in it.
 			if( pathFound )
 			{
-				for( int k = 0; k < ( signed )surfacePointArray.size() - 1; i++ )
+				for( int k = 0; k < ( signed )surfacePointArray.size() - 1; k++ )
 				{
 					LineSegment lineSegment;
 					lineSegment.vertex[0] = surfacePointArray[k];
 					lineSegment.vertex[1] = surfacePointArray[ k + 1 ];
-
+					
 					VectorList intersectionList;
 					if( GetIntersectionPoints( lineSegment, intersectionList ) )
 					{
@@ -354,6 +355,7 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 					}
 				}
 			}
+#endif
 		}
 
 		// Finally, if we get here, we're ready to split the polygon in two.
