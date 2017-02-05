@@ -14,6 +14,7 @@ namespace _3DMath
 	class Surface;
 	class Plane;
 	class AffineTransform;
+	class LineSegment;
 
 	typedef std::list< Polygon* > PolygonList;
 }
@@ -36,6 +37,7 @@ public:
 	void IncreaseDensity( double minDistance );
 	void MinimizeDensity( void );
 	void GetCopy( Polygon& polygon ) const;
+	bool GetIntersectionPoints( const LineSegment& lineSegment, VectorList& intersectionList ) const;
 
 	// This is a list of points in 3D space presumed to be coplanar,
 	// and forming a polyline loop without any self-intersection.  It
@@ -49,6 +51,11 @@ public:
 
 	// This is a possible tessellation of the polygon.
 	IndexTriangleList* indexTriangleList;
+
+private:
+
+	// This performs an arbitrary split, if any, and is not meant to be called directly.
+	bool SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygonA, Polygon*& polygonB, double minDistance, double maxDistance, double eps );
 };
 
 // Polygon.h

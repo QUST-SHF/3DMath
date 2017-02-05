@@ -63,4 +63,10 @@ bool LineSegment::ContainsPoint( const Vector& point, double eps /*= EPSILON*/ )
 	return AxisAlignedBox::InInterval( 0.0, 1.0, lambda, eps );
 }
 
+bool LineSegment::IntersectsWith( const LineSegment& lineSegment, Vector* intersectionPoint /*= nullptr*/ ) const
+{
+	// TODO: Write this.
+	return false;
+}
+
 // LineSegment.cpp
