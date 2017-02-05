@@ -204,9 +204,6 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 	polygonA = nullptr;
 	polygonB = nullptr;
 
-	if( !Tessellate() )
-		return false;
-
 	IncreaseDensity( minDistance );
 
 	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
@@ -236,6 +233,9 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 			}
 		}
 	}
+
+	if( !Tessellate() )
+		return false;
 
 	std::vector< int > intersectionArray;
 	int insideCount = 0;
