@@ -281,110 +281,109 @@ bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygo
 
 	for( int i = 0; i < ( signed )intersectionArray.size(); i++ )
 	{
-		for( int j = i + 1; j < ( signed )intersectionArray.size(); j++ )
+		int j = ( i + 1 ) % intersectionArray.size();
+
+		Vector pointA = ( *vertexArray )[ intersectionArray[i] ];
+		Vector pointB = ( *vertexArray )[ intersectionArray[j] ];
+
+		VectorArray surfacePointArray;
+		bool pathFound = false;
+
+		double distance = pointA.Distance( pointB );
+		if( distance < eps )
 		{
-			Vector pointA = ( *vertexArray )[ intersectionArray[i] ];
-			Vector pointB = ( *vertexArray )[ intersectionArray[j] ];
+			surfacePointArray.push_back( pointA );
+			pathFound = true;
+		}
+		else
+		{
+			SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( pointA );
+			SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( pointB );
+			SurfacePoint* surfacePointC = nullptr;
 
-			VectorArray surfacePointArray;
-			bool pathFound = false;
-
-			double distance = pointA.Distance( pointB );
-			if( distance < eps )
+			pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, surfacePointArray, maxDistance, &plane );
+			if( !pathFound )
 			{
-				surfacePointArray.push_back( pointA );
-				pathFound = true;
-			}
-			else
-			{
-				SurfacePoint* surfacePointA = surface->GetNearestSurfacePoint( pointA );
-				SurfacePoint* surfacePointB = surface->GetNearestSurfacePoint( pointB );
-				SurfacePoint* surfacePointC = nullptr;
+				// This is a bit of a hack.
+				Vector center;
+				GetCenter( center );
 
-				pathFound = surface->FindDirectPath( surfacePointA, surfacePointB, surfacePointArray, maxDistance, &plane );
-				if( !pathFound )
+				surfacePointC = surface->GetNearestSurfacePoint( center );
+				pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, surfacePointArray, maxDistance, &plane );
+				if( pathFound )
 				{
-					// This is a bit of a hack.
-					Vector center;
-					GetCenter( center );
-
-					surfacePointC = surface->GetNearestSurfacePoint( center );
-					pathFound = surface->FindDirectPath( surfacePointA, surfacePointC, surfacePointArray, maxDistance, &plane );
-					if( pathFound )
-					{
-						surfacePointArray.pop_back();
-						pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, surfacePointArray, maxDistance, &plane );
-					}
+					surfacePointArray.pop_back();
+					pathFound = surface->FindDirectPath( surfacePointC, surfacePointB, surfacePointArray, maxDistance, &plane );
 				}
-
-				delete surfacePointA;
-				delete surfacePointB;
-				delete surfacePointC;
-
-				if( surfacePointArray.size() == 0 )
-					pathFound = false;
 			}
 
-			// Does the path along the surface and in the plane of the polygon
-			// stay within the polygon's area through the whole path?
+			delete surfacePointA;
+			delete surfacePointB;
+			delete surfacePointC;
+
+			if( surfacePointArray.size() == 0 )
+				pathFound = false;
+		}
+
+		// Does the path along the surface and in the plane of the polygon
+		// stay within the polygon's area through the whole path?
+		if( pathFound )
+		{
+			for( int k = 0; k < ( signed )surfacePointArray.size(); i++ )
+			{
+				if( !ContainsPoint( surfacePointArray[k] ) )
+				{
+					pathFound = false;
+					break;
+				}
+			}
+
 			if( pathFound )
 			{
-				for( int k = 0; k < ( signed )surfacePointArray.size(); i++ )
+				for( int k = 0; k < ( signed )surfacePointArray.size() - 1; i++ )
 				{
-					if( !ContainsPoint( surfacePointArray[k] ) )
+					LineSegment lineSegment;
+					lineSegment.vertex[0] = surfacePointArray[k];
+					lineSegment.vertex[1] = surfacePointArray[ k + 1 ];
+
+					VectorList intersectionList;
+					if( GetIntersectionPoints( lineSegment, intersectionList ) )
 					{
 						pathFound = false;
 						break;
 					}
 				}
-
-				if( pathFound )
-				{
-					for( int k = 0; k < ( signed )surfacePointArray.size() - 1; i++ )
-					{
-						LineSegment lineSegment;
-						lineSegment.vertex[0] = surfacePointArray[k];
-						lineSegment.vertex[1] = surfacePointArray[ k + 1 ];
-
-						VectorList intersectionList;
-						if( GetIntersectionPoints( lineSegment, intersectionList ) )
-						{
-							pathFound = false;
-							break;
-						}
-					}
-				}
 			}
+		}
 
-			// Finally, if we get here, we're ready to split the polygon in two.
-			if( pathFound )
+		// Finally, if we get here, we're ready to split the polygon in two.
+		if( pathFound )
+		{
+			polygonA = new Polygon();
+			polygonB = new Polygon();
+
+			int k = ( intersectionArray[i] + 1 ) % vertexArray->size();
+			while( k != intersectionArray[j] )
 			{
-				polygonA = new Polygon();
-				polygonB = new Polygon();
-
-				int k = ( intersectionArray[i] + 1 ) % vertexArray->size();
-				while( k != intersectionArray[j] )
-				{
-					polygonA->vertexArray->push_back( ( *vertexArray )[k] );
-					k = ( k + 1 ) % vertexArray->size();
-				}
-
-				k = ( intersectionArray[j] + 1 ) % vertexArray->size();
-				while( k != intersectionArray[i] )
-				{
-					polygonB->vertexArray->push_back( ( *vertexArray )[k] );
-					k = ( k + 1 ) % vertexArray->size();
-				}
-
-				for( int k = 0; k < ( signed )surfacePointArray.size(); k++ )
-				{
-					int l = signed( surfacePointArray.size() ) - 1 - k;
-					polygonA->vertexArray->push_back( surfacePointArray[l] );
-					polygonB->vertexArray->push_back( surfacePointArray[k] );
-				}
-
-				return true;
+				polygonA->vertexArray->push_back( ( *vertexArray )[k] );
+				k = ( k + 1 ) % vertexArray->size();
 			}
+
+			k = ( intersectionArray[j] + 1 ) % vertexArray->size();
+			while( k != intersectionArray[i] )
+			{
+				polygonB->vertexArray->push_back( ( *vertexArray )[k] );
+				k = ( k + 1 ) % vertexArray->size();
+			}
+
+			for( int k = 0; k < ( signed )surfacePointArray.size(); k++ )
+			{
+				int l = signed( surfacePointArray.size() ) - 1 - k;
+				polygonA->vertexArray->push_back( surfacePointArray[l] );
+				polygonB->vertexArray->push_back( surfacePointArray[k] );
+			}
+
+			return true;
 		}
 	}
 
