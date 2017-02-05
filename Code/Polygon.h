@@ -56,6 +56,7 @@ private:
 
 	// This performs an arbitrary split, if any, and is not meant to be called directly.
 	bool SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygonA, Polygon*& polygonB, double minDistance, double maxDistance, double eps );
+	bool SplitInTwoIfNeeded( Polygon*& polygonA, Polygon*& polygonB, double eps = EPSILON );
 };
 
 // Polygon.h

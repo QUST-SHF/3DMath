@@ -182,8 +182,11 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 		Polygon* polygonA = nullptr;
 		Polygon* polygonB = nullptr;
 
-		if( !polygon->SplitInTwoAgainstSurface( surface, polygonA, polygonB, minDistance, maxDistance, eps ) )
+		if( !polygon->SplitInTwoIfNeeded( polygonA, polygonB, eps ) &&
+			!polygon->SplitInTwoAgainstSurface( surface, polygonA, polygonB, minDistance, maxDistance, eps ) )
+		{
 			polygonList.push_back( polygon );
+		}
 		else
 		{
 			delete polygon;
@@ -196,6 +199,48 @@ bool Polygon::SplitAgainstSurface( const Surface* surface, PolygonList& polygonL
 		return true;
 
 	FreeList< Polygon >( polygonList );
+	return false;
+}
+
+// This removes a special case of self-intersection (self-tangential) that can
+// mess up the correctness of the tessellation algorithm and possibly others.
+bool Polygon::SplitInTwoIfNeeded( Polygon*& polygonA, Polygon*& polygonB, double eps /*= EPSILON*/ )
+{
+	polygonA = nullptr;
+	polygonB = nullptr;
+
+	for( int i = 0; i < ( signed )vertexArray->size(); i++ )
+	{
+		const Vector& pointA = ( *vertexArray )[i];
+
+		for( int j = i + 1; j < ( signed )vertexArray->size(); j++ )
+		{
+			const Vector& pointB = ( *vertexArray )[j];
+
+			if( pointA.IsEqualTo( pointB, eps ) )
+			{
+				polygonA = new Polygon();
+				polygonB = new Polygon();
+
+				int k = i;
+				while( k != j )
+				{
+					polygonA->vertexArray->push_back( ( *vertexArray )[k] );
+					k = ( k + 1 ) % vertexArray->size();
+				}
+
+				k = j;
+				while( k != i )
+				{
+					polygonB->vertexArray->push_back( ( *vertexArray )[k] );
+					k = ( k + 1 ) % vertexArray->size();
+				}
+
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 
