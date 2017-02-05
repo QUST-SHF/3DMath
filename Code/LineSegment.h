@@ -23,7 +23,7 @@ public:
 	void Lerp( double lambda, Vector& point ) const;
 	bool LerpInverse( double& lambda, const Vector& point, double eps = EPSILON ) const;
 	bool ContainsPoint( const Vector& point, double eps = EPSILON ) const;
-	bool IntersectsWith( const LineSegment& lineSegment, Vector* intersectionPoint = nullptr ) const;
+	bool IntersectsWith( const LineSegment& lineSegment, Vector* intersectionPoint = nullptr, double eps = EPSILON ) const;
 
 	Vector vertex[2];
 };
