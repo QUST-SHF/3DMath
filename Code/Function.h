@@ -75,7 +75,8 @@ public:
 	virtual ~VectorValuedFunctionOfRealVariable( void );
 
 	virtual bool Evaluate( double input, Vector& output ) const;
-	virtual bool EvaluateDerivative( double input, Vector& output, double approxDelta = 1e-4 ) const;
+	virtual bool EvaluateDerivative( double input, Vector& output, int order = 1, double approxDelta = 1e-4 ) const;
+	virtual void CalcFrame( double input, Vector& tangent, Vector& normal, Vector& binormal ) const;
 };
 
 class _3DMATH_API _3DMath::Quadratic : public _3DMath::RealValuedFunctionOfRealVariable

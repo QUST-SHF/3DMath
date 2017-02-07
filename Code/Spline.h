@@ -19,8 +19,8 @@ public:
 	virtual ~Spline( void );
 
 	virtual bool Evaluate( double input, Vector& output ) const override;
-
-	void CalcSplinePolyline( double maxSegmentLength, VectorArray& pointArray ) const;
+	virtual double CalcLength( double maxSegmentLength ) const;
+	virtual void CalcSplinePolyline( double maxSegmentLength, VectorArray& pointArray ) const;
 
 	VectorList controlPointList;
 

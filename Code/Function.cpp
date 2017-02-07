@@ -161,9 +161,33 @@ VectorValuedFunctionOfRealVariable::VectorValuedFunctionOfRealVariable( void )
 	return false;
 }
 
-/*virtual*/ bool VectorValuedFunctionOfRealVariable::EvaluateDerivative( double input, Vector& output, double approxDelta /*= 1e-4*/ ) const
+// Innaccurracy here is going to grow with the order of the derivative desired.
+/*virtual*/ bool VectorValuedFunctionOfRealVariable::EvaluateDerivative( double input, Vector& output, int order /*= 1*/, double approxDelta /*= 1e-4*/ ) const
 {
-	return false;
+	if( order == 0 )
+		return Evaluate( input, output );
+	
+	Vector outputA, outputB;
+
+	if( !EvaluateDerivative( input + approxDelta, outputA, order - 1, approxDelta ) )
+		return false;
+
+	if( !EvaluateDerivative( input - approxDelta, outputB, order - 1, approxDelta ) )
+		return false;
+
+	output = ( outputA - outputB ) * ( 2.0 * approxDelta );
+	return true;
+}
+
+/*virtual*/ void VectorValuedFunctionOfRealVariable::CalcFrame( double input, Vector& tangent, Vector& normal, Vector& binormal ) const
+{
+	EvaluateDerivative( input, tangent );
+	EvaluateDerivative( input, normal );
+
+	tangent.Normalize();
+	normal.Normalize();
+
+	binormal.Cross( tangent, normal );
 }
 
 //-------------------------------------------------------------------------------------

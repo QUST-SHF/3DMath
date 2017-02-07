@@ -21,7 +21,17 @@ Spline::Spline( void )
 	return false;
 }
 
-void Spline::CalcSplinePolyline( double maxSegmentLength, VectorArray& pointArray ) const
+/*virtual*/ double Spline::CalcLength( double maxSegmentLength ) const
+{
+	double totalLength = 0.0;
+	VectorArray pointArray;
+	CalcSplinePolyline( maxSegmentLength, pointArray );
+	for( int i = 0; i < ( signed )pointArray.size(); i++ )
+		totalLength += pointArray[i].Distance( pointArray[ i + 1 ] );
+	return totalLength;
+}
+
+/*virtual*/ void Spline::CalcSplinePolyline( double maxSegmentLength, VectorArray& pointArray ) const
 {
 	Vector p0, p1;
 	Evaluate( 0.0, p0 );
