@@ -145,6 +145,28 @@ VectorField::VectorField( void )
 }
 
 //-------------------------------------------------------------------------------------
+//                         VectorValuedFunctionOfRealVariable
+//-------------------------------------------------------------------------------------
+
+VectorValuedFunctionOfRealVariable::VectorValuedFunctionOfRealVariable( void )
+{
+}
+
+/*virtual*/ VectorValuedFunctionOfRealVariable::~VectorValuedFunctionOfRealVariable( void )
+{
+}
+
+/*virtual*/ bool VectorValuedFunctionOfRealVariable::Evaluate( double input, Vector& output ) const
+{
+	return false;
+}
+
+/*virtual*/ bool VectorValuedFunctionOfRealVariable::EvaluateDerivative( double input, Vector& output, double approxDelta /*= 1e-4*/ ) const
+{
+	return false;
+}
+
+//-------------------------------------------------------------------------------------
 //                                     Quadratic
 //-------------------------------------------------------------------------------------
 

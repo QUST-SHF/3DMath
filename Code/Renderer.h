@@ -22,6 +22,7 @@ namespace _3DMath
 	class Surface;
 	class Sphere;
 	class Plane;
+	class Spline;
 }
 
 class _3DMATH_API _3DMath::Renderer
@@ -98,6 +99,7 @@ public:
 	void DrawSphere( const Sphere& sphere, const Vector& color, double alpha, const AffineTransform* transform = nullptr );
 	void DrawPlane( const Plane& plane, double radius, const Vector& color, double alpha, const AffineTransform* transform = nullptr );
 	void DrawDoubleFan( const _3DMath::AffineTransform& transform, double radius, const Vector* centers, int segments, const Vector& color, double alpha );
+	void DrawSpline( const Spline& spline, const _3DMath::AffineTransform& transform, double maxSegmentLength );
 
 	void CorrectUV( double texCoordAnchor, double& texCoord );
 

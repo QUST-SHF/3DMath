@@ -164,6 +164,7 @@
     <ClInclude Include="Code\Random.h" />
     <ClInclude Include="Code\Renderer.h" />
     <ClInclude Include="Code\Sphere.h" />
+    <ClInclude Include="Code\Spline.h" />
     <ClInclude Include="Code\Surface.h" />
     <ClInclude Include="Code\TimeKeeper.h" />
     <ClInclude Include="Code\Triangle.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="Code\Random.cpp" />
     <ClCompile Include="Code\Renderer.cpp" />
     <ClCompile Include="Code\Sphere.cpp" />
+    <ClCompile Include="Code\Spline.cpp" />
     <ClCompile Include="Code\Surface.cpp" />
     <ClCompile Include="Code\TimeKeeper.cpp" />
     <ClCompile Include="Code\Triangle.cpp" />

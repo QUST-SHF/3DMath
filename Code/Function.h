@@ -9,6 +9,7 @@ namespace _3DMath
 {
 	class Function;
 	class RealValuedFunctionOfRealVariable;
+	class VectorValuedFunctionOfRealVariable;
 	class ScalarField;
 	class VectorField;
 	class Vector;
@@ -64,6 +65,17 @@ public:
 	virtual VectorField* Differentiate( void ) const;
 	virtual VectorField* Differentiate( const Vector& direction ) const;
 	virtual bool FindZeros( VectorArray& vectorArray ) const;
+};
+
+class _3DMATH_API _3DMath::VectorValuedFunctionOfRealVariable : public _3DMath::Function
+{
+public:
+
+	VectorValuedFunctionOfRealVariable( void );
+	virtual ~VectorValuedFunctionOfRealVariable( void );
+
+	virtual bool Evaluate( double input, Vector& output ) const;
+	virtual bool EvaluateDerivative( double input, Vector& output, double approxDelta = 1e-4 ) const;
 };
 
 class _3DMATH_API _3DMath::Quadratic : public _3DMath::RealValuedFunctionOfRealVariable

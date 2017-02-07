@@ -94,6 +94,9 @@
     <ClInclude Include="Code\Graph.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Spline.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Vector.cpp">
@@ -172,6 +175,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graph.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Spline.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>

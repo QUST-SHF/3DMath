@@ -14,6 +14,7 @@
 #include "Surface.h"
 #include "Plane.h"
 #include "Sphere.h"
+#include "Spline.h"
 
 using namespace _3DMath;
 
@@ -479,6 +480,21 @@ void Renderer::DrawBoundingBoxTree( const BoundingBoxTree& boxTree, int drawFlag
 			}
 		}
 	}
+}
+
+void Renderer::DrawSpline( const Spline& spline, const _3DMath::AffineTransform& transform, double maxSegmentLength )
+{
+	VectorArray pointArray;
+	spline.CalcSplinePolyline( maxSegmentLength, pointArray );
+
+	transform.Transform( pointArray );
+
+	BeginDrawMode( DRAW_MODE_LINE_STRIP );
+
+	for( int i = 0; i < ( signed )pointArray.size(); i++ )
+		IssueVertex( Vertex( pointArray[i] ) );
+
+	EndDrawMode();
 }
 
 // Renderer.cpp
