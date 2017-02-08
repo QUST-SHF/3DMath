@@ -41,17 +41,17 @@ Spline::Spline( void )
 	pointArray.push_back( p1 );
 }
 
-void Spline::CalcSplinePolylineRecursively( double maxSegmentLength, double t0, double t1, const Vector& p0, const Vector& p1, VectorArray& pointArray ) const
+void Spline::CalcSplinePolylineRecursively( double maxSegmentLength, double t0, double t1, const Vector& p0, const Vector& p1, VectorArray& pointArray, int maxDepth /*= 5*/, int depth /*= 1*/ ) const
 {
-	if( ( p0 - p1 ).Length() <= maxSegmentLength )
+	if( ( p0 - p1 ).Length() <= maxSegmentLength || depth >= maxDepth )
 		pointArray.push_back( p0 );
 	else
 	{
 		double t = ( t0 + t1 ) / 2.0;
 		Vector p;
 		Evaluate( t, p );
-		CalcSplinePolylineRecursively( maxSegmentLength, t0, t, p0, p, pointArray );
-		CalcSplinePolylineRecursively( maxSegmentLength, t, t1, p, p1, pointArray );
+		CalcSplinePolylineRecursively( maxSegmentLength, t0, t, p0, p, pointArray, maxDepth, depth + 1 );
+		CalcSplinePolylineRecursively( maxSegmentLength, t, t1, p, p1, pointArray, maxDepth, depth + 1 );
 	}
 }
 
@@ -76,7 +76,7 @@ BezierSpline::BezierSpline( void )
 	for( VectorList::const_iterator iter = controlPointList.cbegin(); iter != controlPointList.cend(); iter++ )
 		pointArray.push_back( *iter );
 
-	for( int i = 1; i < ( signed )pointArray.size() - 1; i++ )
+	for( int i = 1; i < ( signed )pointArray.size(); i++ )
 		for( int j = 0; j < ( signed )pointArray.size() - i; j++ )
 			pointArray[j].Lerp( pointArray[j], pointArray[ j + 1 ], input );
 	

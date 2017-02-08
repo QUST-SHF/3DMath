@@ -26,7 +26,7 @@ public:
 
 protected:
 
-	void CalcSplinePolylineRecursively( double maxSegmentLength, double t0, double t1, const Vector& p0, const Vector& p1, VectorArray& pointArray ) const;
+	void CalcSplinePolylineRecursively( double maxSegmentLength, double t0, double t1, const Vector& p0, const Vector& p1, VectorArray& pointArray, int maxDepth = 5, int depth = 1 ) const;
 };
 
 class _3DMath::BezierSpline : public _3DMath::Spline

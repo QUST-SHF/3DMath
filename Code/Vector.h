@@ -70,6 +70,7 @@ public:
 	bool IsOrthogonalTo( const Vector& vector, double eps = EPSILON ) const;
 	bool IsParallelWith( const Vector& vector, double eps = EPSILON ) const;
 	bool IsEqualTo( const Vector& vector, double eps = EPSILON ) const;
+	bool IsZero( double eps = EPSILON ) const;
 
 	void Min( const Vector& vectorA, const Vector& vectorB );
 	void Max( const Vector& vectorA, const Vector& vectorB );

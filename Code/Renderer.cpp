@@ -492,7 +492,7 @@ void Renderer::DrawSpline( const Spline& spline, const _3DMath::AffineTransform&
 	BeginDrawMode( DRAW_MODE_LINE_STRIP );
 
 	for( int i = 0; i < ( signed )pointArray.size(); i++ )
-		IssueVertex( Vertex( pointArray[i] ) );
+		IssueVertex( Vertex( pointArray[i] ), VTX_FLAG_POSITION );
 
 	EndDrawMode();
 }

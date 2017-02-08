@@ -280,6 +280,12 @@ bool Vector::IsEqualTo( const Vector& vector, double eps /*= EPSILON*/ ) const
 	return( length < eps ? true : false );
 }
 
+bool Vector::IsZero( double eps /*= EPSILON*/ ) const
+{
+	double length = Length();
+	return( length < eps ? true : false );
+}
+
 void Vector::Min( const Vector& vectorA, const Vector& vectorB )
 {
 	x = MIN( vectorA.x, vectorB.x );
