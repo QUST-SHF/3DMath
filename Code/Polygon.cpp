@@ -244,6 +244,9 @@ bool Polygon::SplitInTwoIfNeeded( Polygon*& polygonA, Polygon*& polygonB, double
 	return false;
 }
 
+// This algorithm if far from perfect, and does not handle all desired cases.  It is an interesting problem.
+// Limitations of this algorithm can sometimes be compensated for by pre-tesselating a polygon that would
+// otherwise not get split properly by the given surface.
 bool Polygon::SplitInTwoAgainstSurface( const Surface* surface, Polygon*& polygonA, Polygon*& polygonB, double minDistance, double maxDistance, double eps )
 {
 	polygonA = nullptr;
