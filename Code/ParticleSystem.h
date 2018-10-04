@@ -47,6 +47,19 @@ public:
 		double friction;
 	};
 
+	class _3DMATH_API GenericParticle : public _3DMath::ParticleSystem::Particle
+	{
+	public:
+
+		GenericParticle( const Vector* position = nullptr );
+		virtual ~GenericParticle( void );
+
+		virtual void GetPosition( Vector& position ) const override;
+		virtual void SetPosition( const Vector& position ) override;
+
+		_3DMath::Vector position;
+	};
+
 	class _3DMATH_API MeshVertexParticle : public Particle
 	{
 	public:
@@ -147,6 +160,8 @@ public:
 
 		virtual void Render( Renderer& renderer ) const override;
 		virtual void Apply( void ) override;
+
+		void ResetEquilibriumLength( void );
 
 		int endPointParticleHandles[2];
 		double equilibriumLength;
