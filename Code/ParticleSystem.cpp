@@ -245,6 +245,34 @@ ParticleSystem::Particle::Particle( void )
 }
 
 //-------------------------------------------------------------------------------------------------
+//                                         GenericParticle
+//-------------------------------------------------------------------------------------------------
+
+ParticleSystem::GenericParticle::GenericParticle( const Vector* position /*= nullptr*/ )
+{
+	if( position )
+		this->position = *position;
+	else
+		this->position.Set( 0.0, 0.0, 0.0 );
+
+	previousPosition = this->position;
+}
+
+/*virtual*/ ParticleSystem::GenericParticle::~GenericParticle( void )
+{
+}
+
+/*virtual*/ void ParticleSystem::GenericParticle::GetPosition( Vector& position ) const
+{
+	position = this->position;
+}
+
+/*virtual*/ void ParticleSystem::GenericParticle::SetPosition( const Vector& position )
+{
+	this->position = position;
+}
+
+//-------------------------------------------------------------------------------------------------
 //                                         MeshVertexParticle
 //-------------------------------------------------------------------------------------------------
 
@@ -473,6 +501,25 @@ ParticleSystem::SpringForce::SpringForce( ParticleSystem* system ) : Force( syst
 		renderer.IssueVertex( Vertex( positionB ) );
 
 		renderer.EndDrawMode();
+	}
+}
+
+void ParticleSystem::SpringForce::ResetEquilibriumLength( void )
+{
+	Particle* particleA = ( Particle* )HandleObject::Dereference( endPointParticleHandles[0] );
+	Particle* particleB = ( Particle* )HandleObject::Dereference( endPointParticleHandles[1] );
+
+	if( particleA && particleB )
+	{
+		Vector positionA, positionB;
+
+		particleA->GetPosition( positionA );
+		particleB->GetPosition( positionB );
+
+		Vector vector;
+		vector.Subtract( positionA, positionB );
+
+		equilibriumLength = vector.Length();
 	}
 }
 
