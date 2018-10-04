@@ -43,6 +43,7 @@ public:
 	void Reflect( Vector& point ) const;
 	void Transform( const AffineTransform& affineTransform, const LinearTransform* normalTransform = nullptr );
 	bool IsEqualTo( const Plane& plane, double eps = EPSILON ) const;
+	bool FitToPoints( const VectorList& vectorList );
 
 	Vector normal;
 	double centerDotNormal;

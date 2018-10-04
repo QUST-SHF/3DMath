@@ -22,7 +22,7 @@
     <ProjectGuid>{1E881277-1756-4C28-9171-0B099CDAF694}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My3DMath</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -158,6 +158,7 @@
     <ClInclude Include="Code\LinearTransform.h" />
     <ClInclude Include="Code\LineSegment.h" />
     <ClInclude Include="Code\ListFunctions.h" />
+    <ClInclude Include="Code\Matrix4x4.h" />
     <ClInclude Include="Code\ParticleSystem.h" />
     <ClInclude Include="Code\Plane.h" />
     <ClInclude Include="Code\Polygon.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="Code\Line.cpp" />
     <ClCompile Include="Code\LinearTransform.cpp" />
     <ClCompile Include="Code\LineSegment.cpp" />
+    <ClCompile Include="Code\Matrix4x4.cpp" />
     <ClCompile Include="Code\ParticleSystem.cpp" />
     <ClCompile Include="Code\Plane.cpp" />
     <ClCompile Include="Code\Polygon.cpp" />

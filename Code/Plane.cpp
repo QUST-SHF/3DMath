@@ -4,6 +4,7 @@
 #include "LineSegment.h"
 #include "Line.h"
 #include "AffineTransform.h"
+#include "Matrix4x4.h"
 
 using namespace _3DMath;
 
@@ -177,6 +178,53 @@ bool Plane::IsEqualTo( const Plane& plane, double eps /*= EPSILION*/ ) const
 	if( !normal.IsEqualTo( plane.normal, eps ) )
 		return false;
 
+	return true;
+}
+
+bool Plane::FitToPoints( const VectorList& vectorList ) // TODO: Debug this routine.
+{
+	Matrix4x4 matrix;
+
+	for( int i = 0; i < 4; i++ )
+		for( int j = 0; j < 4; j++ )
+			matrix.elements[i][j] = 0.0;
+
+	// This is the least squares fitting method.  It can be derived by coming
+	// up with the square residual function whose independent variables are
+	// the parameters of the plane we're trying to solve for, then taking its
+	// partial derivatives and setting them equal to zero.  This system of
+	// equations can then be easily written as a single matrix equation which
+	// we attempt to solve here.
+
+	for( VectorList::const_iterator iter = vectorList.cbegin(); iter != vectorList.cend(); iter++ )
+	{
+		const Vector& vector = *iter;
+
+		matrix.elements[0][0] += vector.x * vector.x;
+		matrix.elements[0][1] += vector.x * vector.y;
+		matrix.elements[0][2] += vector.x * vector.z;
+		matrix.elements[0][3] += vector.x;
+
+		matrix.elements[1][0] += vector.y * vector.x;
+		matrix.elements[1][1] += vector.y * vector.y;
+		matrix.elements[1][2] += vector.y * vector.z;
+		matrix.elements[1][3] += vector.y;
+
+		matrix.elements[2][0] += vector.z * vector.x;
+		matrix.elements[2][1] += vector.z * vector.y;
+		matrix.elements[2][2] += vector.z * vector.z;
+		matrix.elements[2][3] += vector.z;
+
+		matrix.elements[3][0] += vector.x;
+		matrix.elements[3][1] += vector.y;
+		matrix.elements[3][2] += vector.z;
+		matrix.elements[3][3] += 1.0;
+	}
+
+	if( !matrix.SolveLinearSystem( normal, centerDotNormal, Vector( 0.0, 0.0, 0.0 ), 0.0 ) )
+		return false;
+
+	// Negate centerDotNormal?
 	return true;
 }
 
